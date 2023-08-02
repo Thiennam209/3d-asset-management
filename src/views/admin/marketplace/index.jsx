@@ -256,6 +256,7 @@ export default function Marketplace() {
                           data-uid={item.assets[1].assetUID}
                         ></span>
                       </p>
+                      <a id="8th"></a>
                       {/* <a id="8th"
                         data-8code="9fys4"
                         style={{
