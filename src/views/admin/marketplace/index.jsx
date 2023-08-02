@@ -60,20 +60,21 @@ import tableDataTopCreators from "views/admin/marketplace/variables/tableDataTop
 import { tableColumnsTopCreators } from "views/admin/marketplace/variables/tableColumnsTopCreators";
 // HIDE Recently Added, History
 export default function Marketplace() {
-  const sampleData = '[{"productId":"1","title":"Jordan Proto-Lyte","thumbnail":"","assets":[{"description":"Jordan Proto-Lyte Black","assetUID":"d023021664b14066ba2091b46796d48a","isPublished":true,"image":"https://github.com/anuzbvbmaniac/Responsive-Product-Card---CSS-ONLY/blob/master/assets/img/jordan_proto.png?raw=true"},{"description":"Jordan Proto-Lyte Red","assetUID":"6991d74c1ce34758abd00c3d26f40620","isPublished":true,"image":"https://github.com/anuzbvbmaniac/Responsive-Product-Card---CSS-ONLY/blob/master/assets/img/jordan_proto_red_black.png?raw=true"}]},{"productId":"2","title":"Taylor Table","thumbnail":"","assets":[{"description":"Jordan Proto-Lyte Black","assetUID":"6dd98f8b111446169b1dc867d0936554","isPublished":true,"image":"http://20.119.54.193:1337/uploads/Woden_Dining_Table_removebg_preview_783d539856.png"},{"description":"Jordan Proto-Lyte Red","assetUID":"ef56949ac8bf43cc84d2226a5b5e0e14","isPublished":true,"image":"http://20.119.54.193:1337/uploads/Taylor_Table_removebg_preview_ecc48da08d.png"}]}]';
-  const tryonProducts=JSON.parse(sampleData);
+  const sampleData =
+    '[{"productId":"1","title":"Jordan Proto-Lyte","thumbnail":"","assets":[{"description":"Jordan Proto-Lyte Black","assetUID":"d023021664b14066ba2091b46796d48a","isPublished":true,"image":"https://github.com/anuzbvbmaniac/Responsive-Product-Card---CSS-ONLY/blob/master/assets/img/jordan_proto.png?raw=true"},{"description":"Jordan Proto-Lyte Red","assetUID":"6991d74c1ce34758abd00c3d26f40620","isPublished":true,"image":"https://github.com/anuzbvbmaniac/Responsive-Product-Card---CSS-ONLY/blob/master/assets/img/jordan_proto_red_black.png?raw=true"}]},{"productId":"2","title":"Taylor Table","thumbnail":"","assets":[{"description":"Jordan Proto-Lyte Black","assetUID":"6dd98f8b111446169b1dc867d0936554","isPublished":true,"image":"http://20.119.54.193:1337/uploads/Woden_Dining_Table_removebg_preview_783d539856.png"},{"description":"Jordan Proto-Lyte Red","assetUID":"ef56949ac8bf43cc84d2226a5b5e0e14","isPublished":true,"image":"http://20.119.54.193:1337/uploads/Taylor_Table_removebg_preview_ecc48da08d.png"}]}]';
+  const tryonProducts = JSON.parse(sampleData);
 
   const autoPlayAll3DViewers = () => {
     var selectors = document.querySelectorAll("#api-frame");
     // console.log(selectors);
-    Array.from(selectors).forEach(element => {
+    Array.from(selectors).forEach((element) => {
       // console.log(element);
       var client = new Sketchfab(element);
-      var uid=element.getAttribute('data-uid');
+      var uid = element.getAttribute("data-uid");
       client.init(uid, {
         success: function onSuccess(api) {
           api.start();
-  
+
           api.addEventListener("viewerready", function () {
             // API is ready to use
             // Insert your code here
@@ -95,27 +96,27 @@ export default function Marketplace() {
   //   });
   // }
 
-  useEffect(()=>{
+  useEffect(() => {
     autoPlayAll3DViewers();
-  },[])
+  }, []);
 
   // HANDLE DATA CHANGE
   const [activeColor, setActiveColor] = useState("black");
-  
+
   const handleClick = (event) => {
-    const selectedColor = event.target.getAttribute('data-color-sec');
-    const picSrc = event.target.getAttribute('data-pic');
-    const uid=event.target.getAttribute('data-uid');
-    
-    var imageSrc=document.querySelector('.productImage img');
-    var iframeSrc=document.getElementById('api-frame');
+    const selectedColor = event.target.getAttribute("data-color-sec");
+    const picSrc = event.target.getAttribute("data-pic");
+    const uid = event.target.getAttribute("data-uid");
+
+    var imageSrc = document.querySelector(".productImage img");
+    var iframeSrc = document.getElementById("api-frame");
 
     setActiveColor(selectedColor);
-    imageSrc.setAttribute('src', picSrc);
+    imageSrc.setAttribute("src", picSrc);
 
-    iframeSrc.setAttribute('src',`https://sketchfab.com/models/${uid}/embed`);
-    iframeSrc.setAttribute('data-uid',uid);
-  }
+    iframeSrc.setAttribute("src", `https://sketchfab.com/models/${uid}/embed`);
+    iframeSrc.setAttribute("data-uid", uid);
+  };
 
   // Chakra Color Mode
   const textColor = useColorModeValue("secondaryGray.900", "white");
@@ -255,6 +256,14 @@ export default function Marketplace() {
                           data-uid={item.assets[1].assetUID}
                         ></span>
                       </p>
+                      <a
+                        data-8code="9fys4"
+                        style={{
+                          flexDirection: "column",
+                          display: "flex",
+                          alignItems: "center",
+                        }}
+                      ></a>
                     </div>
                   </div>
                 </div>
