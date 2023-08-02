@@ -25,33 +25,6 @@ export default function NFT(props) {
 
   const textColor = useColorModeValue("navy.700", "white");
   const textColorBid = useColorModeValue("brand.500", "white");
-  
-  // useEffect(()=>{
-  //   var selectors = document.getElementById("api-frame");
-    
-  //   const client = new Sketchfab(selectors);
-
-  //   client.init("6dd98f8b111446169b1dc867d0936554", {
-  //     success: function onSuccess(api) {
-  //       console.log("pre-start");
-  //       api.start();
-  //       console.log("start done");
-
-  //       api.addEventListener("viewerready", function () {
-  //         // API is ready to use
-  //         // Insert your code here
-  //         console.log("Viewer is ready");
-  //       });
-  //     },
-  //     error: function onError() {
-  //       console.log("Viewer error");
-  //     },
-  //   });
-  //   console.log("Enddd");
-
-  //   console.log('heloooooo');
-  //   console.log(selectors);
-  // })
 
   return (
     <Card p='20px'>

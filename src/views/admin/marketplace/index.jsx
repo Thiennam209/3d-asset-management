@@ -22,8 +22,9 @@
 
 // HIDE/CHANGE keyword
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Sketchfab from "@sketchfab/viewer-api";
+import "assets/css/TryonProduct.css";
 
 // Chakra imports
 import {
@@ -59,12 +60,14 @@ import tableDataTopCreators from "views/admin/marketplace/variables/tableDataTop
 import { tableColumnsTopCreators } from "views/admin/marketplace/variables/tableColumnsTopCreators";
 // HIDE Recently Added, History
 export default function Marketplace() {
-  
-  useEffect(()=>{
+  const sampleData = '[{"productId":"1","title":"Jordan Proto-Lyte","thumbnail":"","assets":[{"description":"Jordan Proto-Lyte Black","assetUID":"d023021664b14066ba2091b46796d48a","isPublished":true,"image":"https://github.com/anuzbvbmaniac/Responsive-Product-Card---CSS-ONLY/blob/master/assets/img/jordan_proto.png?raw=true"},{"description":"Jordan Proto-Lyte Red","assetUID":"6991d74c1ce34758abd00c3d26f40620","isPublished":true,"image":"https://github.com/anuzbvbmaniac/Responsive-Product-Card---CSS-ONLY/blob/master/assets/img/jordan_proto_red_black.png?raw=true"}]},{"productId":"2","title":"Taylor Table","thumbnail":"","assets":[{"description":"Jordan Proto-Lyte Black","assetUID":"6dd98f8b111446169b1dc867d0936554","isPublished":true,"image":"http://20.119.54.193:1337/uploads/Woden_Dining_Table_removebg_preview_783d539856.png"},{"description":"Jordan Proto-Lyte Red","assetUID":"ef56949ac8bf43cc84d2226a5b5e0e14","isPublished":true,"image":"http://20.119.54.193:1337/uploads/Taylor_Table_removebg_preview_ecc48da08d.png"}]}]';
+  const tryonProducts=JSON.parse(sampleData);
+
+  const autoPlayAll3DViewers = () => {
     var selectors = document.querySelectorAll("#api-frame");
-    console.log(selectors);
+    // console.log(selectors);
     Array.from(selectors).forEach(element => {
-      console.log(element);
+      // console.log(element);
       var client = new Sketchfab(element);
       var uid=element.getAttribute('data-uid');
       client.init(uid, {
@@ -74,7 +77,7 @@ export default function Marketplace() {
           api.addEventListener("viewerready", function () {
             // API is ready to use
             // Insert your code here
-            console.log("Viewer is ready");
+            // console.log("Viewer is ready");
           });
         },
         error: function onError() {
@@ -82,7 +85,37 @@ export default function Marketplace() {
         },
       });
     });
-  })
+  };
+
+  // const loadData=()=>{
+  //   const tryonProducts=JSON.parse(sampleData);
+  //   tryonProducts.map((item,i)=>{
+  //     console.log(item);
+  //     console.log(item.assets[0].assetUID);
+  //   });
+  // }
+
+  useEffect(()=>{
+    autoPlayAll3DViewers();
+  },[])
+
+  // HANDLE DATA CHANGE
+  const [activeColor, setActiveColor] = useState("black");
+  
+  const handleClick = (event) => {
+    const selectedColor = event.target.getAttribute('data-color-sec');
+    const picSrc = event.target.getAttribute('data-pic');
+    const uid=event.target.getAttribute('data-uid');
+    
+    var imageSrc=document.querySelector('.productImage img');
+    var iframeSrc=document.getElementById('api-frame');
+
+    setActiveColor(selectedColor);
+    imageSrc.setAttribute('src', picSrc);
+
+    iframeSrc.setAttribute('src',`https://sketchfab.com/models/${uid}/embed`);
+    iframeSrc.setAttribute('data-uid',uid);
+  }
 
   // Chakra Color Mode
   const textColor = useColorModeValue("secondaryGray.900", "white");
@@ -148,7 +181,86 @@ export default function Marketplace() {
                 </Link>
               </Flex>
             </Flex>
-            <SimpleGrid columns={{ base: 1, md: 3 }} gap="20px">
+            <SimpleGrid>
+              {tryonProducts.map((item, i) => (
+                <div className="container">
+                  <div className="imgBx">
+                    <iframe
+                      id="api-frame"
+                      data-uid={item.assets[0].assetUID}
+                      // data-uid="d023021664b14066ba2091b46796d48a"
+                      title="Sleek_modern_dining_table_set"
+                      frameBorder="0"
+                      allowFullScreen=""
+                      mozallowfullscreen="true"
+                      webkitallowfullscreen="true"
+                      allow="autoplay; fullscreen; xr-spatial-tracking"
+                      xr-spatial-tracking=""
+                      execution-while-out-of-viewport=""
+                      execution-while-not-rendered=""
+                      web-share=""
+                      src={`https://sketchfab.com/models/${item.assets[0].assetUID}/embed`}
+                      // src="https://sketchfab.com/models/d023021664b14066ba2091b46796d48a/embed"
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        borderRadius: "30px 0 0 30px",
+                      }}
+                    ></iframe>
+                  </div>
+                  <div className="details">
+                    <div className="content">
+                      <h2>
+                        Jordan Proto-Lyte <br />
+                        <span>PD2000000</span>
+                      </h2>
+                      {/* <p>
+                      Featuring soft foam cushioning and lightweight, woven
+                      fabric in the upper, the Jordan Proto-Lyte is made for
+                      all-day, bouncy comfort. Lightweight Breathability:
+                      Lightweight woven fabric with real or synthetic leather
+                      provides breathable support. Cushioned Comfort: A
+                      full-length foam midsole delivers lightweight, plush
+                      cushioning. Secure Traction: Exaggerated
+                      herringbone-pattern outsole offers traction on a variety
+                      of surfaces.
+                    </p> */}
+                      <div className="productImage">
+                        <img
+                          src={item.assets[0].image}
+                          alt="Nike Jordan Proto-Lyte Image"
+                        />
+                      </div>
+
+                      <p className="product-colors">
+                        Try-on models:
+                        <span
+                          className={`black ${
+                            activeColor === "black" ? "active" : ""
+                          }`}
+                          data-color-primary="#000"
+                          data-color-sec="black"
+                          data-pic={item.assets[0].image}
+                          onClick={handleClick}
+                          data-uid={item.assets[0].assetUID}
+                        ></span>
+                        <span
+                          className={`red ${
+                            activeColor === "red" ? "active" : ""
+                          }`}
+                          data-color-primary="#7E021C"
+                          data-color-sec="red"
+                          data-pic={item.assets[1].image}
+                          onClick={handleClick}
+                          data-uid={item.assets[1].assetUID}
+                        ></span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </SimpleGrid>
+            {/* <SimpleGrid columns={{ base: 1, md: 3 }} gap="20px">
               <NFT
                 name="Dining Table"
                 author="Ha Van"
@@ -204,7 +316,7 @@ export default function Marketplace() {
                 currentbid="4.2"
                 download="#"
               />
-            </SimpleGrid>
+            </SimpleGrid> */}
             {/* <Text
               mt="45px"
               mb="36px"
