@@ -256,14 +256,14 @@ export default function Marketplace() {
                           data-uid={item.assets[1].assetUID}
                         ></span>
                       </p>
-                      <a
+                      {/* <a id="8th"
                         data-8code="9fys4"
                         style={{
                           flexDirection: "column",
                           display: "flex",
                           alignItems: "center",
                         }}
-                      ></a>
+                      ></a> */}
                     </div>
                   </div>
                 </div>
