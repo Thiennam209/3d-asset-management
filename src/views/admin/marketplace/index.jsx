@@ -61,7 +61,7 @@ import { tableColumnsTopCreators } from "views/admin/marketplace/variables/table
 // HIDE Recently Added, History
 export default function Marketplace() {
   const sampleData =
-    '[{"productId":"1","title":"Jordan Proto-Lyte","thumbnail":"","assets":[{"description":"Jordan Proto-Lyte Black","assetUID":"d023021664b14066ba2091b46796d48a","isPublished":true,"image":"https://github.com/anuzbvbmaniac/Responsive-Product-Card---CSS-ONLY/blob/master/assets/img/jordan_proto.png?raw=true"},{"description":"Jordan Proto-Lyte Red","assetUID":"6991d74c1ce34758abd00c3d26f40620","isPublished":true,"image":"https://github.com/anuzbvbmaniac/Responsive-Product-Card---CSS-ONLY/blob/master/assets/img/jordan_proto_red_black.png?raw=true"}]},{"productId":"2","title":"Taylor Table","thumbnail":"","assets":[{"description":"Jordan Proto-Lyte Black","assetUID":"6dd98f8b111446169b1dc867d0936554","isPublished":true,"image":"http://20.119.54.193:1337/uploads/Woden_Dining_Table_removebg_preview_783d539856.png"},{"description":"Jordan Proto-Lyte Red","assetUID":"ef56949ac8bf43cc84d2226a5b5e0e14","isPublished":true,"image":"http://20.119.54.193:1337/uploads/Taylor_Table_removebg_preview_ecc48da08d.png"}]}]';
+    '[{"productId":"1","title":"Grey Chair","thumbnail":"","assets":[{"description":"Grey Chair","assetUID":"cb44d3c30fcd4e38ba872f57e98f1309","isPublished":true,"image":"http://20.119.54.193:1337/uploads/grey_chair_1fc70504c3.png"},{"description":"Jordan Proto-Lyte Red","assetUID":"6991d74c1ce34758abd00c3d26f40620","isPublished":true,"image":"https://github.com/anuzbvbmaniac/Responsive-Product-Card---CSS-ONLY/blob/master/assets/img/jordan_proto_red_black.png?raw=true"}]},{"productId":"2","title":"Fancy Pen","thumbnail":"","assets":[{"description":"Fancy Pen","assetUID":"dd958716be0b4786b8700125eec618e5","isPublished":true,"image":"http://20.119.54.193:1337/uploads/fancy_pen_46e5ee5b2c.png"},{"description":"Jordan Proto-Lyte Red","assetUID":"ef56949ac8bf43cc84d2226a5b5e0e14","isPublished":true,"image":"http://20.119.54.193:1337/uploads/Taylor_Table_removebg_preview_ecc48da08d.png"}]}]';
   const tryonProducts = JSON.parse(sampleData);
 
   const autoPlayAll3DViewers = () => {
@@ -212,7 +212,7 @@ export default function Marketplace() {
                   <div className="details">
                     <div className="content">
                       <h2>
-                        Jordan Proto-Lyte <br />
+                      {item.assets[0].description} <br />
                         <span>PD2000000</span>
                       </h2>
                       {/* <p>
@@ -229,7 +229,7 @@ export default function Marketplace() {
                       <div className="productImage">
                         <img
                           src={item.assets[0].image}
-                          alt="Nike Jordan Proto-Lyte Image"
+                          alt="Grey Chair"
                         />
                       </div>
 
@@ -256,8 +256,8 @@ export default function Marketplace() {
                           data-uid={item.assets[1].assetUID}
                         ></span>
                       </p>
-                      <a id="8th"></a>
-                      {/* <a id="8th"
+                      {/* <a
+                        id="8th"
                         data-8code="9fys4"
                         style={{
                           flexDirection: "column",
