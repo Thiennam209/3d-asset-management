@@ -212,7 +212,7 @@ export default function Marketplace() {
                   <div className="details">
                     <div className="content">
                       <h2>
-                      {item.assets[0].description} <br />
+                        {item.assets[0].description} <br />
                         <span>PD2000000</span>
                       </h2>
                       {/* <p>
@@ -227,10 +227,7 @@ export default function Marketplace() {
                       of surfaces.
                     </p> */}
                       <div className="productImage">
-                        <img
-                          src={item.assets[0].image}
-                          alt="Grey Chair"
-                        />
+                        <img src={item.assets[0].image} alt="Grey Chair" />
                       </div>
 
                       <p className="product-colors">
@@ -256,6 +253,7 @@ export default function Marketplace() {
                           data-uid={item.assets[1].assetUID}
                         ></span>
                       </p>
+                      <a id="8th"></a>
                       {/* <a
                         id="8th"
                         data-8code="9fys4"
