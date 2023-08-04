@@ -61,7 +61,7 @@ import { tableColumnsTopCreators } from "views/admin/marketplace/variables/table
 // HIDE Recently Added, History
 export default function Marketplace() {
   const sampleData =
-    '[{"productId":"1","title":"Grey Chair","thumbnail":"","assets":[{"description":"Grey Chair","assetUID":"cb44d3c30fcd4e38ba872f57e98f1309","isPublished":true,"image":"https://cdn.glitch.global/7b0a7662-9368-4156-be0a-103752074f13/grey%20chair.png?v=1691033740251"},{"description":"Jordan Proto-Lyte Red","assetUID":"6991d74c1ce34758abd00c3d26f40620","isPublished":true,"image":"https://github.com/anuzbvbmaniac/Responsive-Product-Card---CSS-ONLY/blob/master/assets/img/jordan_proto_red_black.png?raw=true"}]},{"productId":"2","title":"Fancy Pen","thumbnail":"","assets":[{"description":"Fancy Pen","assetUID":"dd958716be0b4786b8700125eec618e5","isPublished":true,"image":"https://cdn.glitch.global/7b0a7662-9368-4156-be0a-103752074f13/fancy%20pen.png?v=1691033738771"},{"description":"Jordan Proto-Lyte Red","assetUID":"ef56949ac8bf43cc84d2226a5b5e0e14","isPublished":true,"image":"http://20.119.54.193:1337/uploads/Taylor_Table_removebg_preview_ecc48da08d.png"}]}]';
+    '[{"productId":"PD0000001","title":"Sofa","thumbnail":"","assets":[{"description":"Sofa","assetUID":"9d22695e0a9140eaa7c0d264f77baca2","isPublished":true,"image":"http://20.119.54.193:1337/uploads/sofa_1_c6617612bf.png"},{"description":"Sofa","assetUID":"9d22695e0a9140eaa7c0d264f77baca2","isPublished":true,"image":"http://20.119.54.193:1337/uploads/sofa_1_c6617612bf.png"}]},{"productId":"PD0000002","title":"Arm chair","thumbnail":"","assets":[{"description":"Arm chair","assetUID":"cb44d3c30fcd4e38ba872f57e98f1309","isPublished":true,"image":"http://20.119.54.193:1337/uploads/office_chair_968751ab52.png"},{"description":"Arm chair","assetUID":"cb44d3c30fcd4e38ba872f57e98f1309","isPublished":true,"image":"http://20.119.54.193:1337/uploads/office_chair_968751ab52.png"}]},{"productId":"PD0000003","title":"Coffee tables","thumbnail":"","assets":[{"description":"Coffee table","assetUID":"99732bb184194552a654ea72fedc964f","isPublished":true,"image":"http://20.119.54.193:1337/uploads/table_f4a54ed720.png"},{"description":"Coffee table","assetUID":"99732bb184194552a654ea72fedc964f","isPublished":true,"image":"http://20.119.54.193:1337/uploads/table_f4a54ed720.png"}]},{"productId":"PD0000004","title":"Pot plant","thumbnail":"","assets":[{"description":"Pot plant","assetUID":"dfa5e84f8ccb4270878065ce8b3d3d87","isPublished":true,"image":"http://20.119.54.193:1337/uploads/plant_00a123cbde.png"},{"description":"Pot plant","assetUID":"dfa5e84f8ccb4270878065ce8b3d3d87","isPublished":true,"image":"http://20.119.54.193:1337/uploads/plant_00a123cbde.png"}]}]';
   const tryonProducts = JSON.parse(sampleData);
 
   const autoPlayAll3DViewers = () => {
@@ -213,7 +213,7 @@ export default function Marketplace() {
                     <div className="content">
                       <h2>
                         {item.assets[0].description} <br />
-                        <span>PD2000000</span>
+                        <span>{item.productId}</span>
                       </h2>
                       {/* <p>
                       Featuring soft foam cushioning and lightweight, woven
@@ -227,7 +227,15 @@ export default function Marketplace() {
                       of surfaces.
                     </p> */}
                       <div className="productImage">
-                        <img src={item.assets[0].image} alt="Grey Chair" />
+                        <img
+                          src={item.assets[0].image}
+                          alt="Grey Chair"
+                          style={{
+                            height: 200,
+                            width: 350,
+                            objectFit: "contain",
+                          }}
+                        />
                       </div>
 
                       <p className="product-colors">
