@@ -5,7 +5,7 @@ import React, { useState, useEffect } from 'react';
 import AdminNavbarLinks from 'components/navbar/NavbarLinksAdmin';
 
 export default function AdminNavbar(props) {
-	const [ scrolled, setScrolled ] = useState(false);
+	const [scrolled, setScrolled] = useState(false);
 
 	useEffect(() => {
 		window.addEventListener('scroll', changeNavbar);
@@ -16,7 +16,13 @@ export default function AdminNavbar(props) {
 	});
 
 	const { secondary, message, brandText } = props;
+	const [pathname, setPathname] = useState("")
+	// useEffect(() => { 
+	// 	setPathname(props.location.pathname)
+	// }, [pathname])
+	
 
+	// console.log("pathname", pathname);
 	// Here are all the props that may change depending on navbar's type or state.(secondary, variant, scrolled)
 	let mainText = useColorModeValue('navy.700', 'white');
 	let secondaryText = useColorModeValue('gray.700', 'white');
@@ -96,7 +102,7 @@ export default function AdminNavbar(props) {
 						</BreadcrumbItem>
 
 						<BreadcrumbItem color={secondaryText} fontSize='sm'>
-							<BreadcrumbLink href='#' color={secondaryText}>
+							<BreadcrumbLink href={pathname} color={secondaryText}>
 								{brandText}
 							</BreadcrumbLink>
 						</BreadcrumbItem>

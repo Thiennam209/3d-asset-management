@@ -3,7 +3,7 @@ import React from "react";
 // Chakra imports
 import { Flex, useColorModeValue } from "@chakra-ui/react";
 
-import logoFPT from "assets/img/showroom_pic1.png";
+import logoFPT from "assets/img/logoFPT.png";
 
 // Custom components
 import { HorizonLogo } from "components/icons/Icons";
@@ -15,9 +15,9 @@ export function SidebarBrand() {
 
   return (
     <Flex align='center' direction='column'>
-      <img src={logoFPT} alt="image" style={{width: "60%", marginBottom: "1.5rem"}} />
+      <img src={logoFPT} alt="image" style={{width: "80px", height: "50px", marginBottom: "1.5rem", objectFit: "cover"}} />
       {/* <HorizonLogo h='26px' w='175px' my='32px' color={logoColor} /> */}
-      <HSeparator mb='20px' />
+      {/* <HSeparator mb='20px' /> */}
     </Flex>
   );
 }

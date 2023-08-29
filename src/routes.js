@@ -1,5 +1,5 @@
 // CHANGE route name
-import React from "react";
+import React, { lazy } from "react";
 
 import { Icon } from "@chakra-ui/react";
 import {
@@ -9,6 +9,15 @@ import {
   MdLock,
   MdOutlineShoppingCart,
 } from "react-icons/md";
+import {
+
+  BsCollection,
+
+  BsPeopleFill,
+
+  BsPlus
+
+} from "react-icons/bs"
 
 // Admin Imports
 import MainDashboard from "views/admin/default";
@@ -19,6 +28,9 @@ import RTL from "views/admin/rtl";
 
 // Auth Imports
 import SignInCentered from "views/auth/signIn";
+import ListBusiness from "views/admin/listBusiness";
+import ListProduct from "views/admin/listProduct";
+import DetailProduct from "views/admin/detailProduct"
 
 const routes = [
   // {
@@ -28,21 +40,67 @@ const routes = [
   //   icon: <Icon as={MdHome} width='20px' height='20px' color='inherit' />,
   //   component: MainDashboard,
   // },
+  // {
+  //   name: "Assets",
+  //   layout: "/admin",
+  //   path: "/assets",
+  //   icon: (
+  //     <Icon
+  //       as={MdOutlineShoppingCart}
+  //       width='20px'
+  //       height='20px'
+  //       color='inherit'
+  //     />
+  //   ),
+  //   component: NFTMarketplace,
+  //   secondary: true,
+  // },
   {
-    name: "Assets",
+    name: "",
     layout: "/admin",
-    path: "/assets",
+    path: "/list-business",
     icon: (
       <Icon
-        as={MdOutlineShoppingCart}
-        width='20px'
-        height='20px'
+        as={BsPeopleFill}
+        width='24px'
+        height='24px'
         color='inherit'
       />
     ),
-    component: NFTMarketplace,
+    component: lazy(() => import("views/admin/listBusiness")),
     secondary: true,
   },
+  {
+    name: "",
+    layout: "/admin",
+    path: "/list-product",
+    icon: (
+      <Icon
+        as={BsCollection}
+        width='24px'
+        height='24px'
+        color='inherit'
+      />
+    ),
+    component: lazy(() => import("views/admin/listProduct")),
+    secondary: true,
+  },
+  {
+    name: "Detail List",
+    layout: "/admin/list-products",
+    path: "/detail-product",
+    icon: (
+      <Icon
+        as={MdOutlineShoppingCart}
+        width='24px'
+        height='24px'
+        color='inherit'
+      />
+    ),
+    component: lazy(() => import("views/admin/detailProduct")),
+    secondary: true,
+  },
+
   // {
   //   name: "Data Tables",
   //   layout: "/admin",

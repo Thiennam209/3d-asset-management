@@ -11,16 +11,18 @@ import routes from 'routes.js';
 
 // Custom Chakra theme
 export default function Dashboard(props) {
+
 	const { ...rest } = props;
+
 	// states and functions
-	const [ fixed ] = useState(false);
-	const [ toggleSidebar, setToggleSidebar ] = useState(false);
+	const [fixed] = useState(false);
+	const [toggleSidebar, setToggleSidebar] = useState(false);
 	// functions for changing the states from components
 	const getRoute = () => {
 		return window.location.pathname !== '/admin/full-screen-maps';
 	};
 	const getActiveRoute = (routes) => {
-		let activeRoute = 'Default Brand Text';
+		let activeRoute = 'Business List';
 		for (let i = 0; i < routes.length; i++) {
 			if (routes[i].collapse) {
 				let collapseActiveRoute = getActiveRoute(routes[i].items);
@@ -61,30 +63,51 @@ export default function Dashboard(props) {
 		}
 		return activeNavbar;
 	};
-	const getActiveNavbarText = (routes) => {
-		let activeNavbar = false;
-		for (let i = 0; i < routes.length; i++) {
-			if (routes[i].collapse) {
-				let collapseActiveNavbar = getActiveNavbarText(routes[i].items);
-				if (collapseActiveNavbar !== activeNavbar) {
-					return collapseActiveNavbar;
-				}
-			} else if (routes[i].category) {
-				let categoryActiveNavbar = getActiveNavbarText(routes[i].items);
-				if (categoryActiveNavbar !== activeNavbar) {
-					return categoryActiveNavbar;
-				}
-			} else {
-				if (window.location.href.indexOf(routes[i].layout + routes[i].path) !== -1) {
-					return routes[i].messageNavbar;
-				}
-			}
-		}
-		return activeNavbar;
-	};
+	// const getActiveNavbarText = (routes) => {
+	// 	let activeNavbar = false;
+	// 	for (let i = 0; i < routes.length; i++) {
+	// 		if (routes[i].collapse) {
+	// 			let collapseActiveNavbar = getActiveNavbarText(routes[i].items);
+	// 			if (collapseActiveNavbar !== activeNavbar) {
+	// 				return collapseActiveNavbar;
+	// 			}
+	// 		} else if (routes[i].category) {
+	// 			let categoryActiveNavbar = getActiveNavbarText(routes[i].items);
+	// 			if (categoryActiveNavbar !== activeNavbar) {
+	// 				return categoryActiveNavbar;
+	// 			}
+	// 		} else {
+	// 			if (window.location.href.indexOf(routes[i].layout + routes[i].path) !== -1) {
+	// 				return routes[i].messageNavbar;
+	// 			}
+	// 		}
+	// 	}
+	// 	return activeNavbar;
+	// };
 	const getRoutes = (routes) => {
+		// const route = []
+		// routes.map((prop, key) => {
+		// 	if (prop.layout === '/admin') {
+		// 		// if (prop.childrent) {
+		// 		// 	// debugger
+		// 		// 	route.push(<Route path={prop.layout + prop.path} component={prop.component} key={key} />);
+		// 		// 	route.push(<Route path={prop.layout + prop.path + prop.childrent.path} component={prop.childrent.component} key={key + 1} />);
+		// 		// 	return route
+		// 		// } else{
+		// 		// 	// debugger
+		// 		// 	 route.push(<Route path={prop.layout + prop.path} component={prop.component} key={key} />);
+		// 		// 	 return route
+		// 		// }
+		// 		route.push(<Route path={prop.layout + prop.path} component={prop.component} key={key} />);
+		// 		return route
+		// 	}
+		// })
+		// return route
 		return routes.map((prop, key) => {
 			if (prop.layout === '/admin') {
+				return <Route path={prop.layout + prop.path} component={prop.component} key={key} />;
+			}
+			if (prop.layout === '/admin/list-products') {
 				return <Route path={prop.layout + prop.path} component={prop.component} key={key} />;
 			}
 			if (prop.collapse) {
@@ -97,6 +120,7 @@ export default function Dashboard(props) {
 			}
 		});
 	};
+	console.log("abc :", getRoutes(routes));
 	document.documentElement.dir = 'ltr';
 	const { onOpen } = useDisclosure();
 	document.documentElement.dir = 'ltr';
@@ -129,7 +153,7 @@ export default function Dashboard(props) {
 									logoText={'DTVT Asset Management Dashboard PRO'}
 									brandText={getActiveRoute(routes)}
 									secondary={getActiveNavbar(routes)}
-									message={getActiveNavbarText(routes)}
+									// message={getActiveNavbarText(routes)}
 									fixed={fixed}
 									{...rest}
 								/>
@@ -140,10 +164,10 @@ export default function Dashboard(props) {
 							<Box mx='auto' p={{ base: '20px', md: '30px' }} pe='20px' minH='100vh' pt='50px'>
 								<Switch>
 									{getRoutes(routes)}
-									<Redirect from='/' to='/admin/default' />
 								</Switch>
 							</Box>
 						) : null}
+
 						<Box>
 							<Footer />
 						</Box>
