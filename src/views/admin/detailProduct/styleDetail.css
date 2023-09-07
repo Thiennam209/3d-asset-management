@@ -1,28 +1,392 @@
-.container{
+.container {
+
     width: 104px;
+
     height: 104px;
+
     border-radius: 3px;
+
     position: absolute;
+
     top: 40%;
+
     left: 50%;
+
     transform: translate(-50%, -50%);
+
     display: flex;
+
     flex-direction: column;
+
     align-items: center;
+
     justify-content: center;
+
 }
 
-input[type="file"]{
-    display: none;
-}
 
-.label-input{
+
+.label-input {
+
     width: 104px;
+
     height: 104px;
+
     display: flex;
+
     flex-direction: column;
+
     align-items: center;
+
     justify-content: center;
+
     background: #F8F9FA;
+
     border: 2px dashed #6EA8FE;
+
+}
+
+
+
+.box {
+
+    background-color: rgba(255, 255, 255, 0.5);
+
+    width: 100%;
+
+    height: 90%;
+
+    border-radius: 8px;
+
+    position: absolute;
+
+    top: 0;
+
+    left: 0;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.2);
+
+    animation: shimmer 1s linear infinite;
+
+    background-size: 400%;
+
+    background-image: linear-gradient(to right, #f2f2f2 0%, #f2f2f2 30%,
+
+            #d9d9d9 45%, #d9d9dd 50%,
+
+            #f2f2f2 60%, #f2f2f2 100%);
+
+}
+
+
+
+@keyframes shimmer {
+
+    0% {
+
+        background-position: 100%;
+
+    }
+
+
+
+    100% {
+
+        background-position: 0%;
+
+    }
+
+}
+
+
+
+.lds-roller {
+
+    display: inline-block;
+
+    position: relative;
+
+    width: 80px;
+
+    height: 80px;
+
+}
+
+.lds-roller div {
+
+    animation: lds-roller 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+
+    transform-origin: 40px 40px;
+
+}
+
+.lds-roller div:after {
+
+    content: " ";
+
+    display: block;
+
+    position: absolute;
+
+    width: 7px;
+
+    height: 7px;
+
+    border-radius: 50%;
+
+    background: #9EC5FE;
+
+    /* box-shadow: 0 0 10px #77a5da,
+
+              0 0 20px #77a5da,
+
+              0 0 40px #77a5da,
+
+              0 0 80px #77a5da,
+
+              0 0 100px #77a5da; */
+
+    margin: -4px 0 0 -4px;
+
+}
+
+.lds-roller div:nth-child(1) {
+
+    animation-delay: -0.036s;
+
+}
+
+.lds-roller div:nth-child(1):after {
+
+    top: 63px;
+
+    left: 63px;
+
+}
+
+.lds-roller div:nth-child(2) {
+
+    animation-delay: -0.072s;
+
+}
+
+.lds-roller div:nth-child(2):after {
+
+    top: 68px;
+
+    left: 56px;
+
+}
+
+.lds-roller div:nth-child(3) {
+
+    animation-delay: -0.108s;
+
+}
+
+.lds-roller div:nth-child(3):after {
+
+    top: 71px;
+
+    left: 48px;
+
+}
+
+.lds-roller div:nth-child(4) {
+
+    animation-delay: -0.144s;
+
+}
+
+.lds-roller div:nth-child(4):after {
+
+    top: 72px;
+
+    left: 40px;
+
+}
+
+.lds-roller div:nth-child(5) {
+
+    animation-delay: -0.18s;
+
+}
+
+.lds-roller div:nth-child(5):after {
+
+    top: 71px;
+
+    left: 32px;
+
+}
+
+.lds-roller div:nth-child(6) {
+
+    animation-delay: -0.216s;
+
+}
+
+.lds-roller div:nth-child(6):after {
+
+    top: 68px;
+
+    left: 24px;
+
+}
+
+.lds-roller div:nth-child(7) {
+
+    animation-delay: -0.252s;
+
+}
+
+.lds-roller div:nth-child(7):after {
+
+    top: 63px;
+
+    left: 17px;
+
+}
+
+.lds-roller div:nth-child(8) {
+
+    animation-delay: -0.288s;
+
+}
+
+.lds-roller div:nth-child(8):after {
+
+    top: 56px;
+
+    left: 12px;
+
+}
+
+@keyframes lds-roller {
+
+    0% {
+
+        transform: rotate(0deg);
+
+    }
+
+    100% {
+
+        transform: rotate(360deg);
+
+    }
+
+}
+
+
+
+.titleItems {
+
+    position: absolute;
+
+    top: 0px;
+
+    left: 0px;
+
+    display: flex;
+
+    justify-content: center;
+
+    text-align: center;
+
+    align-items: center;
+
+    width: 100%;
+
+    height: 90%;
+
+    color: transparent;
+
+    border-radius: 8px;
+
+}
+
+
+
+.titleItemsDefault {
+
+    position: absolute;
+
+    top: 120px;
+
+    left: 0px;
+
+    display: flex;
+
+    justify-content: center;
+
+    text-align: center;
+
+    align-items: center;
+
+    width: 100%;
+
+    height: 90%;
+
+    border-radius: 8px;
+
+    font-size: 26px;
+
+    font-weight: 400;
+
+    line-height: 150%;
+
+    color: #9a9f9f;
+
+    font-style: normal;
+
+}
+
+
+
+.titleLoad {
+
+    position: absolute;
+
+    top: 120px;
+
+    left: 0px;
+
+    display: flex;
+
+    justify-content: center;
+
+    text-align: center;
+
+    align-items: center;
+
+    width: 100%;
+
+    height: 90%;
+
+    font-size: 24px;
+
+    color: #9EC5FE;
+
+}
+
+
+
+.titleItems:hover {
+
+    color: white;
+
+    font-size: 32px;
+
+    background-color: rgba(53, 51, 51, 0.3);
+
+    box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.2);
+    ;
+
 }

@@ -3,24 +3,24 @@ import { Box, Breadcrumb, BreadcrumbItem, BreadcrumbLink, Flex, Link, Text, useC
 import PropTypes from 'prop-types';
 import React, { useState, useEffect } from 'react';
 import AdminNavbarLinks from 'components/navbar/NavbarLinksAdmin';
+import { useLocation } from 'react-router-dom';
+import { http } from '../../axios/init'
 
 export default function AdminNavbar(props) {
+	const location = useLocation();
 	const [scrolled, setScrolled] = useState(false);
+	const [nameBusiness, setNameBusiness] = useState("");
 
-	useEffect(() => {
-		window.addEventListener('scroll', changeNavbar);
-
-		return () => {
-			window.removeEventListener('scroll', changeNavbar);
-		};
-	});
+	// useEffect(() => {
+	// 	window.addEventListener('scroll', changeNavbar);
+	// 	return () => {
+	// 		window.removeEventListener('scroll', changeNavbar);
+	// 	};
+	// });
 
 	const { secondary, message, brandText } = props;
-	const [pathname, setPathname] = useState("")
-	// useEffect(() => { 
-	// 	setPathname(props.location.pathname)
-	// }, [pathname])
-	
+	console.log("props :::", props);
+
 
 	// console.log("pathname", pathname);
 	// Here are all the props that may change depending on navbar's type or state.(secondary, variant, scrolled)
@@ -35,22 +35,53 @@ export default function AdminNavbar(props) {
 	let secondaryMargin = '0px';
 	let paddingX = '15px';
 	let gap = '0px';
-	const changeNavbar = () => {
-		if (window.scrollY > 1) {
-			setScrolled(true);
-		} else {
-			setScrolled(false);
-		}
-	};
+	// const changeNavbar = () => {
+	// 	if (window.scrollY > 1) {
+	// 		setScrolled(true);
+	// 	} else {
+	// 		setScrolled(false);
+	// 	}
+	// };
 
+	const businessName = (props) => {
+		const pathName = props?.location?.pathname || ""
+		console.log("pathName", pathName);
+		if (pathName === "/admin/list-product" || pathName === "/admin/list-products/detail-product") {
+			const searchParams = new URLSearchParams(location.search);
+			const getIDBusiness = searchParams.get('id');
+			const getJWTToken = localStorage.getItem('dtvt');
+			if (getIDBusiness) {
+				http.get(`businesses?filters[businessId][$eq]=${getIDBusiness}`, {
+					headers: {
+						Authorization: `Bearer ${getJWTToken}`,
+					},
+				})
+					.then((response) => {
+
+						const nameBusiness = response?.data?.data[0]?.attributes?.Name || ""
+						setNameBusiness(nameBusiness)
+					})
+					.catch((err) => err)
+			}
+		} else{
+			return ""
+		}
+	}
+	const detailProducts = (props) => {
+		const pathName = props?.location?.pathname || ""
+		switch (pathName) {
+			case "/admin/list-products/detail-product" : return "Product detail"; break;
+			default: return ""
+		}
+	}
 	return (
 		<Box
 			position={navbarPosition}
 			boxShadow={navbarShadow}
-			bg={navbarBg}
+			// bg={navbarBg}
 			borderColor={navbarBorder}
 			filter={navbarFilter}
-			backdropFilter={navbarBackdrop}
+			// backdropFilter={navbarBackdrop}
 			backgroundPosition='center'
 			backgroundSize='cover'
 			borderRadius='16px'
@@ -82,8 +113,8 @@ export default function AdminNavbar(props) {
 				base: 'calc(100vw - 6%)',
 				md: 'calc(100vw - 8%)',
 				lg: 'calc(100vw - 6%)',
-				xl: 'calc(100vw - 350px)',
-				'2xl': 'calc(100vw - 365px)'
+				xl: 'calc(100vw - 276px)',
+				'2xl': 'calc(100vw - 276px)'
 			}}>
 			<Flex
 				w='100%'
@@ -93,22 +124,38 @@ export default function AdminNavbar(props) {
 				}}
 				alignItems={{ xl: 'center' }}
 				mb={gap}>
-				<Box mb={{ sm: '8px', md: '0px' }}>
+				<Box mb={{ sm: '8px', md: '0px' }} 
+			backdropFilter={navbarBackdrop}
+			bg={navbarBg}
+			w="100%"
+			borderRadius='10px'
+			padding="5px 20px"
+				>
 					<Breadcrumb>
+
 						<BreadcrumbItem color={secondaryText} fontSize='sm' mb='5px'>
-							<BreadcrumbLink href='#' color={secondaryText}>
+							<BreadcrumbLink color={secondaryText}>
 								Pages
 							</BreadcrumbLink>
 						</BreadcrumbItem>
-
+						{businessName(props) !== "" ? <BreadcrumbItem color={secondaryText} fontSize='sm' mb='5px'>
+							<BreadcrumbLink color={secondaryText}>
+								{nameBusiness}
+							</BreadcrumbLink>
+						</BreadcrumbItem> : ""}
 						<BreadcrumbItem color={secondaryText} fontSize='sm'>
-							<BreadcrumbLink href={pathname} color={secondaryText}>
+							<BreadcrumbLink color={secondaryText}>
 								{brandText}
 							</BreadcrumbLink>
 						</BreadcrumbItem>
+						{detailProducts(props) !== "" ? <BreadcrumbItem color={secondaryText} fontSize='sm' mb='5px'>
+							<BreadcrumbLink color={secondaryText}>
+								{detailProducts(props)}
+							</BreadcrumbLink>
+						</BreadcrumbItem> : ""}
 					</Breadcrumb>
 					{/* Here we create navbar brand, based on route name */}
-					<Link
+					{/* <Link
 						color={mainText}
 						href='#'
 						bg='inherit'
@@ -125,7 +172,7 @@ export default function AdminNavbar(props) {
 							boxShadow: 'none'
 						}}>
 						{brandText}
-					</Link>
+					</Link> */}
 				</Box>
 				<Box ms='auto' w={{ sm: '100%', md: 'unset' }}>
 					<AdminNavbarLinks

@@ -10,16 +10,7 @@ import { MDBIcon } from 'mdbreact';
 const LoginPage = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    // const [auth, setAuth] = useState(false)
 
-    // useEffect(() => {
-    //     if (auth) {
-    //         console.log("auth 1", auth);
-    //     } else {
-    //         console.log("auth 2", auth);
-
-    //     }
-    // }, [auth])
     const postAPILogin = () => {
         http.post('auth/local', {
             "identifier": email,
@@ -34,19 +25,16 @@ const LoginPage = () => {
                 } else {
                     setEmail("")
                     setPassword("")
-                    // setAuth(false)
                 }
             })
             .catch((error) => {
                 setEmail("")
                 setPassword("")
-                // setAuth(false)
             });
     }
     const handleLogin = () => {
         // Xử lý đăng nhập tại đây
         postAPILogin()
-        console.log('Logging in with email:', email, 'and password:', password);
     };
 
     return (
@@ -107,7 +95,6 @@ const LoginPage = () => {
                         variant="outline-primary"
                         type="button"
                         block
-                        // onClick={handleLogin}
                         style={{ backgroundColor: 'white', borderColor: '#007bff', marginTop: '20px', width: '100%', color: '#007bff' }}
                     >
                         <MDBIcon fab icon="google" style ={{margin: "0"}}/> Sign in with Google

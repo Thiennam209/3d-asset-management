@@ -1,7 +1,22 @@
-.btnView:hover{
-    color: inherit;
-    text-decoration: none;
+.headerCell {
+    background: #E7F1FF !important;
+    color: #6C757D !important;
 }
+
+.linkShow {
+    cursor: pointer;
+}
+
+.linkShow:hover {
+    color: #007bff;
+    text-decoration: underline;
+}
+
+.copy-button {
+    cursor: pointer;
+    user-select: none;
+}
+
 .custom-search-bar {
     text-align: right;
 }

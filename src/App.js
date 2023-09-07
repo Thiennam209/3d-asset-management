@@ -32,6 +32,7 @@ function App() {
                 <Route path="/admin/list-business" component={AdminLayout} />
                 <Route path="/admin/list-product" component={AdminLayout} />
                 <Route path="/admin/list-product/detail-product" component={AdminLayout} />
+                {/* <Route path="/admin/list-product/product-profile" component={AdminLayout} /> */}
                 <Redirect from='/' to='/admin/list-business' />
             </Switch>
             </Suspense>

@@ -1,6 +1,7 @@
 import axios from 'axios'
 
-const urlApi = "http://20.119.54.193:1337/api/"
+const urlApi = "https://aka-reality.info/api/"
+export const urlStrapi = "https://aka-reality.info"
 
 export const http = axios.create({
     baseURL: urlApi,

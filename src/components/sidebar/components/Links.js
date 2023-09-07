@@ -93,31 +93,22 @@ export function SidebarLinks(props) {
 
   // this function creates the links from the secondary accordions (for example auth -> sign-in -> default)
   const createLinks = (routes) => {
-    console.log(routes);
     // const routeMove = [{ path: "/details" }]
     // const newArrayRoutes = routes.filter(item => routeMove.every(removeRoutes => removeRoutes.path !== item.path))
     // routes = newArrayRoutes
     return routes.map((route, index) => {
-      if (route.childrent) {
-        if (route.layout === "/admin") {
-          // console.log("routeName", route.childrent.path);
-          // <NavLink key={index} to={route.layout + route.path + route.childrent.path}>{showIconSidebarLinks(route)}</NavLink>
-          return showIconSidebarLinks(route)
-        }
-      } else {
+      
         if (route.layout === "/admin") {
           if (route.path === "/list-product") {
             return (showIconSidebarLinks(route))
           } else {
             return (<NavLink key={index} to={route.layout + route.path}>{showIconSidebarLinks(route)}</NavLink>)
           }
-
         } else {
           <Switch>
             <Redirect from='/' to='/admin/list-business' />
           </Switch>
         }
-      }
       // if (route.layout === "/admin") {
       //   if (route.path === "/list-product") {
       //     const routeLayout = "/list-product";

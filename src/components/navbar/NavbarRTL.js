@@ -88,7 +88,7 @@ export default function AdminNavbar(props) {
         base: "calc(100vw - 6%)",
         md: "calc(100vw - 8%)",
         lg: "calc(100vw - 6%)",
-        xl: "calc(100vw - 350px)",
+        xl: "calc(100vw - 250px)",
         "2xl": "calc(100vw - 365px)",
       }}>
       <Flex

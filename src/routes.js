@@ -56,7 +56,7 @@ const routes = [
   //   secondary: true,
   // },
   {
-    name: "",
+    name: "Business List",
     layout: "/admin",
     path: "/list-business",
     icon: (
@@ -71,7 +71,7 @@ const routes = [
     secondary: true,
   },
   {
-    name: "",
+    name: "Product List",
     layout: "/admin",
     path: "/list-product",
     icon: (
@@ -100,6 +100,21 @@ const routes = [
     component: lazy(() => import("views/admin/detailProduct")),
     secondary: true,
   },
+  // {
+  //   name: "Product profile",
+  //   layout: "/admin/list-products",
+  //   path: "/product-profile",
+  //   icon: (
+  //     <Icon
+  //       as={MdOutlineShoppingCart}
+  //       width='24px'
+  //       height='24px'
+  //       color='inherit'
+  //     />
+  //   ),
+  //   component: lazy(() => import("views/admin/createProduct")),
+  //   secondary: true,
+  // },
 
   // {
   //   name: "Data Tables",
