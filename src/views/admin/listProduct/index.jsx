@@ -139,6 +139,7 @@ const ListProduct = () => {
                     <Col xs={4} style={{ padding: "30px 0" }}>
                       <div className="d-flex justify-content-center align-items-center">
                         <Card.Img
+                          loading="lazy"
                           variant="left"
                           src={item?.attributes?.thumbnail}
                           style={{ width: "360px" }}

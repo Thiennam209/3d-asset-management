@@ -187,10 +187,8 @@ const DetailProduct = () => {
     const getIdBusiness = searchParams.get("idBusiness");
 
     http
-
       .get(
         `products?filters[businessId][$eq]=${businessId}&filters[productId][$eq]=${productId}`,
-
         {
           headers: {
             Authorization: `Bearer ${getJWTToken}`,
@@ -209,7 +207,6 @@ const DetailProduct = () => {
           // check thumbnails == null
 
           http
-
             .get(`assets?filters[productId][$eq]=${productId}`, {
               headers: {
                 Authorization: `Bearer ${getJWTToken}`,
@@ -225,7 +222,6 @@ const DetailProduct = () => {
                 if (item.attributes.thumbnail === "null") {
                   axios(
                     `https://api.sketchfab.com/v3/models/${item.attributes.assetUID}`,
-
                     {
                       method: "GET",
 
@@ -237,7 +233,7 @@ const DetailProduct = () => {
                     .then((repo) => {
                       const assetId = item.id;
 
-                      const imageURL = repo.data.thumbnails.images[0].url;
+                      const imageURL = repo.data.thumbnails.images[2].url;
 
                       if (repo.data.publishedAt !== null) {
                         var dataRequest = {
@@ -249,12 +245,9 @@ const DetailProduct = () => {
                         };
 
                         http
-
                           .put(
                             `/assets/${assetId}`,
-
                             dataRequest,
-
                             {
                               headers: {
                                 Authorization: `Bearer ${getJWTToken}`,
@@ -269,12 +262,10 @@ const DetailProduct = () => {
                           .catch((err) => err);
                       }
                     })
-
                     .catch((err) => err);
                 } else {
                   axios(
                     `https://api.sketchfab.com/v3/models/${item.attributes.assetUID}`,
-
                     {
                       method: "GET",
 
@@ -286,7 +277,7 @@ const DetailProduct = () => {
                     .then((repo) => {
                       const assetId = item.id;
 
-                      const imageURL = repo.data.thumbnails.images[0].url;
+                      const imageURL = repo.data.thumbnails.images[2].url;
 
                       if (item.attributes.thumbnail !== imageURL) {
                         var dataRequest = {
@@ -298,12 +289,9 @@ const DetailProduct = () => {
                         };
 
                         http
-
                           .put(
                             `/assets/${assetId}`,
-
                             dataRequest,
-
                             {
                               headers: {
                                 Authorization: `Bearer ${getJWTToken}`,
@@ -316,12 +304,11 @@ const DetailProduct = () => {
                           })
 
                           .catch((err) => err);
-                      }
+                      } 
+                      
                     })
-
                     .catch((err) => err);
                 }
-
                 setListAsset(objectsDataListAssest);
               });
             })
@@ -390,9 +377,7 @@ const DetailProduct = () => {
                   <Card.Title
                     style={{
                       marginBottom: "10px",
-
                       fontSize: "40px",
-
                       fontWeight: "bold",
                     }}
                   >
@@ -425,11 +410,8 @@ const DetailProduct = () => {
                   <Card.Text
                     style={{
                       margin: "16px 0px 16px 0px",
-
                       color: "#212529",
-
                       fontSize: "20px",
-
                       textAlign: "left",
                     }}
                   >
@@ -444,11 +426,8 @@ const DetailProduct = () => {
                       as={MdOutlineEdit}
                       style={{
                         padding: "0px 0px 5px",
-
                         width: "25px",
-
                         height: "25px",
-
                         color: "#0D6EFD",
                       }}
                     />
@@ -456,11 +435,8 @@ const DetailProduct = () => {
                     <u
                       style={{
                         color: "#0D6EFD",
-
                         marginLeft: "8px",
-
                         textDecoration: "underline",
-
                         fontSize: "18px",
                       }}
                     >
@@ -476,11 +452,8 @@ const DetailProduct = () => {
         <Card.Title
           style={{
             margin: "69px 0px 38px 10px ",
-
             fontSize: "35px",
-
             fontWeight: "bold",
-
             color: "#212529",
           }}
         >
@@ -492,34 +465,25 @@ const DetailProduct = () => {
             <div
               style={{
                 display: "grid",
-
                 gridTemplateColumns: "repeat(3, 1fr)",
-
                 columnGap: "50px",
-
                 padding: "32px",
               }}
             >
               {listAsset
-
                 .filter(
                   (value) =>
                     value.attributes.thumbnail !== "null" &&
                     value.attributes.status !== "default"
                 )
-
                 .map((item, index) => (
                   <div
                     onClick={() => onClickDetailAsset(item.attributes.assetUID)}
                     style={{
                       width: "100%",
-
                       padding: "100% 0px 0px 0px",
-
                       position: "relative",
-
                       margin: "10px 0px",
-
                       boxSizing: "border-box",
                     }}
                   >
@@ -558,25 +522,19 @@ const DetailProduct = () => {
                 ))}
 
               {listAsset
-
                 .filter(
                   (value) =>
                     value.attributes.thumbnail !== "null" &&
                     value.attributes.status === "default"
                 )
-
                 .map((item, index) => (
                   <div
                     onClick={() => onClickDetailAsset(item.attributes.assetUID)}
                     style={{
                       width: "100%",
-
                       padding: "100% 0px 0px 0px",
-
                       position: "relative",
-
                       margin: "10px 0px",
-
                       boxSizing: "border-box",
                     }}
                   >
@@ -619,39 +577,26 @@ const DetailProduct = () => {
                 ))}
 
               {listAsset
-
                 .filter((value) => value.attributes.thumbnail === "null")
-
                 .map((item, index) => (
                   <div
                     style={{
                       width: "100%",
-
                       padding: "100% 0px 0px 0px",
-
                       position: "relative",
-
                       margin: "10px 0px",
-
                       boxSizing: "border-box",
                     }}
                   >
                     <div className="box">
                       <div class="lds-roller">
                         <div></div>
-
                         <div></div>
-
                         <div></div>
-
                         <div></div>
-
                         <div></div>
-
                         <div></div>
-
                         <div></div>
-
                         <div></div>
                       </div>
 
@@ -663,13 +608,9 @@ const DetailProduct = () => {
               <div
                 style={{
                   width: "100%",
-
                   padding: "100% 0px 0px 0px",
-
                   position: "relative",
-
                   margin: "10px 0px",
-
                   boxSizing: "border-box",
                 }}
               >
@@ -683,11 +624,8 @@ const DetailProduct = () => {
                       as={MdAdd}
                       style={{
                         padding: "0px 0px 5px",
-
                         width: "25px",
-
                         height: "25px",
-
                         color: "#0D6EFD",
                       }}
                     />

@@ -310,6 +310,8 @@
 
     border-radius: 8px;
 
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+
 }
 
 
@@ -346,6 +348,8 @@
 
     font-style: normal;
 
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+
 }
 
 
@@ -374,6 +378,8 @@
 
     color: #9EC5FE;
 
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+
 }
 
 
@@ -387,6 +393,5 @@
     background-color: rgba(53, 51, 51, 0.3);
 
     box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.2);
-    ;
 
 }

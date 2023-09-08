@@ -17,6 +17,11 @@ import { BsSearch } from "react-icons/bs";
 import { Form } from "react-bootstrap";
 
 const ListBusiness = () => {
+  const getJWTToken = localStorage.getItem("dtvt");
+  const [data, setData] = useState([]);
+  const [codeIntegrationHead, setCodeIntegrationHead] = useState("");
+  const [codeIntegrationBody, setCodeIntegrationBody] = useState("");
+
   const fillter = () => {
     // Declare variables
 
@@ -46,8 +51,7 @@ const ListBusiness = () => {
       }
     }
   };
-  const getJWTToken = localStorage.getItem("dtvt");
-  const [data, setData] = useState([]);
+
   useEffect(() => {
     http
       .get("businesses", {
@@ -110,11 +114,8 @@ const ListBusiness = () => {
                 <div
                   style={{
                     alignItems: "center",
-
                     display: "flex",
-
                     flexDirection: "row",
-
                     paddingLeft: "35%",
                   }}
                 >
@@ -126,7 +127,7 @@ const ListBusiness = () => {
                       position: "relative",
                     }}
                   >
-                    <img style={{borderRadius: "50%"}} src={item?.attributes?.ManagerImage} alt="null" />
+                    <img style={{ borderRadius: "50%", width: "40px", height: "40px", objectFit: "cover" }} src={item?.attributes?.ManagerImage} alt="null" />
                   </div>
                   <div
                     style={{
@@ -154,11 +155,8 @@ const ListBusiness = () => {
                 <div
                   style={{
                     alignItems: "center",
-
                     display: "flex",
-
                     flexDirection: "row",
-
                     paddingLeft: "35%",
                   }}
                 >
@@ -170,7 +168,7 @@ const ListBusiness = () => {
                       position: "relative",
                     }}
                   >
-                    <img style={{borderRadius: "50%"}} src={item?.attributes?.ManagerImage} alt="null" />
+                    <img style={{ borderRadius: "50%", width: "40px", height: "40px", objectFit: "cover" }} src={item?.attributes?.ManagerImage} alt="null" />
                   </div>
                   <div
                     style={{
@@ -205,76 +203,87 @@ const ListBusiness = () => {
                   code snippet{" "}
                 </p>
               </td>
+
+
+
+              <Modal show={showModalSnippet} onHide={handleModalSnippetClose}>
+                <Modal.Header closeButton>
+                  <Modal.Title>Install Google Tag Manager</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                  <p>
+                    Copy the code below and paste it onto every page of your website{" "}
+                  </p>
+                  <p>
+                    Paste this code as high in the <b>&lt;head&gt;</b> of the page as
+                    possible:{" "}
+                  </p>
+                  <br />
+                  <InputGroup className="mb-3">
+                    <FormControl
+                      id="copyableInput"
+                      placeholder="Copy me!"
+                      aria-label="Copy me!"
+                      aria-describedby="copy-button"
+                      disabled="true"
+                      value="<!-- Google Tag Manager -->
+                      <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+                      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+                      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+                      'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+                      })(window,document,'script','dataLayer','GTM-WP5LC6X9');</script>
+                      <!-- End Google Tag Manager -->"
+                    />
+                    <Button
+                      variant="outline-secondary"
+                      id="copy-button"
+                      onClick={copyToClipboard}
+                    >
+                      Copy
+                    </Button>
+                  </InputGroup>
+
+                  <p>
+                    Additionally, paste this code immediately after the opening{" "}
+                    <b>&lt;body&gt;</b> tag:{" "}
+                  </p>
+                  <br />
+                  <InputGroup className="mb-3">
+                    <FormControl
+                      id="copyableInput"
+                      placeholder="Copy me!"
+                      aria-label="Copy me!"
+                      aria-describedby="copy-button"
+                      disabled="true"
+                      value='<!-- Google Tag Manager (noscript) -->
+                      <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WP5LC6X9"
+                      height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+                      <!-- End Google Tag Manager (noscript) -->'
+                    />
+                    <Button
+                      variant="outline-secondary"
+                      id="copy-button"
+                      onClick={copyToClipboard}
+                    >
+                      Copy
+                    </Button>
+                  </InputGroup>
+                </Modal.Body>
+                <Modal.Footer>
+                  <Button variant="secondary" onClick={handleModalSnippetClose}>
+                    Close
+                  </Button>
+                  <Button variant="primary" onClick={handleModalSnippetClose}>
+                    OK
+                  </Button>
+                </Modal.Footer>
+              </Modal>
+
             </tr>
           ))}
         </tbody>
       </Table>
-      <Modal show={showModalSnippet} onHide={handleModalSnippetClose}>
-        <Modal.Header closeButton>
-          <Modal.Title>Install Google Tag Manager</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <p>
-            Copy the code below and paste it onto every page of your website{" "}
-          </p>
-          <p>
-            Paste this code as high in the <b>&lt;head&gt;</b> of the page as
-            possible:{" "}
-          </p>
-          <br />
-          <InputGroup className="mb-3">
-            <FormControl
-              id="copyableInput"
-              placeholder="Copy me!"
-              aria-label="Copy me!"
-              aria-describedby="copy-button"
-              disabled="true"
-            />
-            <Button
-              variant="outline-secondary"
-              id="copy-button"
-              onClick={copyToClipboard}
-            >
-              Copy
-            </Button>
-          </InputGroup>
 
-          <p>
-            Additionally, paste this code immediately after the opening{" "}
-            <b>&lt;body&gt;</b> tag:{" "}
-          </p>
-          <br />
-          <InputGroup className="mb-3">
-            <FormControl
-              id="copyableInput"
-              placeholder="Copy me!"
-              aria-label="Copy me!"
-              aria-describedby="copy-button"
-              disabled="true"
-            />
-            <Button
-              variant="outline-secondary"
-              id="copy-button"
-              onClick={copyToClipboard}
-            >
-              Copy
-            </Button>
-          </InputGroup>
-
-          <p>
-            For more information about installing the Google Tag Manager
-            snippet, visit our <b>Quick Start Guide</b>{" "}
-          </p>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleModalSnippetClose}>
-            Close
-          </Button>
-          <Button variant="primary" onClick={handleModalSnippetClose}>
-            OK
-          </Button>
-        </Modal.Footer>
-      </Modal>
     </Box>
   );
 };
