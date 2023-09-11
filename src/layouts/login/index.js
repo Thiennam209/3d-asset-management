@@ -10,9 +10,8 @@ import { MDBIcon } from 'mdbreact';
 const LoginPage = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [errors, setErrors] = useState({});
     const [validated, setValidated] = useState(false);
-    const [emailError, setEmailError] = useState('Please enter Email');
-    const [passError, setPassError] = useState('Please enter Password');
 
     // const [auth, setAuth] = useState(false)
 
@@ -37,27 +36,68 @@ const LoginPage = () => {
                     // setAuth(true)
 
                 } else {
+                    const errors = {};
+                    errors.author = "This email doesn't have access rights";
+                    setErrors(errors);
                     setEmail("")
                     setPassword("")
                     // setAuth(false)
                 }
             })
             .catch((error) => {
+                const errors = {};
+                errors.author = "Email or password is invalid";
+                setErrors(errors);
                 setEmail("")
                 setPassword("")
-                //setEmailError("Email ")
-                // setAuth(false)
             });
     }
+
+    const validateForm = () => {
+        const errors = {};
+
+        if (!email) {
+            errors.email = 'This value is required.';
+        } else if (!/\S+@\S+\.\S+/.test(email)) {
+            errors.email = 'This is an invalid email';
+        }
+
+        if (!password) {
+            errors.password = 'This value is required.';
+        }
+
+        return errors;
+    };
+
     const handleLogin = (event) => {
         // Xử lý đăng nhập tại đây
+        // event.preventDefault();
+        // const errors = validateForm();
+
+        // if (Object.keys(errors).length === 0) {
+        //     // Xử lý khi biểu mẫu hợp lệ
+        //     postAPILogin()
+        //     console.log('Biểu mẫu đã gửi');
+        // } else {
+        //     // Hiển thị thông báo lỗi
+        //     setErrors(errors);
+        // }
+
+        const errors = validateForm();
         const form = event.currentTarget;
         if (form.checkValidity() === false) {
             event.preventDefault();
             event.stopPropagation();
         }
         setValidated(true);
-        postAPILogin()
+        if (Object.keys(errors).length === 0) {
+            // Xử lý khi biểu mẫu hợp lệ
+            postAPILogin()
+            console.log('Biểu mẫu đã gửi');
+        } else {
+            // Hiển thị thông báo lỗi
+            setErrors(errors);
+        }
     };
 
     return (
@@ -72,8 +112,8 @@ const LoginPage = () => {
                 <h2 className="text-center" style={{ color: 'black', fontSize: '2rem' }}>Log in to your account</h2>
                 <h5 className="text-center mb-4" style={{ color: 'black' }}>Welcome to 3D CMS portal! Please enter your details.</h5>
                 <Form style={{ color: 'black', margin: '0 15%' }} noValidate validated={validated}>
-                    <Form.Control.Feedback type="invalid">
-                        {emailError}
+                    <Form.Control.Feedback style={{ display: "block", textAlign: "center" }} type="invalid">
+                        {errors.author}
                     </Form.Control.Feedback>
                     <Form.Group controlId="formBasicEmail" style={{ margin: "10px 0" }}>
                         <Form.Label>Email</Form.Label>
@@ -85,8 +125,9 @@ const LoginPage = () => {
                             required
                         />
                         <Form.Control.Feedback type="invalid">
-                            {emailError}
+                            {errors.email}
                         </Form.Control.Feedback>
+                        {/* {errors.email && <div>{errors.email}</div>} */}
                     </Form.Group>
 
                     <Form.Group controlId="formBasicPassword" style={{ margin: "10px 0" }}>
@@ -99,8 +140,10 @@ const LoginPage = () => {
                             required
                         />
                         <Form.Control.Feedback type="invalid">
-                            {passError}
+                            {errors.password}
                         </Form.Control.Feedback>
+
+                        {/* {errors.password && <div>{errors.password}</div>} */}
                     </Form.Group>
 
                     <Form.Group controlId="rememberMe" className="d-flex justify-content-between">

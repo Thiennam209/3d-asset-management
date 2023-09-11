@@ -514,6 +514,8 @@ const DetailProduct = () => {
                         border: "1px solid var(--gray-300, #DEE2E6)",
 
                         background: "var(--gray-100, #F8F9FA)",
+
+                        boxShadow: "2px 2px 4px rgba(0, 0, 0, 0.2)"
                       }}
                     />
 
@@ -534,8 +536,9 @@ const DetailProduct = () => {
                       width: "100%",
                       padding: "100% 0px 0px 0px",
                       position: "relative",
-                      margin: "10px 0px",
+                      margin: "0px 0px",
                       boxSizing: "border-box",
+                      
                     }}
                   >
                     <Card.Img
@@ -565,6 +568,8 @@ const DetailProduct = () => {
                         border: "1px solid var(--gray-300, #DEE2E6)",
 
                         background: "var(--gray-100, #F8F9FA)",
+
+                        boxShadow: "2px 2px 4px rgba(0, 0, 0, 0.2)"
                       }}
                     />
 
