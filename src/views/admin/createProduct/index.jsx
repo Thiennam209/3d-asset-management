@@ -48,15 +48,13 @@ const CreateProduct = ({
 
   onSubmitSuccess,
 
+  setIsButtonAddDisabled
+
 }) => {
 
   const [productName, setProductName] = useState("");
 
   const [productId, setProductId] = useState("");
-
-  const [stock, setStock] = useState("");
-
-  const [brand, setBrand] = useState("");
 
   const [productDescription, setProductDescription] = useState("");
 
@@ -296,10 +294,6 @@ const CreateProduct = ({
 
       productId,
 
-      brand,
-
-      stock,
-
       productDescription,
 
       getIDBusiness,
@@ -309,10 +303,6 @@ const CreateProduct = ({
       selectedFiles,
 
     };
-
-    console.log("formData", formData);
-
-    debugger;
 
  
 
@@ -332,10 +322,6 @@ const CreateProduct = ({
 
       productId !== "" &&
 
-      brand !== "" &&
-
-      stock !== "" &&
-
       productDescription !== "" &&
 
       selectedFile !== null &&
@@ -347,7 +333,7 @@ const CreateProduct = ({
     ) {
 
       setIsButtonDisabled(true);
-
+      setIsButtonAddDisabled(true)
       setIsProcessing(true);
 
       const dataImg = new FormData();
@@ -399,10 +385,6 @@ const CreateProduct = ({
                   title: formData.productName,
 
                   description: formData.productDescription,
-
-                  stock: formData.stock,
-
-                  brand: formData.brand,
 
                   productId: formData.productId,
 
@@ -582,10 +564,6 @@ const CreateProduct = ({
 
     setProductId("");
 
-    setBrand("");
-
-    setStock("");
-
     setProductDescription("");
 
     setValidated(false);
@@ -736,94 +714,6 @@ const CreateProduct = ({
 
           <Form.Group
 
-            controlId="validationBrand"
-
-            style={{
-
-              margin: "5px 0",
-
-              display: "flex",
-
-              flexDirection: "column",
-
-              justifyContent: "space-between",
-
-            }}
-
-          >
-
-            <Form.Label>Brand</Form.Label>
-
-            <Form.Control
-
-              style={{ width: "513px" }}
-
-              type="text"
-
-              placeholder="Enter Brand"
-
-              value={brand}
-
-              onChange={(e) => setBrand(e.target.value)}
-
-              required
-
-            />
-
-            <Form.Control.Feedback type="invalid">
-
-              Please enter brand
-
-            </Form.Control.Feedback>
-
-          </Form.Group>
-
-          <Form.Group
-
-            controlId="validationStock"
-
-            style={{
-
-              margin: "5px 0",
-
-              display: "flex",
-
-              flexDirection: "column",
-
-              justifyContent: "space-between",
-
-            }}
-
-          >
-
-            <Form.Label>Stock</Form.Label>
-
-            <Form.Control
-
-              style={{ width: "513px" }}
-
-              type="number"
-
-              placeholder="Enter Stock"
-
-              value={stock}
-
-              onChange={(e) => setStock(e.target.value)}
-
-              required
-
-            />
-
-            <Form.Control.Feedback type="invalid">
-
-              Please enter quantity in stock
-
-            </Form.Control.Feedback>
-
-          </Form.Group>
-
-          <Form.Group
-
             controlId="validationProductDescription"
 
             style={{
@@ -919,8 +809,6 @@ const CreateProduct = ({
               style={{ width: "513px" }}
 
               type="file"
-
-              multiple
 
               onChange={handleFilesChange}
 

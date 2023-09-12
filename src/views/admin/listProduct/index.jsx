@@ -51,6 +51,7 @@ const ListProduct = () => {
 
   const [data, setData] = useState([]);
   const [businessId, setBusinessId] = useState("");
+  const [isButtonAddDisabled, setIsButtonAddDisabled] = useState(false);
   const searchParams = new URLSearchParams(location.search);
   const getIDBusiness = searchParams.get("id");
   const getJWTToken = localStorage.getItem("dtvt");
@@ -82,6 +83,7 @@ const ListProduct = () => {
 
   if (successMessage) {
     setTimeout(() => {
+      setIsButtonAddDisabled(false)
       setSuccessMessage(null);
     }, 3000);
   }
@@ -117,6 +119,7 @@ const ListProduct = () => {
             onClick={handleModalAddProductShow}
             variant="primary"
             style={{ margin: "15px 10px 15px 60px" }}
+            disabled={isButtonAddDisabled}
           >
             <CgAddR style={{ display: "inline-block" }} /> Add new product{" "}
           </Button>
@@ -226,6 +229,7 @@ const ListProduct = () => {
                             marginLeft: "8px",
                             textDecoration: "underline",
                             fontSize: "18px",
+                            cursor: "pointer"
                           }}
                         >
                           Edit
@@ -244,6 +248,7 @@ const ListProduct = () => {
           getJWTToken={getJWTToken}
           getIDBusiness={getIDBusiness}
           onSubmitSuccess={handleModalSubmitSuccess}
+          setIsButtonAddDisabled={setIsButtonAddDisabled}
         />
       </Box>
     </>

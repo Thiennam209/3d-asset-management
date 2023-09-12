@@ -160,7 +160,7 @@ const LoginPage = () => {
 
                     <Button
                         variant="primary"
-                        type="button"
+                        type="submit"
                         block
                         onClick={handleLogin}
                         style={{ backgroundColor: '#007bff', borderColor: '#007bff', marginTop: '20px', width: '100%' }}

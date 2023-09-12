@@ -63,8 +63,8 @@ function SidebarContent(props) {
       <Box mb="90px" display="flex" justifyContent="center">
         {/* <SidebarCard /> */}
 
-        <div style={{ position: "relative" }}>
-          <div className="tooltip-content">LogOut</div>
+        <div style={{ position: "relative", cursor: "pointer" }}>
+          <div className="tooltip-content">Log Out</div>
 
           <div
             onClick={handleLogout}

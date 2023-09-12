@@ -438,6 +438,7 @@ const DetailProduct = () => {
                         marginLeft: "8px",
                         textDecoration: "underline",
                         fontSize: "18px",
+                        cursor: "pointer"
                       }}
                     >
                       Edit
@@ -635,7 +636,7 @@ const DetailProduct = () => {
                       }}
                     />
 
-                    <a style={{ color: "#0D6EFD" }}>Upload</a>
+                    <a style={{ color: "#0D6EFD"}}>Upload</a>
                   </label>
 
                   <Modal
