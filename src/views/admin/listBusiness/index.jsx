@@ -17,6 +17,7 @@ import { CgAddR, CgCodeSlash } from "react-icons/cg";
 import { Form } from "react-bootstrap";
 import { FaRegCopy } from "react-icons/fa";
 import { BsSearch, BsFillCheckCircleFill } from "react-icons/bs";
+import ModalAddNewPartner from "./component/modalAddNewPartner";
 
 const ListBusiness = () => {
   const getJWTToken = localStorage.getItem("dtvt");
@@ -86,7 +87,7 @@ const ListBusiness = () => {
     navigator.clipboard
       .writeText(value)
       .then(() => {
-        setSuccessMessage("Copy Success")
+        setSuccessMessage("Copy Success");
         // Thao tác sao chép thành công
         console.log("Sao chép thành công: " + value);
       })
@@ -95,6 +96,9 @@ const ListBusiness = () => {
         console.error("Lỗi khi sao chép: " + err);
       });
   };
+  const [showModalAddPartner, setShowModalAddPartner] = useState(false);
+  const handleModalAddPartnerClose = () => setShowModalAddPartner(false);
+  const handleModalAddPartnerShow = () => setShowModalAddPartner(true);
 
   if (successMessage) {
     setTimeout(() => {
@@ -129,10 +133,12 @@ const ListBusiness = () => {
             onKeyUp={fillter}
           />
           <BsSearch className="btnSearch" />
-          <Button variant="primary" style={{ margin: "15px 10px 15px 60px" }}>
-            <Link to="#" className="btnView">
-              <CgAddR style={{ display: "inline-block" }} /> Add new partner{" "}
-            </Link>
+          <Button
+            variant="primary"
+            style={{ margin: "15px 10px 15px 60px" }}
+            onClick={handleModalAddPartnerShow}
+          >
+            <CgAddR style={{ display: "inline-block" }} /> Add new partner{" "}
           </Button>
         </Form>
 
@@ -274,8 +280,11 @@ const ListBusiness = () => {
             ))}
           </tbody>
         </Table>
-        <Modal show={showModalSnippet} onHide={handleModalSnippetClose} dialogClassName="modal-90w"
-        aria-labelledby="example-custom-modal-styling-title">
+        <Modal
+          show={showModalSnippet}
+          onHide={handleModalSnippetClose}
+          size="lg"
+        >
           <Modal.Header closeButton>
             <Modal.Title>Install Google Tag Manager</Modal.Title>
           </Modal.Header>
@@ -288,7 +297,7 @@ const ListBusiness = () => {
               possible:{" "}
             </p>
             <br />
-            <InputGroup className="mb-3">
+            {/* <InputGroup className="mb-3">
               <FormControl
                 id="copyableInput"
                 placeholder="Copy me!"
@@ -297,7 +306,8 @@ const ListBusiness = () => {
                 disabled="true"
                 value={codeIntegrationHead}
                 as="textarea"
-                rows={5}
+                rows={10}
+                style={{ resize: "none" }}
               />
               <div style={{ position: "relative" }}>
                 <FaRegCopy
@@ -306,6 +316,7 @@ const ListBusiness = () => {
                     top: "16px",
                     right: "24px",
                     cursor: "pointer",
+                    fontSize: "24px",
                   }}
                   variant="outline-secondary"
                   id="copy-button"
@@ -314,14 +325,40 @@ const ListBusiness = () => {
                   }}
                 />
               </div>
-            </InputGroup>
+            </InputGroup> */}
+            <div
+              style={{
+                background: "#e9ecef",
+                border: "1px solid #ced4da",
+                padding: "18px",
+                borderRadius: "2px",
+                position: "relative",
+              }}
+            >
+              <span>{codeIntegrationHead}</span>
 
+              <FaRegCopy
+                style={{
+                  position: "absolute",
+                  top: "16px",
+                  right: "24px",
+                  cursor: "pointer",
+                  fontSize: "24px",
+                }}
+                variant="outline-secondary"
+                id="copy-button"
+                onClick={() => {
+                  copyToClipboard(codeIntegrationHead);
+                }}
+              />
+            </div>
+            <br />
             <p>
               Additionally, paste this code immediately after the opening{" "}
               <b>&lt;body&gt;</b> tag:{" "}
             </p>
             <br />
-            <InputGroup className="mb-3">
+            {/* <InputGroup className="mb-3">
               <FormControl
                 id="copyableInput"
                 placeholder="Copy me!"
@@ -330,7 +367,8 @@ const ListBusiness = () => {
                 disabled="true"
                 value={codeIntegrationBody}
                 as="textarea"
-                rows={5}
+                rows={10}
+                style={{ resize: "none" }}
               />
               <div style={{ position: "relative" }}>
                 <FaRegCopy
@@ -339,6 +377,7 @@ const ListBusiness = () => {
                     top: "16px",
                     right: "24px",
                     cursor: "pointer",
+                    fontSize: "24px",
                   }}
                   variant="outline-secondary"
                   id="copy-button"
@@ -347,18 +386,45 @@ const ListBusiness = () => {
                   }}
                 />
               </div>
-            </InputGroup>
+            </InputGroup> */}
+            <div
+              style={{
+                background: "#e9ecef",
+                border: "1px solid #ced4da",
+                padding: "18px",
+                borderRadius: "2px",
+                position: "relative",
+              }}
+            >
+              <span>{codeIntegrationBody}</span>
+
+              <FaRegCopy
+                style={{
+                  position: "absolute",
+                  top: "16px",
+                  right: "24px",
+                  cursor: "pointer",
+                  fontSize: "24px",
+                }}
+                variant="outline-secondary"
+                id="copy-button"
+                onClick={() => {
+                  copyToClipboard(codeIntegrationBody);
+                }}
+              />
+            </div>
           </Modal.Body>
           <Modal.Footer>
             <Button variant="secondary" onClick={handleModalSnippetClose}>
               Close
             </Button>
-            <Button variant="primary" onClick={handleModalSnippetClose}>
-              OK
-            </Button>
           </Modal.Footer>
         </Modal>
       </Box>
+      <ModalAddNewPartner
+        showModalAddPartner={showModalAddPartner}
+        handleModalAddPartnerClose={handleModalAddPartnerClose}
+      />
     </>
   );
 };

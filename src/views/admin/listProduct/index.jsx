@@ -170,24 +170,14 @@ const ListProduct = () => {
                       <Card.Text
                         style={{ marginBottom: "8px", color: "#6C757D" }}
                       >
-                        Brand:{" "}
+                        Models Quantity:{" "}
                         <a
                           href="#"
-                          style={{ color: "#0D6EFD", fontWeight: "bold" }}
+                          style={{fontWeight: "bold" }}
                         >
-                          {item?.attributes?.brand}
+                          {item?.attributes?.modelsNumber}
                         </a>
                       </Card.Text>
-
-                      <Card.Text
-                        style={{ marginBottom: "8px", color: "#6C757D" }}
-                      >
-                        Stock:{" "}
-                        <a href="#" style={{ color: "#479F76" }}>
-                          {item?.attributes?.stock}
-                        </a>
-                      </Card.Text>
-
                       <Card.Text
                         style={{
                           margin: "16px 0px 16px 0px",
