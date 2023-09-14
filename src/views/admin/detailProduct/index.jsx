@@ -33,7 +33,8 @@ import { BsSearch, BsFillCheckCircleFill } from "react-icons/bs";
 
 import axios from "axios";
 import ModalEditProduct from "./component/modalEditProduct";
-
+import DeleteModel from "./component/deleteModel";
+import { TiDelete } from "react-icons/ti";
 const DetailProduct = () => {
   const location = useLocation();
 
@@ -41,7 +42,7 @@ const DetailProduct = () => {
 
   const businessId = searchParams.get("id");
 
-  const productId = searchParams.get("productID");
+  const _productId = searchParams.get("productID");
 
   const [data, setData] = useState([]);
 
@@ -65,16 +66,28 @@ const DetailProduct = () => {
 
   const [uid, setUid] = useState("");
   const [modelQuantity, setModelQuatity] = useState("");
-
+  const [arrayAssetId, setArrayAssetId] = useState([]);
   const [updateAsset, setUpdateAsset] = useState(false);
   const [successMessageEdit, setSuccessMessageEdit] = useState("");
+  const [successMessageDelete, setSuccessMessageDelete] = useState("");
 
   const [showModalEditProduct, setShowModalEditProduct] = useState(false);
+  const [showModalDeleteModel, setShowModalDeleteModel] = useState(false);
   const [dataEdit, setDataEdit] = useState([]);
+  const [dataDelete, setDataDelete] = useState([]);
+  const [productId, setProductId] = useState(_productId);
   const handleModalEditProductClose = () => setShowModalEditProduct(false);
   const handleModalEditProductShow = (data) => {
     setShowModalEditProduct(true);
     setDataEdit(data);
+  };
+  const handleModalDeleteModelClose = () => setShowModalDeleteModel(false);
+  const handleModalDeleteModelShow = (data) => {
+    console.log("data ::::::::", data);
+
+    debugger;
+    setShowModalDeleteModel(true);
+    setDataDelete(data);
   };
   const handleClose = () => {
     setShow(false);
@@ -135,7 +148,7 @@ const DetailProduct = () => {
 
         const name = file.name;
 
-        var data = {
+        var dataRes = {
           data: {
             assetUID: uidResponse,
 
@@ -143,17 +156,41 @@ const DetailProduct = () => {
 
             productId: productId,
 
-            isPublished: true,
+            isPublished: false,
 
             thumbnail: "null",
           },
         };
 
-        const modelInfo = await http.post("assets", data, {
-          headers: {
-            Authorization: `Bearer ${getJWTToken}`,
-          },
-        });
+        const modelInfo = await http
+          .post("assets", dataRes, {
+            headers: {
+              Authorization: `Bearer ${getJWTToken}`,
+            },
+          })
+          .then((res) => {
+            debugger;
+            const idProduct = data[0].id;
+            const idAsset = res.data.data.id;
+            arrayAssetId.push(idAsset);
+            var dataRequest = {
+              data: {
+                assets: arrayAssetId,
+              },
+            };
+            http
+              .put(`/products/${idProduct}`, dataRequest, {
+                headers: {
+                  Authorization: `Bearer ${getJWTToken}`,
+                },
+              })
+              .then((response) => {
+                console.log("up load thành công");
+              })
+              .catch((err) => {
+                console.log(err);
+              });
+          });
 
         console.log("modelInfo", modelInfo);
 
@@ -195,6 +232,12 @@ const DetailProduct = () => {
   const handleModalSubmitSuccessEdit = (message) => {
     setSuccessMessageEdit(message);
   };
+  const handleModalSubmitSuccessDelete = (message) => {
+    setSuccessMessageDelete(message);
+  };
+  const handleNewProductId = (newProductId) => {
+    setProductId(newProductId);
+  };
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
 
@@ -215,122 +258,226 @@ const DetailProduct = () => {
 
         const objectsData = [...objectData];
 
-        setData(objectsData);
+        const dataDetailProduct = objectsData[0];
+        getAssetsID(dataDetailProduct);
+        setData([dataDetailProduct]);
 
+        setModelQuatity(response.data.data[0].attributes.assets.data.length);
         if (objectsData.length !== 0) {
+          const objectsDataListAssest =
+            dataDetailProduct.attributes.assets.data;
+
+          objectsDataListAssest.forEach((item, index) => {
+            if (item.attributes.thumbnail === "null") {
+              axios(
+                `https://api.sketchfab.com/v3/models/${item.attributes.assetUID}`,
+                {
+                  method: "GET",
+
+                  headers: {
+                    Authorization: "Bearer sEPNs5kDTKonk0imjvw1bQNrcxbFrN",
+                  },
+                }
+              )
+                .then((repo) => {
+                  const assetId = item.id;
+
+                  const imageURL = repo.data.thumbnails.images[2].url;
+
+                  if (repo.data.publishedAt !== null) {
+                    var dataRequest = {
+                      data: {
+                        thumbnail: imageURL,
+
+                        status: "default",
+                      },
+                    };
+
+                    http
+                      .put(`/assets/${assetId}`, dataRequest, {
+                        headers: {
+                          Authorization: `Bearer ${getJWTToken}`,
+                        },
+                      })
+
+                      .then((responseAsset) => {
+                        setUpdateAsset(true);
+                      })
+
+                      .catch((err) => err);
+                  }
+                })
+                .catch((err) => err);
+            } else {
+              axios(
+                `https://api.sketchfab.com/v3/models/${item.attributes.assetUID}`,
+                {
+                  method: "GET",
+
+                  headers: {
+                    Authorization: "Bearer sEPNs5kDTKonk0imjvw1bQNrcxbFrN",
+                  },
+                }
+              )
+                .then((repo) => {
+                  const assetId = item.id;
+
+                  const imageURL = repo.data.thumbnails.images[2].url;
+
+                  if (item.attributes.thumbnail !== imageURL) {
+                    var dataRequest = {
+                      data: {
+                        thumbnail: imageURL,
+
+                        status: "true",
+                      },
+                    };
+
+                    http
+                      .put(`/assets/${assetId}`, dataRequest, {
+                        headers: {
+                          Authorization: `Bearer ${getJWTToken}`,
+                        },
+                      })
+
+                      .then((responseAsset) => {
+                        setUpdateAsset(true);
+                      })
+
+                      .catch((err) => err);
+                  }
+                })
+                .catch((err) => err);
+            }
+            setListAsset(objectsDataListAssest);
+          });
+
           // check thumbnails == null
 
-          http
-            .get(`assets?filters[productId][$eq]=${productId}`, {
-              headers: {
-                Authorization: `Bearer ${getJWTToken}`,
-              },
-            })
+          // http
+          //   .get(`assets?filters[productId][$eq]=${productId}`, {
+          //     headers: {
+          //       Authorization: `Bearer ${getJWTToken}`,
+          //     },
+          //   })
 
-            .then((response) => {
-              const objectDataListAssest = response.data.data;
+          //   .then((response) => {
+          //     const objectDataListAssest = response.data.data;
+          //     const objectsDataListAssest = [...objectDataListAssest];
+          //     console.log(
+          //       "response.data.length :",
+          //       response.data.data["length"]
+          //     );
+          //     setModelQuatity(response.data.data["length"]);
+          //     objectsDataListAssest.forEach((item, index) => {
+          //       if (item.attributes.thumbnail === "null") {
+          //         axios(
+          //           `https://api.sketchfab.com/v3/models/${item.attributes.assetUID}`,
+          //           {
+          //             method: "GET",
 
-              const objectsDataListAssest = [...objectDataListAssest];
-              console.log(
-                "response.data.length :",
-                response.data.data["length"]
-              );
-              setModelQuatity(response.data.data["length"]);
-              objectsDataListAssest.forEach((item, index) => {
-                if (item.attributes.thumbnail === "null") {
-                  axios(
-                    `https://api.sketchfab.com/v3/models/${item.attributes.assetUID}`,
-                    {
-                      method: "GET",
+          //             headers: {
+          //               Authorization: "Bearer sEPNs5kDTKonk0imjvw1bQNrcxbFrN",
+          //             },
+          //           }
+          //         )
+          //           .then((repo) => {
+          //             const assetId = item.id;
 
-                      headers: {
-                        Authorization: "Bearer sEPNs5kDTKonk0imjvw1bQNrcxbFrN",
-                      },
-                    }
-                  )
-                    .then((repo) => {
-                      const assetId = item.id;
+          //             const imageURL = repo.data.thumbnails.images[2].url;
 
-                      const imageURL = repo.data.thumbnails.images[2].url;
+          //             if (repo.data.publishedAt !== null) {
+          //               var dataRequest = {
+          //                 data: {
+          //                   thumbnail: imageURL,
 
-                      if (repo.data.publishedAt !== null) {
-                        var dataRequest = {
-                          data: {
-                            thumbnail: imageURL,
+          //                   status: "default",
+          //                 },
+          //               };
 
-                            status: "default",
-                          },
-                        };
+          //               http
+          //                 .put(`/assets/${assetId}`, dataRequest, {
+          //                   headers: {
+          //                     Authorization: `Bearer ${getJWTToken}`,
+          //                   },
+          //                 })
 
-                        http
-                          .put(`/assets/${assetId}`, dataRequest, {
-                            headers: {
-                              Authorization: `Bearer ${getJWTToken}`,
-                            },
-                          })
+          //                 .then((responseAsset) => {
+          //                   setUpdateAsset(true);
+          //                 })
 
-                          .then((responseAsset) => {
-                            setUpdateAsset(true);
-                          })
+          //                 .catch((err) => err);
+          //             }
+          //           })
+          //           .catch((err) => err);
+          //       } else {
+          //         axios(
+          //           `https://api.sketchfab.com/v3/models/${item.attributes.assetUID}`,
+          //           {
+          //             method: "GET",
 
-                          .catch((err) => err);
-                      }
-                    })
-                    .catch((err) => err);
-                } else {
-                  axios(
-                    `https://api.sketchfab.com/v3/models/${item.attributes.assetUID}`,
-                    {
-                      method: "GET",
+          //             headers: {
+          //               Authorization: "Bearer sEPNs5kDTKonk0imjvw1bQNrcxbFrN",
+          //             },
+          //           }
+          //         )
+          //           .then((repo) => {
+          //             const assetId = item.id;
 
-                      headers: {
-                        Authorization: "Bearer sEPNs5kDTKonk0imjvw1bQNrcxbFrN",
-                      },
-                    }
-                  )
-                    .then((repo) => {
-                      const assetId = item.id;
+          //             const imageURL = repo.data.thumbnails.images[2].url;
 
-                      const imageURL = repo.data.thumbnails.images[2].url;
+          //             if (item.attributes.thumbnail !== imageURL) {
+          //               var dataRequest = {
+          //                 data: {
+          //                   thumbnail: imageURL,
 
-                      if (item.attributes.thumbnail !== imageURL) {
-                        var dataRequest = {
-                          data: {
-                            thumbnail: imageURL,
+          //                   status: "true",
+          //                 },
+          //               };
 
-                            status: "true",
-                          },
-                        };
+          //               http
+          //                 .put(`/assets/${assetId}`, dataRequest, {
+          //                   headers: {
+          //                     Authorization: `Bearer ${getJWTToken}`,
+          //                   },
+          //                 })
 
-                        http
-                          .put(`/assets/${assetId}`, dataRequest, {
-                            headers: {
-                              Authorization: `Bearer ${getJWTToken}`,
-                            },
-                          })
+          //                 .then((responseAsset) => {
+          //                   setUpdateAsset(true);
+          //                 })
 
-                          .then((responseAsset) => {
-                            setUpdateAsset(true);
-                          })
+          //                 .catch((err) => err);
+          //             }
+          //           })
+          //           .catch((err) => err);
+          //       }
+          //       setListAsset(objectsDataListAssest);
+          //     });
+          //   })
 
-                          .catch((err) => err);
-                      }
-                    })
-                    .catch((err) => err);
-                }
-                setListAsset(objectsDataListAssest);
-              });
-            })
-
-            .catch((err) => err);
+          //   .catch((err) => err);
         }
       })
 
       .catch((err) => err);
 
     autoPlayAll3DViewers();
-  }, [onUploading, updateAsset, successMessageEdit]);
+  }, [onUploading, updateAsset, successMessageEdit, successMessageDelete]);
 
+  const checkImageDefault = (value) => {
+    if (value.includes("https://media.sketchfab.com/models")) {
+      return true;
+    } else return false;
+  };
+
+  const getAssetsID = (item) => {
+    let arrayId = [];
+    item.attributes.assets.data.forEach((value, index) => {
+      arrayId.push(value.id);
+    });
+
+    setArrayAssetId(arrayId);
+  };
   const onShow = () => {
     var selector = document.getElementById("api-frame-detail");
 
@@ -364,6 +511,11 @@ const DetailProduct = () => {
       setSuccessMessageEdit(null);
     }, 3000);
   }
+  if (successMessageDelete) {
+    setTimeout(() => {
+      setSuccessMessageDelete(null);
+    }, 3000);
+  }
   if (
     businessId !== null &&
     businessId !== "" &&
@@ -388,6 +540,22 @@ const DetailProduct = () => {
             {successMessageEdit}
           </Alert>
         )}
+        {successMessageDelete && (
+          <Alert
+            variant="success"
+            style={{
+              zIndex: "1",
+              position: "fixed",
+              left: "50%",
+              transform: "translate(-50%,-50%)",
+            }}
+          >
+            <BsFillCheckCircleFill
+              style={{ display: "inline", margin: "5px 10px" }}
+            />{" "}
+            {successMessageDelete}
+          </Alert>
+        )}
         <Box pt={{ base: "180px", md: "80px", xl: "80px" }}>
           {data.map((item, index) => (
             <Card
@@ -403,7 +571,8 @@ const DetailProduct = () => {
                         src={
                           urlStrapi +
                           "/" +
-                          item?.attributes?.testImage?.data?.attributes?.url
+                          item?.attributes?.testImage?.data?.attributes?.formats
+                            ?.thumbnail?.url
                         }
                         style={{ width: "360px" }}
                       />
@@ -431,6 +600,22 @@ const DetailProduct = () => {
                       style={{ marginBottom: "8px", color: "#6C757D" }}
                     >
                       Models Quantity: {modelQuantity}
+                    </Card.Text>
+                    <Card.Text
+                      style={{ margin: "16px 0px 8px 0px", color: "#6C757D" }}
+                    >
+                      Tryout Link:{" "}
+                      {item?.attributes?.tryoutLink !== "" &&
+                      item?.attributes?.tryoutLink ? (
+                        <a
+                          target="_blank"
+                          href={`${item?.attributes?.tryoutLink}`}
+                        >
+                          {item?.attributes?.tryoutLink}
+                        </a>
+                      ) : (
+                        "Not Available"
+                      )}
                     </Card.Text>
                     <Card.Text
                       style={{
@@ -498,7 +683,7 @@ const DetailProduct = () => {
                   .filter(
                     (value) =>
                       value.attributes.thumbnail !== "null" &&
-                      value.attributes.status !== "default"
+                      checkImageDefault(value.attributes.thumbnail)
                   )
                   .map((item, index) => (
                     <div
@@ -545,7 +730,13 @@ const DetailProduct = () => {
                         }}
                       />
 
-                      <p className="titleItems">3D Model Item</p>
+                      <div className="titleItems">
+                        <p>3D Model Item</p>
+                        <TiDelete
+                          onClick={() => handleModalDeleteModelShow(item)}
+                          className="titleIcon"
+                        />
+                      </div>
                     </div>
                   ))}
 
@@ -553,7 +744,7 @@ const DetailProduct = () => {
                   .filter(
                     (value) =>
                       value.attributes.thumbnail !== "null" &&
-                      value.attributes.status === "default"
+                      !checkImageDefault(value.attributes.thumbnail)
                   )
                   .map((item, index) => (
                     <div
@@ -564,7 +755,7 @@ const DetailProduct = () => {
                         width: "100%",
                         padding: "100% 0px 0px 0px",
                         position: "relative",
-                        margin: "0px 0px",
+                        margin: "10px 0px",
                         boxSizing: "border-box",
                       }}
                     >
@@ -601,7 +792,7 @@ const DetailProduct = () => {
                       />
 
                       <p className="titleItemsDefault">
-                        {item.attributes.status === "default"
+                        {!checkImageDefault(item?.attributes?.thumbnail)
                           ? "Default Image"
                           : ""}
                       </p>
@@ -764,8 +955,17 @@ const DetailProduct = () => {
             getJWTToken={getJWTToken}
             onSubmitSuccessEdit={handleModalSubmitSuccessEdit}
             dataEdit={dataEdit}
+            handleNewProductId={handleNewProductId}
           />
         )}
+        <DeleteModel
+          showModalDeleteModel={showModalDeleteModel}
+          handleModalDeleteModelClose={handleModalDeleteModelClose}
+          data={data}
+          getJWTToken={getJWTToken}
+          onSubmitSuccessDelete={handleModalSubmitSuccessDelete}
+          dataDelete={dataDelete}
+        />
       </>
     );
   } else {

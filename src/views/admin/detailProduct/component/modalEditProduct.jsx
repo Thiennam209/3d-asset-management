@@ -19,11 +19,18 @@ const ModalEditProduct = ({
   data,
   getJWTToken,
   onSubmitSuccessEdit,
-  dataEdit
+  dataEdit,
+  handleNewProductId,
 }) => {
   const [validated, setValidated] = useState(false);
   const [productName, setProductName] = useState(data[0].attributes.title);
   const [productId, setProductId] = useState(data[0].attributes.productId);
+  const [productTryoutLink, setProductTryoutLink] = useState(
+    data[0].attributes?.tryoutLink
+  );
+  const [newProductId, setNewProductId] = useState(
+    data[0].attributes.productId
+  );
   const [productDescription, setProductDescription] = useState(
     data[0].attributes.description
   );
@@ -37,9 +44,7 @@ const ModalEditProduct = ({
   const fileInputRef = useRef(null);
   const handleEdit = (event) => {
     const form = event.currentTarget;
-    setIsProcessing(true);
-    setIsButtonDisabled(true);
-    setIsButtonImgDisabled(true)
+
     if (form.checkValidity() === false) {
       event.preventDefault();
       event.stopPropagation();
@@ -51,91 +56,110 @@ const ModalEditProduct = ({
       productDescription,
       file,
     };
-    http
-      .get(`/products?filters[productId][$eq]=${productId}&populate=*`, {
-        headers: {
-          Authorization: `Bearer ${getJWTToken}`,
-        },
-      })
-      .then((res) => {
-        const getID = res.data.data[0].id;
-        const imgID = res.data.data[0].attributes.testImage.data.id;
-        if (file === null) {
-          http
-            .put(
-              `/products/${getID}`,
-              {
-                data: {
-                  title: productName,
-                  description: productDescription,
+    console.log("productId ::", productId);
+    console.log("newProductId ::", newProductId);
+    if (newProductId && productName && productDescription) {
+      setIsProcessing(true);
+      setIsButtonDisabled(true);
+      setIsButtonImgDisabled(true);
+      http
+        .get(`/products?filters[productId][$eq]=${productId}&populate=*`, {
+          headers: {
+            Authorization: `Bearer ${getJWTToken}`,
+          },
+        })
+        .then((res) => {
+          const duplicateId = res.data.data.length;
+          if (productId !== newProductId && duplicateId > 0) {
+            // SET ERROR (duplicate id)
+            console.log("Duplication ID");
+            return
+          }
+          const getID = res.data.data[0].id;
+          const imgID = res.data.data[0].attributes.testImage.data.id;
+          if (file === null) {
+            http
+              .put(
+                `/products/${getID}`,
+                {
+                  data: {
+                    productId: newProductId,
+                    tryoutLink: productTryoutLink,
+                    title: productName,
+                    description: productDescription,
+                  },
                 },
-              },
-              {
+                {
+                  headers: {
+                    Authorization: `Bearer ${getJWTToken}`,
+                  },
+                }
+              )
+              .then((res) => {
+                handleModalEditProductClose();
+                setIsProcessing(false);
+                setIsButtonDisabled(false);
+                setIsButtonImgDisabled(false);
+                onSubmitSuccessEdit(
+                  `Edit a product with name ${productName} was successful.`
+                );
+                handleNewProductId(newProductId);
+              });
+          } else {
+            http
+              .delete(`/upload/files/${imgID}`, {
                 headers: {
                   Authorization: `Bearer ${getJWTToken}`,
                 },
-              }
-            )
-            .then((res) => {
-              handleModalEditProductClose();
-              setIsProcessing(false);
-              setIsButtonDisabled(false);
-              setIsButtonImgDisabled(false)
-              onSubmitSuccessEdit(
-                `Edit a product with name ${productName} was successful.`
-              );
-            });
-        } else {
-          http
-            .delete(`/upload/files/${imgID}`, {
-              headers: {
-                Authorization: `Bearer ${getJWTToken}`,
-              },
-            })
-            .then((res) => {
-              const dataImg = new FormData();
-              dataImg.append("files", file);
-              http
-                .post("/upload", dataImg, {
-                  headers: {
-                    "Content-Type": "multipart/form-data",
-                    Authorization: `Bearer ${getJWTToken}`,
-                  },
-                })
-                .then((res) => {
-                  const imgId = res.data[0].id;
-                  http
-                    .put(
-                      `/products/${getID}`,
-                      {
-                        data: {
-                          title: productName,
-                          description: productDescription,
-                          testImage: imgId,
+              })
+              .then((res) => {
+                const dataImg = new FormData();
+                dataImg.append("files", file);
+                http
+                  .post("/upload", dataImg, {
+                    headers: {
+                      "Content-Type": "multipart/form-data",
+                      Authorization: `Bearer ${getJWTToken}`,
+                    },
+                  })
+                  .then((res) => {
+                    const imgId = res.data[0].id;
+                    http
+                      .put(
+                        `/products/${getID}`,
+                        {
+                          data: {
+                            productId: newProductId,
+                            tryoutLink: productTryoutLink,
+                            title: productName,
+                            description: productDescription,
+                            testImage: imgId,
+                          },
                         },
-                      },
-                      {
-                        headers: {
-                          Authorization: `Bearer ${getJWTToken}`,
-                        },
-                      }
-                    )
-                    .then((res) => {
-                      handleModalEditProductClose();
-                      setIsProcessing(false);
-                      setIsButtonDisabled(false);
-                      setIsButtonImgDisabled(false)
-                      onSubmitSuccessEdit(
-                        `Edit a product with name ${productName} was successful.`
-                      );
-                    });
-                });
-            });
-          console.log("imageSrc :", data[0].attributes.thumbnail);
-          console.log("file :", file);
-        }
-      });
-    console.log("formData :", formData);
+                        {
+                          headers: {
+                            Authorization: `Bearer ${getJWTToken}`,
+                          },
+                        }
+                      )
+                      .then((res) => {
+                        handleModalEditProductClose();
+                        setIsProcessing(false);
+                        setIsButtonDisabled(false);
+                        setIsButtonImgDisabled(false);
+                        onSubmitSuccessEdit(
+                          `Edit a product with name ${productName} was successful.`
+                        );
+                        handleNewProductId(newProductId);
+                      });
+                  });
+              });
+            console.log("imageSrc :", data[0].attributes.thumbnail);
+            console.log("file :", file);
+          }
+        });
+      setValidated(false);
+    }
   };
   const handleButtonImgClick = () => {
     fileInputRef.current.click();
@@ -152,7 +176,7 @@ const ModalEditProduct = ({
       reader.readAsDataURL(file);
     }
   };
-  
+
   return (
     <>
       <Modal
@@ -181,6 +205,17 @@ const ModalEditProduct = ({
               margin: "30px 0",
             }}
           >
+            <Form.Group>
+              <Form.Label>Product ID</Form.Label>
+              <Form.Control
+                style={{ width: "513px" }}
+                type="text"
+                placeholder="Enter Product ID"
+                value={newProductId}
+                onChange={(e) => setNewProductId(e.target.value)}
+                required
+              />
+            </Form.Group>
             <Form.Group
               controlId="validationProductName"
               style={{
@@ -206,6 +241,16 @@ const ModalEditProduct = ({
               </Form.Control.Feedback>
             </Form.Group>
 
+            <Form.Group>
+              <Form.Label>Try out link</Form.Label>
+              <Form.Control
+                style={{ width: "513px" }}
+                type="text"
+                placeholder="Enter product try out link"
+                value={productTryoutLink}
+                onChange={(e) => setProductTryoutLink(e.target.value)}
+              />
+            </Form.Group>
             <Form.Group
               controlId="validationProductDescription"
               style={{
@@ -242,7 +287,11 @@ const ModalEditProduct = ({
                   </Col>
                 </Row>
                 <br />
-                <Button onClick={handleButtonImgClick} variant="dark" disabled={isButtonImgDisabled}>
+                <Button
+                  onClick={handleButtonImgClick}
+                  variant="dark"
+                  disabled={isButtonImgDisabled}
+                >
                   Change Image
                 </Button>{" "}
               </div>
@@ -262,8 +311,12 @@ const ModalEditProduct = ({
           <Button variant="secondary" onClick={handleModalEditProductClose}>
             Close
           </Button>
-          <Button variant="primary" onClick={handleEdit} disabled={isButtonDisabled}>
-            Save Changes {" "}
+          <Button
+            variant="primary"
+            onClick={handleEdit}
+            disabled={isButtonDisabled}
+          >
+            Save Changes{" "}
             {isProcessing && (
               <Spinner
                 animation="border"

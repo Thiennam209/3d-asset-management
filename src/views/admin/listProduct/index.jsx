@@ -53,6 +53,7 @@ const ListProduct = () => {
   const [data, setData] = useState([]);
   const [businessId, setBusinessId] = useState("");
   const [isButtonAddDisabled, setIsButtonAddDisabled] = useState(false);
+  const [isButtonDeleteDisabled, setIsButtonDeleteDisabled] = useState(false);
   const searchParams = new URLSearchParams(location.search);
   const getIDBusiness = searchParams.get("id");
   const getJWTToken = localStorage.getItem("dtvt");
@@ -106,9 +107,11 @@ const ListProduct = () => {
   }
   if (successMessageDelete) {
     setTimeout(() => {
+      setIsButtonDeleteDisabled(false);
       setSuccessMessageDelete(null);
     }, 3000);
   }
+  console.log("item?.attributes?.tryoutLink", data[0]?.attributes?.tryoutLink);
   return (
     <>
       {successMessage && (
@@ -185,7 +188,8 @@ const ListProduct = () => {
                           src={
                             urlStrapi +
                             "/" +
-                            item?.attributes?.testImage?.data?.attributes?.url
+                            item?.attributes?.testImage?.data?.attributes?.formats?.thumbnail?.url
+
                           }
                           style={{ width: "360px" }}
                         />
@@ -221,6 +225,20 @@ const ListProduct = () => {
                           {item?.attributes?.modelsNumber}
                         </a> */}
                       </Card.Text>
+
+                      <Card.Text
+                        style={{ margin: "16px 0px 8px 0px", color: "#6C757D" }}
+                      >
+                        Tryout Link:{" "}
+                        {item?.attributes?.tryoutLink !== "" &&
+                        item?.attributes?.tryoutLink ? (
+                          <a target="_blank" href={`${item?.attributes?.tryoutLink}`}>
+                            {item?.attributes?.tryoutLink}
+                          </a>
+                        ) : (
+                          "Not Available"
+                        )}
+                      </Card.Text>
                       <Card.Text
                         style={{
                           margin: "16px 0px 16px 0px",
@@ -252,19 +270,24 @@ const ListProduct = () => {
                             padding: "0px 0px 5px",
                             width: "25px",
                             height: "25px",
-                            color: "red",
+                            color: "#c59090",
                           }}
                         />
 
                         <u
                           style={{
-                            color: "red",
+                            color: "#c59090",
                             marginLeft: "8px",
                             textDecoration: "underline",
                             fontSize: "18px",
                             cursor: "pointer",
+                            disabled: "none",
                           }}
-                          onClick={() => handleModalDeleteProductShow(item)}
+                          onClick={
+                            !isButtonDeleteDisabled
+                              ? () => handleModalDeleteProductShow(item)
+                              : () => {}
+                          }
                         >
                           Delete
                         </u>
@@ -290,6 +313,7 @@ const ListProduct = () => {
           onSubmitSuccessDelete={handleModalSubmitSuccessDelete}
           dataDelete={dataDelete}
           getJWTToken={getJWTToken}
+          setIsButtonDeleteDisabled={setIsButtonDeleteDisabled}
         />
       </Box>
     </>

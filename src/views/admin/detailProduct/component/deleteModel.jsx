@@ -22,40 +22,39 @@ import axios from "axios";
 
 import { http, urlStrapi } from "../../../../axios/init";
 
-const DeleteProduct = ({
-  showModalDeleteProduct,
-  handleModalDeleteProductClose,
+const DeleteModel = ({
+  showModalDeleteModel,
+  handleModalDeleteModelClose,
   getJWTToken,
   dataDelete,
-  onSubmitSuccessDelete,
-  setIsButtonDeleteDisabled
+  onSubmitSuccessDelete
 }) => {
+  console.log("dataDelete :", dataDelete);
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const handleFinnish = () => {
     setIsButtonDisabled(true);
-    setIsButtonDeleteDisabled(true)
     http
-      .delete(`products/${dataDelete.id}`, {
+      .delete(`assets/${dataDelete.id}`, {
         headers: {
           Authorization: `Bearer ${getJWTToken}`,
         },
       })
       .then((res) => {
         onSubmitSuccessDelete(
-          `Delete a product with name ${dataDelete?.attributes?.title} was successful.`
+          `Delete a 3D model was successful.`
         );
         setIsButtonDisabled(false);
       });
-    handleModalDeleteProductClose();
+    handleModalDeleteModelClose();
   };
   const handleCancel = () => {
-    handleModalDeleteProductClose();
+    handleModalDeleteModelClose();
   };
   return (
     <Modal
-      show={showModalDeleteProduct}
-      onHide={handleModalDeleteProductClose}
+      show={showModalDeleteModel}
+      onHide={handleModalDeleteModelClose}
       centered
     >
       <Modal.Header closeButton style={{ padding: "20px 20px 10px 50px" }}>
@@ -69,7 +68,7 @@ const DeleteProduct = ({
 
       <Modal.Body style={{ paddingLeft: "50px" }}>
         <p>
-          Your action will delete <b>{dataDelete?.attributes?.title}</b>. Please
+          Your action will delete a 3D model. Please
           beware this action CANNOT be undone.
         </p>
       </Modal.Body>
@@ -101,4 +100,4 @@ const DeleteProduct = ({
   );
 };
 
-export default DeleteProduct;
+export default DeleteModel;

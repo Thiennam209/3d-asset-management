@@ -42,6 +42,7 @@ const CreateProduct = ({
   const [productName, setProductName] = useState("");
 
   const [productId, setProductId] = useState("");
+  const [tryoutLink, setTryoutLink] = useState("");
 
   const [productDescription, setProductDescription] = useState("");
 
@@ -54,7 +55,6 @@ const CreateProduct = ({
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
 
   const [isProcessing, setIsProcessing] = useState(false);
-
 
   const handleFileChange = (e) => {
     const file = e.target.files[0]; // Lấy tệp đầu tiên trong danh sách đã chọn
@@ -119,6 +119,7 @@ const CreateProduct = ({
       productName,
 
       productId,
+      tryoutLink,
 
       productDescription,
 
@@ -177,85 +178,89 @@ const CreateProduct = ({
           console.log("res:", res);
           const urlImg = `${urlStrapi}${res.data[0].url}`;
           const imgId = res.data[0].id;
-          http.post(
-            "/products",
+          axios("https://api.sketchfab.com/v3/models", {
+            method: "POST",
 
-            {
-              data: {
-                title: formData.productName,
+            headers: { Authorization: `Bearer sEPNs5kDTKonk0imjvw1bQNrcxbFrN` },
 
-                description: formData.productDescription,
+            data: formDataSketchfab,
 
-                productId: formData.productId,
+            // onUploadProgress: (event) => {
 
-                businessId: formData.getIDBusiness,
+            //   const { loaded, total } = event;
 
-                thumbnail: urlImg,
-                testImage: imgId,
-              },
-            },
+            //   let per = Math.floor((loaded * 100) / total);
 
-            {
-              headers: {
-                Authorization: `Bearer ${getJWTToken}`,
-              },
+            //   console.log(`Process ${per}%`);
+
+            //   animateProgress(per);
+
+            // },
+          }).then((res) => {
+            if (res.status === 201) {
+              const uidResponse = res.data.uid;
+
+              var data = {
+                data: {
+                  assetUID: uidResponse,
+
+                  description: formData.productName,
+
+                  productId: formData.productId,
+                  productId: formData.tryoutLink,
+
+                  isPublished: false,
+
+                  thumbnail: "null",
+                },
+              };
+
+              http
+                .post("assets", data, {
+                  headers: {
+                    Authorization: `Bearer ${getJWTToken}`,
+                  },
+                })
+                .then((res) => {
+                  const idAsset = res.data.data.id
+                  http.post(
+                    "/products",
+
+                    {
+                      data: {
+                        title: formData.productName,
+                        assets: idAsset,
+                        description: formData.productDescription,
+
+                        productId: formData.productId,
+                        tryoutLink: formData.tryoutLink,
+                        businessId: formData.getIDBusiness,
+
+                        thumbnail: urlImg,
+                        testImage: imgId,
+                      },
+                    },
+
+                    {
+                      headers: {
+                        Authorization: `Bearer ${getJWTToken}`,
+                      },
+                    }
+                  );
+                });
+
+              onSubmitSuccess(
+                `Create new product with name ${formData.productName} was successful.`
+              );
+
+              handleModalInitClose();
+
+              setIsButtonDisabled(false);
+
+              setIsProcessing(false);
             }
-          );
-        });
-
-      axios("https://api.sketchfab.com/v3/models", {
-        method: "POST",
-
-        headers: { Authorization: `Bearer sEPNs5kDTKonk0imjvw1bQNrcxbFrN` },
-
-        data: formDataSketchfab,
-
-        // onUploadProgress: (event) => {
-
-        //   const { loaded, total } = event;
-
-        //   let per = Math.floor((loaded * 100) / total);
-
-        //   console.log(`Process ${per}%`);
-
-        //   animateProgress(per);
-
-        // },
-      }).then((res) => {
-        if (res.status === 201) {
-          const uidResponse = res.data.uid;
-
-          var data = {
-            data: {
-              assetUID: uidResponse,
-
-              description: formData.productName,
-
-              productId: formData.productId,
-
-              isPublished: true,
-
-              thumbnail: "null",
-            },
-          };
-
-          http.post("assets", data, {
-            headers: {
-              Authorization: `Bearer ${getJWTToken}`,
-            },
           });
-
-          onSubmitSuccess(
-            `Create new product with name ${formData.productName} was successful.`
-          );
-
-          handleModalInitClose();
-
-          setIsButtonDisabled(false);
-
-          setIsProcessing(false);
-        }
-      });
+        });
     } else {
       console.error("Please select an image.");
     }
@@ -331,6 +336,7 @@ const CreateProduct = ({
     setProductName("");
 
     setProductId("");
+    setTryoutLink("");
 
     setProductDescription("");
 
@@ -371,6 +377,33 @@ const CreateProduct = ({
           }}
         >
           <Form.Group
+            controlId="validationProductId"
+            style={{
+              margin: "5px 0",
+
+              display: "flex",
+
+              flexDirection: "column",
+
+              justifyContent: "space-between",
+            }}
+          >
+            <Form.Label>Product id</Form.Label>
+
+            <Form.Control
+              style={{ width: "513px" }}
+              type="text"
+              placeholder="Enter product id"
+              value={productId}
+              onChange={(e) => setProductId(e.target.value)}
+              required
+            />
+
+            <Form.Control.Feedback type="invalid">
+              Please enter product id
+            </Form.Control.Feedback>
+          </Form.Group>
+          <Form.Group
             controlId="validationProductName"
             style={{
               margin: "5px 0",
@@ -397,9 +430,7 @@ const CreateProduct = ({
               Please enter product name
             </Form.Control.Feedback>
           </Form.Group>
-
           <Form.Group
-            controlId="validationProductId"
             style={{
               margin: "5px 0",
 
@@ -410,22 +441,16 @@ const CreateProduct = ({
               justifyContent: "space-between",
             }}
           >
-            <Form.Label>Product Id</Form.Label>
+            <Form.Label>Tryout link</Form.Label>
 
             <Form.Control
               style={{ width: "513px" }}
               type="text"
-              placeholder="Enter product Id"
-              value={productId}
-              onChange={(e) => setProductId(e.target.value)}
-              required
+              placeholder="Enter tryout link"
+              value={tryoutLink}
+              onChange={(e) => setTryoutLink(e.target.value)}
             />
-
-            <Form.Control.Feedback type="invalid">
-              Please enter product id
-            </Form.Control.Feedback>
           </Form.Group>
-
           <Form.Group
             controlId="validationProductDescription"
             style={{

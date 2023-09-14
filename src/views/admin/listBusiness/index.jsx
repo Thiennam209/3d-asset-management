@@ -1,17 +1,8 @@
-import {
-  Table,
-  Row,
-  Col,
-  Modal,
-  Button,
-  InputGroup,
-  FormControl,
-  Alert,
-} from "react-bootstrap";
+import { Table, Modal, Button, FormControl, Alert } from "react-bootstrap";
 import { Box } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { http } from "../../../axios/init";
+import { http, urlStrapi } from "../../../axios/init";
 import "./styles.css";
 import { CgAddR, CgCodeSlash } from "react-icons/cg";
 import { Form } from "react-bootstrap";
@@ -26,7 +17,9 @@ const ListBusiness = () => {
   const [codeIntegrationHead, setCodeIntegrationHead] = useState("");
   const [codeIntegrationBody, setCodeIntegrationBody] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [successMessageAddPartner, setSuccessMessageAddPartner] = useState("");
   const [showModalAddPartner, setShowModalAddPartner] = useState(false);
+  const [isButtonAddDisabled, setIsButtonAddDisabled] = useState(false);
   const handleModalAddPartnerClose = () => setShowModalAddPartner(false);
   const handleModalAddPartnerShow = () => setShowModalAddPartner(true);
   const handleModalSnippetClose = () => {
@@ -72,7 +65,7 @@ const ListBusiness = () => {
 
   useEffect(() => {
     http
-      .get("businesses", {
+      .get("businesses?populate=*", {
         headers: {
           Authorization: `Bearer ${getJWTToken}`,
         },
@@ -83,7 +76,7 @@ const ListBusiness = () => {
         setData(objectsData);
       })
       .catch((err) => err);
-  }, [showModalAddPartner]);
+  }, [successMessageAddPartner]);
 
   const copyToClipboard = (value) => {
     // Sử dụng API Clipboard để sao chép văn bản vào clipboard
@@ -100,11 +93,19 @@ const ListBusiness = () => {
       });
   };
 
-
+  const handleModalSubmitSuccess = (message) => {
+    setSuccessMessageAddPartner(message);
+  };
   if (successMessage) {
     setTimeout(() => {
       setSuccessMessage(null);
     }, 2000);
+  }
+  if (successMessageAddPartner) {
+    setTimeout(() => {
+      setIsButtonAddDisabled(false);
+      setSuccessMessageAddPartner(null);
+    }, 3000);
   }
   return (
     <>
@@ -124,6 +125,22 @@ const ListBusiness = () => {
           {successMessage}
         </Alert>
       )}
+      {successMessageAddPartner && (
+        <Alert
+          variant="success"
+          style={{
+            zIndex: "9000",
+            position: "fixed",
+            left: "50%",
+            transform: "translate(-50%,-50%)",
+          }}
+        >
+          <BsFillCheckCircleFill
+            style={{ display: "inline", margin: "0 5px" }}
+          />{" "}
+          {successMessageAddPartner}
+        </Alert>
+      )}
       <Box pt={{ base: "180px", md: "80px", xl: "80px" }} w="100%">
         <Form className="custom-search-bar">
           <FormControl
@@ -138,6 +155,7 @@ const ListBusiness = () => {
             variant="primary"
             style={{ margin: "15px 10px 15px 60px" }}
             onClick={handleModalAddPartnerShow}
+            disabled={isButtonAddDisabled}
           >
             <CgAddR style={{ display: "inline-block" }} /> Add new partner{" "}
           </Button>
@@ -185,7 +203,7 @@ const ListBusiness = () => {
                           height: "40px",
                           objectFit: "cover",
                         }}
-                        src={item?.attributes?.ManagerImage}
+                        src={`${urlStrapi}/${item?.attributes?.avatar?.data?.attributes?.formats?.small?.url}`}
                         alt="null"
                       />
                     </div>
@@ -235,7 +253,7 @@ const ListBusiness = () => {
                           height: "40px",
                           objectFit: "cover",
                         }}
-                        src={item?.attributes?.ManagerImage}
+                        src={`${urlStrapi}/${item?.attributes?.avatar?.data?.attributes?.formats?.small?.url}`}
                         alt="null"
                       />
                     </div>
@@ -298,35 +316,6 @@ const ListBusiness = () => {
               possible:{" "}
             </p>
             <br />
-            {/* <InputGroup className="mb-3">
-              <FormControl
-                id="copyableInput"
-                placeholder="Copy me!"
-                aria-label="Copy me!"
-                aria-describedby="copy-button"
-                disabled="true"
-                value={codeIntegrationHead}
-                as="textarea"
-                rows={10}
-                style={{ resize: "none" }}
-              />
-              <div style={{ position: "relative" }}>
-                <FaRegCopy
-                  style={{
-                    position: "absolute",
-                    top: "16px",
-                    right: "24px",
-                    cursor: "pointer",
-                    fontSize: "24px",
-                  }}
-                  variant="outline-secondary"
-                  id="copy-button"
-                  onClick={() => {
-                    copyToClipboard(codeIntegrationHead);
-                  }}
-                />
-              </div>
-            </InputGroup> */}
             <div
               style={{
                 background: "#e9ecef",
@@ -359,35 +348,6 @@ const ListBusiness = () => {
               <b>&lt;body&gt;</b> tag:{" "}
             </p>
             <br />
-            {/* <InputGroup className="mb-3">
-              <FormControl
-                id="copyableInput"
-                placeholder="Copy me!"
-                aria-label="Copy me!"
-                aria-describedby="copy-button"
-                disabled="true"
-                value={codeIntegrationBody}
-                as="textarea"
-                rows={10}
-                style={{ resize: "none" }}
-              />
-              <div style={{ position: "relative" }}>
-                <FaRegCopy
-                  style={{
-                    position: "absolute",
-                    top: "16px",
-                    right: "24px",
-                    cursor: "pointer",
-                    fontSize: "24px",
-                  }}
-                  variant="outline-secondary"
-                  id="copy-button"
-                  onClick={() => {
-                    copyToClipboard(codeIntegrationHead);
-                  }}
-                />
-              </div>
-            </InputGroup> */}
             <div
               style={{
                 background: "#e9ecef",
@@ -426,6 +386,8 @@ const ListBusiness = () => {
         showModalAddPartner={showModalAddPartner}
         handleModalAddPartnerClose={handleModalAddPartnerClose}
         getJWTToken={getJWTToken}
+        setIsButtonAddDisabled={setIsButtonAddDisabled}
+        onSubmitSuccess={handleModalSubmitSuccess}
       />
     </>
   );
