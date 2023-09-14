@@ -55,133 +55,6 @@ const CreateProduct = ({
 
   const [isProcessing, setIsProcessing] = useState(false);
 
-  //   const [show, setShow] = useState(false);
-
-  //   const [selectFile, enableUploadButton] = useState(false);
-
-  // const [percentage, animateProgress] = useState(0);
-
-  //   const [file, setFile] = useState(null);
-
-  //   const [onUploading, setStatusUpload] = useState(false);
-
-  //   const [uid, setUid] = useState("");
-
-  //   const getJWTToken = localStorage.getItem("dtvt");
-
-  //   const handleClose = () => {
-
-  //     setShow(false);
-
-  //     enableUploadButton(false);
-
-  //     animateProgress(0);
-
-  //   };
-
-  //   const handleFileChange = (event) => {
-
-  //     setFile(event.target.files[0]);
-
-  //     enableUploadButton(true);
-
-  //   };
-
-  //   const handleSubmit = async (event) => {
-
-  //     console.log(`handleSubmit: process ${percentage}`);
-
-  //     setStatusUpload(true);
-
-  //     enableUploadButton(false);
-
-  //     const formData = new FormData();
-
-  //     formData.append("modelFile", file);
-
-  //     formData.append("isInspectable", true);
-
-  //     formData.append("license", "by");
-
-  //     try {
-
-  //       // Upload model to Sketchfab
-
-  //       const response = await axios("https://api.sketchfab.com/v3/models", {
-
-  //         method: "POST",
-
-  //         headers: { Authorization: `Bearer sEPNs5kDTKonk0imjvw1bQNrcxbFrN` },
-
-  //         data: formData,
-
-  //         onUploadProgress: (event) => {
-
-  //           const { loaded, total } = event;
-
-  //           let per = Math.floor((loaded * 100) / total);
-
-  //           console.log(`Process ${per}%`);
-
-  //           animateProgress(per);
-
-  //         },
-
-  //       });
-
-  //       if (response.status == 201) {
-
-  //         console.log("UPLOAD SUCESSFUL");
-
-  //         // Create new asset in Strapi
-
-  //         const uidResponse = response.data.uid;
-
-  //         const name = file.name;
-
-  //         var data = {
-
-  //           data: {
-
-  //             assetUID: uidResponse,
-
-  //             description: name,
-
-  //             productId: productId,
-
-  //             isPublished: true,
-
-  //             thumbnail: "null",
-
-  //           },
-
-  //         };
-
-  //         const modelInfo = await http.post("assets", data, {
-
-  //           headers: {
-
-  //             Authorization: `Bearer ${getJWTToken}`,
-
-  //           },
-
-  //         });
-
-  //         console.log("modelInfo", modelInfo);
-
-  //         setUid(uidResponse);
-
-  //         setStatusUpload(false);
-
-  //       }
-
-  //     } catch (error) {
-
-  //       console.error("Error occurred:", error);
-
-  //     }
-
-  //   };
 
   const handleFileChange = (e) => {
     const file = e.target.files[0]; // Lấy tệp đầu tiên trong danh sách đã chọn
@@ -278,10 +151,6 @@ const CreateProduct = ({
 
       const dataImg = new FormData();
 
-      //   dataImg.append("refId", "2"); // Thay thế bằng ID của folder trong Media Library
-
-      //   dataImg.append("ref", "Virtual Try-out");
-
       dataImg.append("files", selectedFile);
 
       const formDataSketchfab = new FormData();
@@ -305,8 +174,9 @@ const CreateProduct = ({
         })
 
         .then((res) => {
+          console.log("res:", res);
           const urlImg = `${urlStrapi}${res.data[0].url}`;
-
+          const imgId = res.data[0].id;
           http.post(
             "/products",
 
@@ -321,6 +191,7 @@ const CreateProduct = ({
                 businessId: formData.getIDBusiness,
 
                 thumbnail: urlImg,
+                testImage: imgId,
               },
             },
 
@@ -630,8 +501,6 @@ const CreateProduct = ({
             </Form.Control.Feedback>
           </Form.Group>
         </Form>
-
-       
       </Modal.Body>
 
       <Modal.Footer>
@@ -654,88 +523,6 @@ const CreateProduct = ({
           )}
         </Button>
       </Modal.Footer>
-
-      {/* <Modal
-
-        backdrop="static"
-
-        centered="true"
-
-        show={show}
-
-        onShow={() => {}}
-
-        onHide={handleClose}
-
-      >
-
-        <Modal.Header>
-
-          <Modal.Title>Upload Asset</Modal.Title>
-
-        </Modal.Header>
-
- 
-
-        <Modal.Body>
-
-          <Form enctype="multipart/form-data">
-
-            <InputGroup className="mb-3">
-
-              <Form.Control
-
-                id="file"
-
-                type="file"
-
-                accept=".obj*, .blend, .fbx, .gltf, .glb"
-
-                onChange={handleFileChange}
-
-              />
-
- 
-
-              <Button disabled={!selectFile} onClick={handleSubmit}>
-
-                Upload
-
-              </Button>
-
-            </InputGroup>
-
- 
-
-            <ProgressBar
-
-              animated={percentage < 100}
-
-              now={percentage}
-
-              label={percentage < 100 ? `${percentage}%` : "Successful"}
-
-            />
-
-          </Form>
-
-        </Modal.Body>
-
- 
-
-        <Modal.Footer>
-
-          <Button variant="light" disabled={onUploading} onClick={handleClose}>
-
-            {" "}
-
-            Close{" "}
-
-          </Button>
-
-        </Modal.Footer>
-
-      </Modal> */}
     </Modal>
   );
 };

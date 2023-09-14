@@ -26,6 +26,9 @@ const ListBusiness = () => {
   const [codeIntegrationHead, setCodeIntegrationHead] = useState("");
   const [codeIntegrationBody, setCodeIntegrationBody] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [showModalAddPartner, setShowModalAddPartner] = useState(false);
+  const handleModalAddPartnerClose = () => setShowModalAddPartner(false);
+  const handleModalAddPartnerShow = () => setShowModalAddPartner(true);
   const handleModalSnippetClose = () => {
     setCodeIntegrationHead("");
     setCodeIntegrationBody("");
@@ -80,7 +83,7 @@ const ListBusiness = () => {
         setData(objectsData);
       })
       .catch((err) => err);
-  }, []);
+  }, [showModalAddPartner]);
 
   const copyToClipboard = (value) => {
     // Sử dụng API Clipboard để sao chép văn bản vào clipboard
@@ -96,9 +99,7 @@ const ListBusiness = () => {
         console.error("Lỗi khi sao chép: " + err);
       });
   };
-  const [showModalAddPartner, setShowModalAddPartner] = useState(false);
-  const handleModalAddPartnerClose = () => setShowModalAddPartner(false);
-  const handleModalAddPartnerShow = () => setShowModalAddPartner(true);
+
 
   if (successMessage) {
     setTimeout(() => {
@@ -424,6 +425,7 @@ const ListBusiness = () => {
       <ModalAddNewPartner
         showModalAddPartner={showModalAddPartner}
         handleModalAddPartnerClose={handleModalAddPartnerClose}
+        getJWTToken={getJWTToken}
       />
     </>
   );

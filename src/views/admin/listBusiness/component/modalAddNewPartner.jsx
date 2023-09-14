@@ -1,3 +1,4 @@
+import { http } from "../../../../axios/init";
 import { useState } from "react";
 import {
   Modal,
@@ -13,11 +14,19 @@ import {
 const ModalAddNewPartner = ({
   showModalAddPartner,
   handleModalAddPartnerClose,
+  getJWTToken
 }) => {
   const [validated, setValidated] = useState(false);
-  const [productName, setProductName] = useState("");
-  const [productId, setProductId] = useState("");
-  const [productDescription, setProductDescription] = useState("");
+  const [partnerName, setPartnerName] = useState("");
+  const [partnerId, setPartnerId] = useState("");
+  const [manager, setManager] = useState("");
+  const handleModalClose = () => {
+    setPartnerName("");
+    setPartnerId("");
+    setManager("");
+    setValidated(false);
+    handleModalAddPartnerClose();
+  };
   const handleEdit = (event) => {
     const form = event.currentTarget;
     if (form.checkValidity() === false) {
@@ -26,8 +35,26 @@ const ModalAddNewPartner = ({
     }
     setValidated(true);
     const formData = {
-      productName,
+      partnerName,
     };
+    if (partnerName && partnerId && manager) {
+      http.post(`/businesses`, {
+        data : {
+          Name: partnerName,
+          businessId: partnerId,
+          Manager: manager
+        }
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${getJWTToken}`,
+        },
+      })
+      .then((res) => {
+        console.log("ressss::::", res);
+        handleModalAddPartnerClose()
+      })
+    }
   };
   return (
     <>
@@ -43,8 +70,8 @@ const ModalAddNewPartner = ({
         </Modal.Header>
         <Modal.Body style={{ marginLeft: "50px" }}>
           <p>
-            Fill out the following details as prompted below to edit a product
-            profile to your product list.
+            Fill out the following details as prompted below to create new a
+            partner profile to your business list.
           </p>
           <Form
             noValidate
@@ -58,7 +85,7 @@ const ModalAddNewPartner = ({
             }}
           >
             <Form.Group
-              controlId="validationProductName"
+              controlId="validationPartnerId"
               style={{
                 margin: "5px 0",
                 display: "flex",
@@ -66,14 +93,38 @@ const ModalAddNewPartner = ({
                 justifyContent: "space-between",
               }}
             >
-              <Form.Label>Product name</Form.Label>
+              <Form.Label>Partner Id</Form.Label>
+              <Form.Control
+                style={{ width: "513px" }}
+                type="text"
+                placeholder="Enter partner id"
+                value={partnerId}
+                onChange={(e) => setPartnerId(e.target.value)}
+                required
+              />
+
+              <Form.Control.Feedback type="invalid">
+                Please enter partner id
+              </Form.Control.Feedback>
+            </Form.Group>
+
+            <Form.Group
+              controlId="validationPartnerName"
+              style={{
+                margin: "5px 0",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+              }}
+            >
+              <Form.Label>Partner name</Form.Label>
 
               <Form.Control
                 style={{ width: "513px" }}
                 type="text"
-                placeholder="Enter product name"
-                value={productName}
-                onChange={(e) => setProductName(e.target.value)}
+                placeholder="Enter partner name"
+                value={partnerName}
+                onChange={(e) => setPartnerName(e.target.value)}
                 required
               />
 
@@ -81,8 +132,9 @@ const ModalAddNewPartner = ({
                 Please enter product name
               </Form.Control.Feedback>
             </Form.Group>
+
             <Form.Group
-              controlId="validationProductId"
+              controlId="validationManager"
               style={{
                 margin: "5px 0",
                 display: "flex",
@@ -90,47 +142,23 @@ const ModalAddNewPartner = ({
                 justifyContent: "space-between",
               }}
             >
-              <Form.Label>Product Id</Form.Label>
+              <Form.Label>Manager</Form.Label>
               <Form.Control
                 style={{ width: "513px" }}
                 type="text"
-                placeholder="Enter product Id"
-                value={productId}
-                onChange={(e) => setProductId(e.target.value)}
-                required
-              />
-
-              <Form.Control.Feedback type="invalid">
-                Please enter product id
-              </Form.Control.Feedback>
-            </Form.Group>
-
-            <Form.Group
-              controlId="validationProductDescription"
-              style={{
-                margin: "5px 0",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-              }}
-            >
-              <Form.Label>Product description</Form.Label>
-              <Form.Control
-                style={{ width: "513px" }}
-                type="text"
-                placeholder="Enter Product description"
-                value={productDescription}
-                onChange={(e) => setProductDescription(e.target.value)}
+                placeholder="Enter Manager"
+                value={manager}
+                onChange={(e) => setManager(e.target.value)}
                 required
               />
               <Form.Control.Feedback type="invalid">
-                Please enter product description
+                Please enter manager
               </Form.Control.Feedback>
             </Form.Group>
           </Form>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={handleModalAddPartnerClose}>
+          <Button variant="secondary" onClick={handleModalClose}>
             Close
           </Button>
           <Button variant="primary" onClick={handleEdit}>

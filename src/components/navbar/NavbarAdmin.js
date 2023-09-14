@@ -82,16 +82,16 @@ export default function AdminNavbar(props) {
         return "";
     }
   };
-  useEffect(()=>{
-	businessName().then((res) => {
-		if (res !== "") {
-		  setNameBusiness(res);
-		} else {
-		  setNameBusiness("");
-		}
-	  });
-  })
- 
+  useEffect(() => {
+    businessName().then((res) => {
+      if (res !== "") {
+        setNameBusiness(res);
+      } else {
+        setNameBusiness("");
+      }
+    });
+  });
+
   return (
     <Box
       position={navbarPosition}
@@ -127,13 +127,14 @@ export default function AdminNavbar(props) {
       }}
       pt="8px"
       top={{ base: "12px", md: "16px", lg: "20px", xl: "20px" }}
-      w={{
-        base: "calc(100vw - 6%)",
-        md: "calc(100vw - 8%)",
-        lg: "calc(100vw - 6%)",
-        xl: "calc(100vw - 276px)",
-        "2xl": "calc(100vw - 276px)",
-      }}
+      // w={{
+      //   base: "calc(100vw - 6%)",
+      //   md: "calc(100vw - 8%)",
+      //   lg: "calc(100vw - 6%)",
+      //   xl: "calc(100vw - 276px)",
+      //   "2xl": "calc(100vw - 276px)",
+      // }}
+      w="calc(100vw - 11vw - 60px)"
     >
       <Flex
         w="100%"

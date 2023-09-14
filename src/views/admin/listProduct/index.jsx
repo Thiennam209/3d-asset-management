@@ -1,6 +1,6 @@
 import { Box, Icon } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import { http } from "../../../axios/init";
+import { http, urlStrapi } from "../../../axios/init";
 import {
   Form,
   FormControl,
@@ -18,7 +18,8 @@ import routes from "routes";
 import { CgAddR } from "react-icons/cg";
 import { BsSearch, BsFillCheckCircleFill } from "react-icons/bs";
 import CreateProduct from "../createProduct";
-
+import { ImBin } from "react-icons/im";
+import DeleteProduct from "./component/deleteProduct";
 const ListProduct = () => {
   const fillter = () => {
     // Declare variables
@@ -60,31 +61,52 @@ const ListProduct = () => {
   const handleModalAddProductClose = () => setShowModalAddProduct(false);
   const handleModalAddProductShow = () => setShowModalAddProduct(true);
   const [successMessage, setSuccessMessage] = useState("");
+  const [successMessageDelete, setSuccessMessageDelete] = useState("");
+  const [modelQuantity, setModelQuatity] = useState("");
+  const [dataDelete, setDataDelete] = useState([]);
+
+  const [showModalDeleteProduct, setShowModalDeleteProduct] = useState(false);
+  const handleModalDeleteProductClose = () => setShowModalDeleteProduct(false);
+  const handleModalDeleteProductShow = (data) => {
+    setShowModalDeleteProduct(true);
+    setDataDelete(data);
+  };
   const handleModalSubmitSuccess = (message) => {
     setSuccessMessage(message);
+  };
+  const handleModalSubmitSuccessDelete = (message) => {
+    setSuccessMessageDelete(message);
   };
   useEffect(() => {
     if (getIDBusiness !== null) {
       setBusinessId(getIDBusiness);
       http
-        .get(`products?filters[businessId][$eq]=${getIDBusiness}`, {
+        .get(`products?filters[businessId][$eq]=${getIDBusiness}&populate=*`, {
           headers: {
             Authorization: `Bearer ${getJWTToken}`,
           },
         })
         .then((response) => {
+          console.log("response  :", response);
+
           const objectData = response.data.data;
+
           const objectsData = [...objectData];
           setData(objectsData);
         })
         .catch((err) => err);
     }
-  }, [showModalAddProduct]);
+  }, [successMessage, successMessageDelete]);
 
   if (successMessage) {
     setTimeout(() => {
-      setIsButtonAddDisabled(false)
+      setIsButtonAddDisabled(false);
       setSuccessMessage(null);
+    }, 3000);
+  }
+  if (successMessageDelete) {
+    setTimeout(() => {
+      setSuccessMessageDelete(null);
     }, 3000);
   }
   return (
@@ -103,6 +125,22 @@ const ListProduct = () => {
             style={{ display: "inline", margin: "5px 10px" }}
           />{" "}
           {successMessage}
+        </Alert>
+      )}
+      {successMessageDelete && (
+        <Alert
+          variant="success"
+          style={{
+            zIndex: "1",
+            position: "fixed",
+            left: "50%",
+            transform: "translate(-50%,-50%)",
+          }}
+        >
+          <BsFillCheckCircleFill
+            style={{ display: "inline", margin: "5px 10px" }}
+          />{" "}
+          {successMessageDelete}
         </Alert>
       )}
       <Box pt={{ base: "180px", md: "80px", xl: "80px" }}>
@@ -144,7 +182,11 @@ const ListProduct = () => {
                         <Card.Img
                           loading="lazy"
                           variant="left"
-                          src={item?.attributes?.thumbnail}
+                          src={
+                            urlStrapi +
+                            "/" +
+                            item?.attributes?.testImage?.data?.attributes?.url
+                          }
                           style={{ width: "360px" }}
                         />
                       </div>
@@ -171,12 +213,13 @@ const ListProduct = () => {
                         style={{ marginBottom: "8px", color: "#6C757D" }}
                       >
                         Models Quantity:{" "}
-                        <a
+                        {item?.attributes?.assets?.data?.length}
+                        {/* <a
                           href="#"
                           style={{fontWeight: "bold" }}
                         >
                           {item?.attributes?.modelsNumber}
-                        </a>
+                        </a> */}
                       </Card.Text>
                       <Card.Text
                         style={{
@@ -204,25 +247,26 @@ const ListProduct = () => {
                         style={{ margin: "0px 50px 50px 0 " }}
                       >
                         <Icon
-                          as={MdOutlineEdit}
+                          as={ImBin}
                           style={{
                             padding: "0px 0px 5px",
                             width: "25px",
                             height: "25px",
-                            color: "#0D6EFD",
+                            color: "red",
                           }}
                         />
 
                         <u
                           style={{
-                            color: "#0D6EFD",
+                            color: "red",
                             marginLeft: "8px",
                             textDecoration: "underline",
                             fontSize: "18px",
-                            cursor: "pointer"
+                            cursor: "pointer",
                           }}
+                          onClick={() => handleModalDeleteProductShow(item)}
                         >
-                          Edit
+                          Delete
                         </u>
                       </div>
                     </Col>
@@ -239,6 +283,13 @@ const ListProduct = () => {
           getIDBusiness={getIDBusiness}
           onSubmitSuccess={handleModalSubmitSuccess}
           setIsButtonAddDisabled={setIsButtonAddDisabled}
+        />
+        <DeleteProduct
+          showModalDeleteProduct={showModalDeleteProduct}
+          handleModalDeleteProductClose={handleModalDeleteProductClose}
+          onSubmitSuccessDelete={handleModalSubmitSuccessDelete}
+          dataDelete={dataDelete}
+          getJWTToken={getJWTToken}
         />
       </Box>
     </>

@@ -2,7 +2,7 @@ import { Box, Divider, Icon, color } from "@chakra-ui/react";
 
 import { useEffect, useState } from "react";
 
-import { http } from "../../../axios/init";
+import { http, urlStrapi } from "../../../axios/init";
 
 import Card from "react-bootstrap/Card";
 
@@ -22,13 +22,14 @@ import { MdOutlineEdit, MdAdd } from "react-icons/md";
 
 import "./styleDetail.css";
 
-import Form from "react-bootstrap/Form";
+import { Form, Alert } from "react-bootstrap";
 
 import InputGroup from "react-bootstrap/InputGroup";
 
 import ProgressBar from "react-bootstrap/ProgressBar";
 
 import "bootstrap/dist/css/bootstrap.min.css";
+import { BsSearch, BsFillCheckCircleFill } from "react-icons/bs";
 
 import axios from "axios";
 import ModalEditProduct from "./component/modalEditProduct";
@@ -63,11 +64,18 @@ const DetailProduct = () => {
   const [onUploading, setStatusUpload] = useState(false);
 
   const [uid, setUid] = useState("");
+  const [modelQuantity, setModelQuatity] = useState("");
 
   const [updateAsset, setUpdateAsset] = useState(false);
+  const [successMessageEdit, setSuccessMessageEdit] = useState("");
+
   const [showModalEditProduct, setShowModalEditProduct] = useState(false);
+  const [dataEdit, setDataEdit] = useState([]);
   const handleModalEditProductClose = () => setShowModalEditProduct(false);
-  const handleModalEditProductShow = () => setShowModalEditProduct(true);
+  const handleModalEditProductShow = (data) => {
+    setShowModalEditProduct(true);
+    setDataEdit(data);
+  };
   const handleClose = () => {
     setShow(false);
 
@@ -184,6 +192,9 @@ const DetailProduct = () => {
     });
   };
 
+  const handleModalSubmitSuccessEdit = (message) => {
+    setSuccessMessageEdit(message);
+  };
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
 
@@ -191,7 +202,7 @@ const DetailProduct = () => {
 
     http
       .get(
-        `products?filters[businessId][$eq]=${businessId}&filters[productId][$eq]=${productId}`,
+        `products?filters[businessId][$eq]=${businessId}&filters[productId][$eq]=${productId}&populate=*`,
         {
           headers: {
             Authorization: `Bearer ${getJWTToken}`,
@@ -220,7 +231,11 @@ const DetailProduct = () => {
               const objectDataListAssest = response.data.data;
 
               const objectsDataListAssest = [...objectDataListAssest];
-
+              console.log(
+                "response.data.length :",
+                response.data.data["length"]
+              );
+              setModelQuatity(response.data.data["length"]);
               objectsDataListAssest.forEach((item, index) => {
                 if (item.attributes.thumbnail === "null") {
                   axios(
@@ -314,7 +329,7 @@ const DetailProduct = () => {
       .catch((err) => err);
 
     autoPlayAll3DViewers();
-  }, [onUploading, updateAsset, showModalEditProduct]);
+  }, [onUploading, updateAsset, successMessageEdit]);
 
   const onShow = () => {
     var selector = document.getElementById("api-frame-detail");
@@ -344,7 +359,11 @@ const DetailProduct = () => {
 
     setUID(value);
   };
-
+  if (successMessageEdit) {
+    setTimeout(() => {
+      setSuccessMessageEdit(null);
+    }, 3000);
+  }
   if (
     businessId !== null &&
     businessId !== "" &&
@@ -353,6 +372,22 @@ const DetailProduct = () => {
   ) {
     return (
       <>
+        {successMessageEdit && (
+          <Alert
+            variant="success"
+            style={{
+              zIndex: "1",
+              position: "fixed",
+              left: "50%",
+              transform: "translate(-50%,-50%)",
+            }}
+          >
+            <BsFillCheckCircleFill
+              style={{ display: "inline", margin: "5px 10px" }}
+            />{" "}
+            {successMessageEdit}
+          </Alert>
+        )}
         <Box pt={{ base: "180px", md: "80px", xl: "80px" }}>
           {data.map((item, index) => (
             <Card
@@ -365,7 +400,11 @@ const DetailProduct = () => {
                     <div className="d-flex justify-content-center align-items-center">
                       <Card.Img
                         variant="left"
-                        src={item?.attributes?.thumbnail}
+                        src={
+                          urlStrapi +
+                          "/" +
+                          item?.attributes?.testImage?.data?.attributes?.url
+                        }
                         style={{ width: "360px" }}
                       />
                     </div>
@@ -391,10 +430,7 @@ const DetailProduct = () => {
                     <Card.Text
                       style={{ marginBottom: "8px", color: "#6C757D" }}
                     >
-                      Models Quantity:{" "}
-                      <a href="#" style={{ fontWeight: "bold" }}>
-                        {item?.attributes?.modelsNumber}
-                      </a>
+                      Models Quantity: {modelQuantity}
                     </Card.Text>
                     <Card.Text
                       style={{
@@ -426,7 +462,7 @@ const DetailProduct = () => {
                           marginLeft: "6px",
                           fontSize: "18px",
                         }}
-                        onClick={handleModalEditProductShow}
+                        onClick={() => handleModalEditProductShow(item)}
                       >
                         Edit
                       </u>
@@ -726,6 +762,8 @@ const DetailProduct = () => {
             handleModalEditProductClose={handleModalEditProductClose}
             data={data}
             getJWTToken={getJWTToken}
+            onSubmitSuccessEdit={handleModalSubmitSuccessEdit}
+            dataEdit={dataEdit}
           />
         )}
       </>

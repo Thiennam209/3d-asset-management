@@ -139,8 +139,8 @@ export default function Dashboard(props) {
 						overflow='auto'
 						position='relative'
 						maxHeight='100%'
-						w={{ base: '100%', xl: 'calc( 100% - 200px )' }}
-						maxWidth={{ base: '100%', xl: 'calc( 100% - 200px )' }}
+						w={{ base: '89%', xl: '89%' }}
+						maxWidth={{ base: '100%', xl: '89%' }}
 						transition='all 0.33s cubic-bezier(0.685, 0.0473, 0.346, 1)'
 						transitionDuration='.2s, .2s, .35s'
 						transitionProperty='top, bottom, width'

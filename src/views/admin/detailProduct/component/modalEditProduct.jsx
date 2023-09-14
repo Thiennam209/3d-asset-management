@@ -1,4 +1,4 @@
-import { http } from "../../../../axios/init";
+import { http, urlStrapi } from "../../../../axios/init";
 import { useState, useRef, useEffect } from "react";
 import {
   Modal,
@@ -8,16 +8,18 @@ import {
   Row,
   Col,
   Card,
-  Spinner,
   ListGroup,
   Image,
   Container,
+  Spinner,
 } from "react-bootstrap";
 const ModalEditProduct = ({
   showModalEditProduct,
   handleModalEditProductClose,
   data,
   getJWTToken,
+  onSubmitSuccessEdit,
+  dataEdit
 }) => {
   const [validated, setValidated] = useState(false);
   const [productName, setProductName] = useState(data[0].attributes.title);
@@ -25,11 +27,19 @@ const ModalEditProduct = ({
   const [productDescription, setProductDescription] = useState(
     data[0].attributes.description
   );
-  const [imageSrc, setImageSrc] = useState(data[0].attributes.thumbnail);
+  const [imageSrc, setImageSrc] = useState(
+    `${urlStrapi}/${data[0]?.attributes?.testImage?.data?.attributes?.url}`
+  );
   const [file, setFile] = useState(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [isButtonDisabled, setIsButtonDisabled] = useState(false);
+  const [isButtonImgDisabled, setIsButtonImgDisabled] = useState(false);
   const fileInputRef = useRef(null);
   const handleEdit = (event) => {
     const form = event.currentTarget;
+    setIsProcessing(true);
+    setIsButtonDisabled(true);
+    setIsButtonImgDisabled(true)
     if (form.checkValidity() === false) {
       event.preventDefault();
       event.stopPropagation();
@@ -42,32 +52,87 @@ const ModalEditProduct = ({
       file,
     };
     http
-      .get(`/products?filters[productId][$eq]=${productId}`, {
+      .get(`/products?filters[productId][$eq]=${productId}&populate=*`, {
         headers: {
           Authorization: `Bearer ${getJWTToken}`,
         },
       })
       .then((res) => {
         const getID = res.data.data[0].id;
+        const imgID = res.data.data[0].attributes.testImage.data.id;
         if (file === null) {
-          http.put(
-            `/products/${getID}`,
-            {
-              data: {
-                title: productName,
-                description: productDescription,
+          http
+            .put(
+              `/products/${getID}`,
+              {
+                data: {
+                  title: productName,
+                  description: productDescription,
+                },
               },
-            },
-            {
+              {
+                headers: {
+                  Authorization: `Bearer ${getJWTToken}`,
+                },
+              }
+            )
+            .then((res) => {
+              handleModalEditProductClose();
+              setIsProcessing(false);
+              setIsButtonDisabled(false);
+              setIsButtonImgDisabled(false)
+              onSubmitSuccessEdit(
+                `Edit a product with name ${productName} was successful.`
+              );
+            });
+        } else {
+          http
+            .delete(`/upload/files/${imgID}`, {
               headers: {
                 Authorization: `Bearer ${getJWTToken}`,
               },
-            }
-          ) 
-          .then((res) => {
-            handleModalEditProductClose()
-          })
-        } else {
+            })
+            .then((res) => {
+              const dataImg = new FormData();
+              dataImg.append("files", file);
+              http
+                .post("/upload", dataImg, {
+                  headers: {
+                    "Content-Type": "multipart/form-data",
+                    Authorization: `Bearer ${getJWTToken}`,
+                  },
+                })
+                .then((res) => {
+                  const imgId = res.data[0].id;
+                  http
+                    .put(
+                      `/products/${getID}`,
+                      {
+                        data: {
+                          title: productName,
+                          description: productDescription,
+                          testImage: imgId,
+                        },
+                      },
+                      {
+                        headers: {
+                          Authorization: `Bearer ${getJWTToken}`,
+                        },
+                      }
+                    )
+                    .then((res) => {
+                      handleModalEditProductClose();
+                      setIsProcessing(false);
+                      setIsButtonDisabled(false);
+                      setIsButtonImgDisabled(false)
+                      onSubmitSuccessEdit(
+                        `Edit a product with name ${productName} was successful.`
+                      );
+                    });
+                });
+            });
+          console.log("imageSrc :", data[0].attributes.thumbnail);
+          console.log("file :", file);
         }
       });
     console.log("formData :", formData);
@@ -87,6 +152,7 @@ const ModalEditProduct = ({
       reader.readAsDataURL(file);
     }
   };
+  
   return (
     <>
       <Modal
@@ -139,29 +205,6 @@ const ModalEditProduct = ({
                 Please enter product name
               </Form.Control.Feedback>
             </Form.Group>
-            {/* <Form.Group
-              controlId="validationProductId"
-              style={{
-                margin: "5px 0",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-              }}
-            >
-              <Form.Label>Product Id</Form.Label>
-              <Form.Control
-                style={{ width: "513px" }}
-                type="text"
-                placeholder="Enter product Id"
-                value={productId}
-                onChange={(e) => setProductId(e.target.value)}
-                required
-              />
-
-              <Form.Control.Feedback type="invalid">
-                Please enter product id
-              </Form.Control.Feedback>
-            </Form.Group> */}
 
             <Form.Group
               controlId="validationProductDescription"
@@ -199,7 +242,7 @@ const ModalEditProduct = ({
                   </Col>
                 </Row>
                 <br />
-                <Button onClick={handleButtonImgClick} variant="dark">
+                <Button onClick={handleButtonImgClick} variant="dark" disabled={isButtonImgDisabled}>
                   Change Image
                 </Button>{" "}
               </div>
@@ -212,10 +255,6 @@ const ModalEditProduct = ({
                 style={{ width: "513px", display: "none" }}
                 ref={fileInputRef}
               />
-              {/* <Form.Control.Feedback type="invalid">
-                Please choose the correct image with format :{" "}
-                <b>&ensp;. jpg &ensp;. jpeg &ensp;. png &ensp;. gif</b>
-              </Form.Control.Feedback> */}
             </Form.Group>
           </Form>
         </Modal.Body>
@@ -223,8 +262,15 @@ const ModalEditProduct = ({
           <Button variant="secondary" onClick={handleModalEditProductClose}>
             Close
           </Button>
-          <Button variant="primary" onClick={handleEdit}>
-            Save Changes
+          <Button variant="primary" onClick={handleEdit} disabled={isButtonDisabled}>
+            Save Changes {" "}
+            {isProcessing && (
+              <Spinner
+                animation="border"
+                size="sm"
+                style={{ verticalAlign: "middle" }}
+              />
+            )}
           </Button>
         </Modal.Footer>
       </Modal>
