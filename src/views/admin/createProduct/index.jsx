@@ -3,7 +3,7 @@ import { Box, Icon } from "@chakra-ui/react";
 import { MdOutlineEdit, MdAdd } from "react-icons/md";
 
 import { useEffect, useState } from "react";
-
+import { BsFillExclamationCircleFill } from "react-icons/bs";
 import {
   Form,
   FormControl,
@@ -40,6 +40,7 @@ const CreateProduct = ({
   setIsButtonAddDisabled,
 }) => {
   const [productName, setProductName] = useState("");
+  const [nameAsset, setNameAsset] = useState("");
 
   const [productId, setProductId] = useState("");
   const [tryoutLink, setTryoutLink] = useState("");
@@ -47,302 +48,241 @@ const CreateProduct = ({
   const [productDescription, setProductDescription] = useState("");
 
   const [selectedFile, setSelectedFile] = useState(null);
+  const [limitedSizeThumb, setLimitedSizeThumb] = useState(false);
+  const MAX_FILE_SIZE_THUMB = 300 * 1024; // KB
 
   const [selectedFiles, setSelectedFiles] = useState(null);
+  const [limitedSize, setLimitedSize] = useState(false);
+  const MAX_FILE_SIZE = 50 * 1024 * 1024; // MB
 
   const [validated, setValidated] = useState(false);
 
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
 
   const [isProcessing, setIsProcessing] = useState(false);
+  const [alertMessageAdd, setAlertMessageAdd] = useState(false);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0]; // Lấy tệp đầu tiên trong danh sách đã chọn
 
-    // Kiểm tra phần mở rộng của tệp (extension)
+    if (file && file.size > MAX_FILE_SIZE_THUMB) {
+      // TODO
+      setLimitedSizeThumb(true);
+      setSelectedFile(null);
+    } else {
+      setLimitedSizeThumb(false);
 
-    if (file) {
-      const allowedExtensions = [".jpg", ".jpeg", ".png", ".gif"]; // Các phần mở rộng cho tệp ảnh
+      if (file) {
+        const allowedExtensions = [".jpg", ".jpeg", ".png", ".gif"]; // Các phần mở rộng cho tệp ảnh
 
-      const fileExtension = file.name.substring(file.name.lastIndexOf("."));
+        const fileExtension = file.name.substring(file.name.lastIndexOf("."));
 
-      if (allowedExtensions.includes(fileExtension.toLowerCase())) {
-        // Nếu phần mở rộng hợp lệ, lưu tệp vào state
+        if (allowedExtensions.includes(fileExtension.toLowerCase())) {
+          // Nếu phần mở rộng hợp lệ, lưu tệp vào state
 
-        setSelectedFile(file);
+          setSelectedFile(file);
 
-        console.log("Selected File:", file);
-      } else {
-        // Nếu phần mở rộng không hợp lệ, đặt trường input về trạng thái trống
+          console.log("Selected File:", file);
+        } else {
+          // Nếu phần mở rộng không hợp lệ, đặt trường input về trạng thái trống
 
-        e.target.value = null;
+          e.target.value = null;
 
-        setSelectedFile(null);
+          setSelectedFile(null);
 
-        console.error("Invalid file type. Please select an image file.");
+          console.error("Invalid file type. Please select an image file.");
+        }
       }
     }
+
+    // Kiểm tra phần mở rộng của tệp (extension)
   };
 
   const handleFilesChange = (e) => {
     const file = e.target.files[0]; // Lấy tệp đầu tiên trong danh sách đã chọn
 
-    // Kiểm tra phần mở rộng của tệp (extension)
+    if (file && file.size > MAX_FILE_SIZE) {
+      // TODO
+      setLimitedSize(true);
+      setSelectedFiles(null);
+    } else {
+      setLimitedSize(false);
 
-    if (file) {
-      const allowedExtensions = [".obj", ".blend", ".fbx", ".gltf", ".glb"]; // Các phần mở rộng cho tệp ảnh
+      // Kiểm tra phần mở rộng của tệp (extension)
 
-      const fileExtension = file.name.substring(file.name.lastIndexOf("."));
+      if (file) {
+        const allowedExtensions = [".obj", ".blend", ".fbx", ".gltf", ".glb"]; // Các phần mở rộng cho tệp ảnh
 
-      if (allowedExtensions.includes(fileExtension.toLowerCase())) {
-        // Nếu phần mở rộng hợp lệ, lưu tệp vào state
+        const fileExtension = file.name.substring(file.name.lastIndexOf("."));
 
-        setSelectedFiles(file);
+        if (allowedExtensions.includes(fileExtension.toLowerCase())) {
+          // Nếu phần mở rộng hợp lệ, lưu tệp vào state
 
-        console.log("Selected File:", file);
-      } else {
-        // Nếu phần mở rộng không hợp lệ, đặt trường input về trạng thái trống
+          setSelectedFiles(file);
 
-        e.target.value = null;
+          console.log("Selected File:", file);
+        } else {
+          // Nếu phần mở rộng không hợp lệ, đặt trường input về trạng thái trống
 
-        setSelectedFiles(null);
+          e.target.value = null;
 
-        console.error("Invalid file type. Please select an image file.");
+          setSelectedFiles(null);
+
+          console.error("Invalid file type. Please select an image file.");
+        }
       }
     }
   };
 
   const handleFinnish = (event) => {
     const form = event.currentTarget;
-
     const formData = {
       productName,
-
       productId,
       tryoutLink,
-
       productDescription,
-
       getIDBusiness,
-
       selectedFile,
-
       selectedFiles,
+      nameAsset
     };
-
     if (form.checkValidity() === false) {
       event.preventDefault();
-
       event.stopPropagation();
     }
-
     setValidated(true);
-
     if (
       productName !== "" &&
       productId !== "" &&
       productDescription !== "" &&
       selectedFile !== null &&
       selectedFiles !== null &&
+      nameAsset !== "" &&
       getIDBusiness
     ) {
-      setIsButtonDisabled(true);
-      setIsButtonAddDisabled(true);
-      setIsProcessing(true);
-
       const dataImg = new FormData();
-
       dataImg.append("files", selectedFile);
-
       const formDataSketchfab = new FormData();
-
       formDataSketchfab.append("modelFile", selectedFiles);
-
       formDataSketchfab.append("isInspectable", true);
-
       formDataSketchfab.append("license", "by");
-
       // Gửi yêu cầu POST để tải ảnh lên Strapi (thay thế URL bằng URL thực tế của Strapi)
-
       http
-
-        .post("/upload", dataImg, {
+        .get(`/products?filters[productId][$eq]=${productId}&populate=*`, {
           headers: {
-            "Content-Type": "multipart/form-data",
-
             Authorization: `Bearer ${getJWTToken}`,
           },
         })
-
         .then((res) => {
-          console.log("res:", res);
-          const urlImg = `${urlStrapi}${res.data[0].url}`;
-          const imgId = res.data[0].id;
-          axios("https://api.sketchfab.com/v3/models", {
-            method: "POST",
-
-            headers: { Authorization: `Bearer sEPNs5kDTKonk0imjvw1bQNrcxbFrN` },
-
-            data: formDataSketchfab,
-
-            // onUploadProgress: (event) => {
-
-            //   const { loaded, total } = event;
-
-            //   let per = Math.floor((loaded * 100) / total);
-
-            //   console.log(`Process ${per}%`);
-
-            //   animateProgress(per);
-
-            // },
-          }).then((res) => {
-            if (res.status === 201) {
-              const uidResponse = res.data.uid;
-
-              var data = {
-                data: {
-                  assetUID: uidResponse,
-
-                  description: formData.productName,
-
-                  productId: formData.productId,
-                  productId: formData.tryoutLink,
-
-                  isPublished: false,
-
-                  thumbnail: "null",
+          const duplicateId = res.data.data.length;
+          if (duplicateId > 0) {
+            // setAlertMessageEdit(true);
+            setProductId("");
+            setValidated(true);
+            setAlertMessageAdd(true);
+            // return;
+          } else {
+            setIsButtonDisabled(true);
+            setIsButtonAddDisabled(true);
+            setIsProcessing(true);
+            http
+              .post("/upload", dataImg, {
+                headers: {
+                  "Content-Type": "multipart/form-data",
+                  Authorization: `Bearer ${getJWTToken}`,
                 },
-              };
-
-              http
-                .post("assets", data, {
+              })
+              .then((res) => {
+                const urlImg = `${urlStrapi}${res.data[0].url}`;
+                const imgId = res.data[0].id;
+                axios("https://api.sketchfab.com/v3/models", {
+                  method: "POST",
                   headers: {
-                    Authorization: `Bearer ${getJWTToken}`,
+                    Authorization: `Bearer sEPNs5kDTKonk0imjvw1bQNrcxbFrN`,
                   },
-                })
-                .then((res) => {
-                  const idAsset = res.data.data.id
-                  http.post(
-                    "/products",
-
-                    {
+                  data: formDataSketchfab,
+                }).then((res) => {
+                  if (res.status === 201) {
+                    const uidResponse = res.data.uid;
+                    var data = {
                       data: {
-                        title: formData.productName,
-                        assets: idAsset,
-                        description: formData.productDescription,
-
+                        assetUID: uidResponse,
+                        description: formData.productName,
                         productId: formData.productId,
-                        tryoutLink: formData.tryoutLink,
-                        businessId: formData.getIDBusiness,
-
-                        thumbnail: urlImg,
-                        testImage: imgId,
+                        productId: formData.tryoutLink,
+                        isPublished: false,
+                        thumbnail: "null",
+                        name : formData.nameAsset
                       },
-                    },
+                    };
+                    http
+                      .post("assets", data, {
+                        headers: {
+                          Authorization: `Bearer ${getJWTToken}`,
+                        },
+                      })
+                      .then((res) => {
+                        const idAsset = res.data.data.id;
+                        http.post(
+                          "/products",
 
-                    {
-                      headers: {
-                        Authorization: `Bearer ${getJWTToken}`,
-                      },
-                    }
-                  );
+                          {
+                            data: {
+                              title: formData.productName,
+                              assets: idAsset,
+                              description: formData.productDescription,
+
+                              productId: formData.productId,
+                              tryoutLink: formData.tryoutLink,
+                              businessId: formData.getIDBusiness,
+
+                              thumbnail: urlImg,
+                              testImage: imgId,
+                            },
+                          },
+
+                          {
+                            headers: {
+                              Authorization: `Bearer ${getJWTToken}`,
+                            },
+                          }
+                        );
+                      });
+                    onSubmitSuccess(
+                      `Create new product with name ${formData.productName} was successful.`
+                    );
+                    handleModalInitClose();
+                    setIsButtonDisabled(false);
+                    setIsProcessing(false);
+                  }
                 });
-
-              onSubmitSuccess(
-                `Create new product with name ${formData.productName} was successful.`
-              );
-
-              handleModalInitClose();
-
-              setIsButtonDisabled(false);
-
-              setIsProcessing(false);
-            }
-          });
+              });
+          }
         });
     } else {
       console.error("Please select an image.");
     }
-
-    // if (
-
-    //   productName !== "" &&
-
-    //   productId !== "" &&
-
-    //   brand !== "" &&
-
-    //   stock !== "" &&
-
-    //   productDescription !== "" &&
-
-    //   selectedFile !== null &&
-
-    //   getIDBusiness
-
-    // ) {
-
-    //   http
-
-    //     .post(
-
-    //       "/product",
-
-    //       {
-
-    //         data: {
-
-    //           title: formData.productName,
-
-    //           description: formData.productDescription,
-
-    //           stock: formData.stock,
-
-    //           brand: formData.brand,
-
-    //           productId: formData.productId,
-
-    //           businessId: formData.getIDBusiness,
-
-    //         },
-
-    //       },
-
-    //       {
-
-    //         headers: {
-
-    //           Authorization: `Bearer ${getJWTToken}`,
-
-    //         },
-
-    //       }
-
-    //     )
-
-    //     .then((res) => {
-
-    //       handleModalInitClose();
-
-    //     });
-
-    // }
   };
 
   const handleModalInitClose = () => {
     handleModalAddProductClose();
 
     setProductName("");
-
+    setNameAsset("")
     setProductId("");
     setTryoutLink("");
 
     setProductDescription("");
 
     setValidated(false);
+    setLimitedSize(false);
+    setLimitedSizeThumb(false);
   };
-
+  if (alertMessageAdd) {
+    setTimeout(() => {
+      setAlertMessageAdd(false);
+    }, 3000);
+  }
   return (
     <Modal
       show={showModalAddProduct}
@@ -398,10 +338,18 @@ const CreateProduct = ({
               onChange={(e) => setProductId(e.target.value)}
               required
             />
-
-            <Form.Control.Feedback type="invalid">
-              Please enter product id
-            </Form.Control.Feedback>
+            {alertMessageAdd ? (
+              <div style={{ fontSize: "80%", color: "#dc3545" }}>
+                <BsFillExclamationCircleFill
+                  style={{ display: "inline", margin: "5px 10px" }}
+                />
+                <b>Duplication id</b>! Please choose diferrent product id.
+              </div>
+            ) : (
+              <Form.Control.Feedback type="invalid">
+                Please enter product id
+              </Form.Control.Feedback>
+            )}
           </Form.Group>
           <Form.Group
             controlId="validationProductName"
@@ -492,37 +440,73 @@ const CreateProduct = ({
               required
               name="file"
               onChange={handleFileChange}
+              isInvalid={limitedSizeThumb}
               style={{ width: "513px" }}
             />
 
             <Form.Control.Feedback type="invalid">
-              Please choose the correct image with format :{" "}
-              <b>&ensp;. jpg &ensp;. jpeg &ensp;. png &ensp;. gif</b>
+              {!limitedSizeThumb ? (
+                <>
+                  Please choose the correct image with format :{" "}
+                  <b>&ensp;. jpg &ensp;. jpeg &ensp;. png &ensp;. gif</b>
+                </>
+              ) : (
+                <>
+                  This file is too big to load. Please limit the file to &lt;
+                  300kB
+                </>
+              )}
             </Form.Control.Feedback>
           </Form.Group>
 
           <br />
+          <Form.Label>
+            <b style={{ fontSize: "22px" }}>3D model</b>
+
+            <p>Upload 3D models of your product here.</p>
+          </Form.Label>
+          <Form.Group className="position-relative mb-3">
+            <Form.Label>Asset name</Form.Label>
+            <Form.Control
+              style={{ width: "513px" }}
+              type="text"
+              placeholder="Enter name asset"
+              value={nameAsset}
+              onChange={(e) => setNameAsset(e.target.value)}
+              required
+            />
+
+            <Form.Control.Feedback type="invalid">
+              Please enter name model
+            </Form.Control.Feedback>
+          </Form.Group>
 
           <Form.Group className="position-relative mb-3">
-            <Form.Label>
-              <b style={{ fontSize: "22px" }}>3D model</b>
-
-              <p>Upload 3D models of your product here.</p>
-            </Form.Label>
-
+            <Form.Label>3D Model</Form.Label>
             <Form.Control
               style={{ width: "513px" }}
               type="file"
               onChange={handleFilesChange}
               accept=".obj*, .blend, .fbx, .gltf, .glb"
+              isInvalid={limitedSize}
               required
             />
 
             <Form.Control.Feedback type="invalid">
-              Please choose the correct image with format :{" "}
-              <b>
-                &ensp;. obj* &ensp;. blend &ensp;. fbx &ensp;. gltf &ensp;. glb
-              </b>
+              {!limitedSize ? (
+                <>
+                  Please choose the correct image with format :{" "}
+                  <b>
+                    &ensp;. obj* &ensp;. blend &ensp;. fbx &ensp;. gltf &ensp;.
+                    glb
+                  </b>
+                </>
+              ) : (
+                <>
+                  This file is too big to load. Please limit the file to &lt;
+                  50MB
+                </>
+              )}
             </Form.Control.Feedback>
           </Form.Group>
         </Form>

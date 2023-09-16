@@ -38,6 +38,7 @@
   background: #f8f9fa;
 
   border: 2px dashed #6ea8fe;
+
   cursor: pointer;
 }
 
@@ -128,11 +129,19 @@
 
   /* box-shadow: 0 0 10px #77a5da,
 
+ 
+
               0 0 20px #77a5da,
+
+ 
 
               0 0 40px #77a5da,
 
+ 
+
               0 0 80px #77a5da,
+
+ 
 
               0 0 100px #77a5da; */
 
@@ -238,11 +247,11 @@
 
   display: flex;
 
-  justify-content: center;
+  flex-direction: column;
+
+  justify-content: space-between;
 
   text-align: center;
-
-  align-items: center;
 
   width: 100%;
 
@@ -250,32 +259,29 @@
 
   color: transparent;
 
-  background-color: transparent;
-
-  background: transparent;
+  font-size: 0%;
 
   border-radius: 8px;
 
   box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+
+  /* color: white;
+
+  font-size: 38px;
+
+  font-style: normal;
+
+  font-weight: 500;
+
+  background-color: rgba(53, 51, 51, 0.3);
+
+  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.2); */
 }
 
-.titleIcon {
-  position: absolute;
-  scale: 1;
-  top: 20px;
-  right: 20px;
-  display: flex;
-  justify-content: center;
-  text-align: center;
-  align-items: center;
-  /* color: transparent; */
-  border-radius: 8px;
-  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-}
 .titleItemsDefault {
   position: absolute;
 
-  top: 310px;
+  top: 70%;
 
   left: 0px;
 
@@ -300,10 +306,119 @@
   font-style: normal;
 }
 
+.titleItems:hover {
+  color: white;
+
+  font-size: 38px;
+
+  font-style: normal;
+
+  font-weight: 500;
+
+  background-color: rgba(53, 51, 51, 0.3);
+
+  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.2);
+
+  cursor: pointer;
+}
+
+.btnDelete {
+  display: flex;
+
+  flex-direction: row;
+
+  justify-content: end;
+
+  height: 15%;
+}
+
+.iconDelete {
+  color: #dee2e6;
+
+  margin: 10px 10px 0 0;
+
+  font-size: 32px;
+}
+
+.btnDelete :hover {
+  font-size: 44px;
+}
+
+.contenTitle {
+}
+
+.tagStatusActive {
+  position: absolute;
+
+  bottom: 10px;
+
+  right: 15px;
+
+  margin-bottom: 50px;
+
+  display: flex;
+
+  justify-content: center;
+
+  padding: 4px 8px;
+
+  align-items: center;
+
+  gap: 8px;
+
+  color: #479f76;
+
+  background: rgba(210, 244, 234, 0.5);
+
+  border-radius: 24px;
+
+  font-size: 18px;
+
+  font-style: normal;
+
+  font-weight: 400;
+
+  line-height: 150%;
+}
+
+.tagStatusNotActive {
+  position: absolute;
+
+  bottom: 10px;
+
+  right: 15px;
+
+  margin-bottom: 50px;
+
+  display: flex;
+
+  justify-content: center;
+
+  padding: 4px 8px;
+
+  align-items: center;
+
+  gap: 8px;
+
+  color: #6c757d;
+
+  background: rgba(233, 236, 239, 0.7);
+
+  border-radius: 24px;
+
+  font-size: 18px;
+
+  font-style: normal;
+
+  font-weight: 400;
+
+  line-height: 150%;
+}
+
 .titleLoad {
   position: absolute;
 
-  top: 310px;
+  top: 70%;
 
   left: 0px;
 
@@ -322,21 +437,30 @@
   color: #9ec5fe;
 }
 
-.titleItems:hover {
-  color: white;
+.groupTitle {
+  display: flex;
 
-  font-size: 32px;
+  flex-direction: column;
 
-  background-color: rgba(53, 51, 51, 0.3);
+  position: relative;
 
-  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.2);
-
-  cursor: pointer;
+  right: auto;
 }
 
-.titleIcon:hover {
-  scale: 3;
-  background-color: rgba(53, 51, 51, 0.3);
-  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.2);
-  cursor: pointer;
+.bodyTitle {
+  display: flex;
+
+  flex-direction: column;
+
+  width: fit-content;
+
+  margin: 0 auto;
+
+  padding-bottom: 15px;
+}
+
+.idModel {
+  font-size: 18px;
+
+  text-align: left;
 }

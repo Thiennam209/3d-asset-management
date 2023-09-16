@@ -12,7 +12,9 @@ import {
   Image,
   Container,
   Spinner,
+  Alert,
 } from "react-bootstrap";
+import { BsFillExclamationCircleFill } from "react-icons/bs";
 const ModalEditProduct = ({
   showModalEditProduct,
   handleModalEditProductClose,
@@ -38,9 +40,13 @@ const ModalEditProduct = ({
     `${urlStrapi}/${data[0]?.attributes?.testImage?.data?.attributes?.url}`
   );
   const [file, setFile] = useState(null);
+  const [limitedSizeThumb, setLimitedSizeThumb] = useState(false);
+  const MAX_FILE_SIZE_THUMB = 300 * 1024; // KB
+
   const [isProcessing, setIsProcessing] = useState(false);
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
   const [isButtonImgDisabled, setIsButtonImgDisabled] = useState(false);
+  const [alertMessageEdit, setAlertMessageEdit] = useState(false);
   const fileInputRef = useRef(null);
   const handleEdit = (event) => {
     const form = event.currentTarget;
@@ -56,12 +62,7 @@ const ModalEditProduct = ({
       productDescription,
       file,
     };
-    console.log("productId ::", productId);
-    console.log("newProductId ::", newProductId);
     if (newProductId && productName && productDescription) {
-      setIsProcessing(true);
-      setIsButtonDisabled(true);
-      setIsButtonImgDisabled(true);
       http
         .get(`/products?filters[productId][$eq]=${productId}&populate=*`, {
           headers: {
@@ -71,91 +72,96 @@ const ModalEditProduct = ({
         .then((res) => {
           const duplicateId = res.data.data.length;
           if (productId !== newProductId && duplicateId > 0) {
-            // SET ERROR (duplicate id)
-            console.log("Duplication ID");
-            return
-          }
-          const getID = res.data.data[0].id;
-          const imgID = res.data.data[0].attributes.testImage.data.id;
-          if (file === null) {
-            http
-              .put(
-                `/products/${getID}`,
-                {
-                  data: {
-                    productId: newProductId,
-                    tryoutLink: productTryoutLink,
-                    title: productName,
-                    description: productDescription,
+            setAlertMessageEdit(true);
+            setNewProductId("");
+            setValidated(true);
+            // return;
+          } else {
+            setIsProcessing(true);
+            setIsButtonDisabled(true);
+            setIsButtonImgDisabled(true);
+            const getID = res.data.data[0].id;
+            const imgID = res.data.data[0].attributes.testImage.data.id;
+            if (file === null) {
+              http
+                .put(
+                  `/products/${getID}`,
+                  {
+                    data: {
+                      productId: newProductId,
+                      tryoutLink: productTryoutLink,
+                      title: productName,
+                      description: productDescription,
+                    },
                   },
-                },
-                {
+                  {
+                    headers: {
+                      Authorization: `Bearer ${getJWTToken}`,
+                    },
+                  }
+                )
+                .then((res) => {
+                  handleModalEditProductClose();
+                  setIsProcessing(false);
+                  setIsButtonDisabled(false);
+                  setIsButtonImgDisabled(false);
+                  onSubmitSuccessEdit(
+                    `Edit a product with name ${productName} was successful.`
+                  );
+                  handleNewProductId(newProductId);
+                });
+            } else {
+              http
+                .delete(`/upload/files/${imgID}`, {
                   headers: {
                     Authorization: `Bearer ${getJWTToken}`,
                   },
-                }
-              )
-              .then((res) => {
-                handleModalEditProductClose();
-                setIsProcessing(false);
-                setIsButtonDisabled(false);
-                setIsButtonImgDisabled(false);
-                onSubmitSuccessEdit(
-                  `Edit a product with name ${productName} was successful.`
-                );
-                handleNewProductId(newProductId);
-              });
-          } else {
-            http
-              .delete(`/upload/files/${imgID}`, {
-                headers: {
-                  Authorization: `Bearer ${getJWTToken}`,
-                },
-              })
-              .then((res) => {
-                const dataImg = new FormData();
-                dataImg.append("files", file);
-                http
-                  .post("/upload", dataImg, {
-                    headers: {
-                      "Content-Type": "multipart/form-data",
-                      Authorization: `Bearer ${getJWTToken}`,
-                    },
-                  })
-                  .then((res) => {
-                    const imgId = res.data[0].id;
-                    http
-                      .put(
-                        `/products/${getID}`,
-                        {
-                          data: {
-                            productId: newProductId,
-                            tryoutLink: productTryoutLink,
-                            title: productName,
-                            description: productDescription,
-                            testImage: imgId,
+                })
+                .then((res) => {
+                  const dataImg = new FormData();
+                  dataImg.append("files", file);
+                  http
+                    .post("/upload", dataImg, {
+                      headers: {
+                        "Content-Type": "multipart/form-data",
+                        Authorization: `Bearer ${getJWTToken}`,
+                      },
+                    })
+                    .then((res) => {
+                      const imgId = res.data[0].id;
+                      http
+                        .put(
+                          `/products/${getID}`,
+                          {
+                            data: {
+                              productId: newProductId,
+                              tryoutLink: productTryoutLink,
+                              title: productName,
+                              description: productDescription,
+                              testImage: imgId,
+                            },
                           },
-                        },
-                        {
-                          headers: {
-                            Authorization: `Bearer ${getJWTToken}`,
-                          },
-                        }
-                      )
-                      .then((res) => {
-                        handleModalEditProductClose();
-                        setIsProcessing(false);
-                        setIsButtonDisabled(false);
-                        setIsButtonImgDisabled(false);
-                        onSubmitSuccessEdit(
-                          `Edit a product with name ${productName} was successful.`
-                        );
-                        handleNewProductId(newProductId);
-                      });
-                  });
-              });
-            console.log("imageSrc :", data[0].attributes.thumbnail);
-            console.log("file :", file);
+                          {
+                            headers: {
+                              Authorization: `Bearer ${getJWTToken}`,
+                            },
+                          }
+                        )
+                        .then((res) => {
+                          handleModalEditProductClose();
+                          setIsProcessing(false);
+                          setIsButtonDisabled(false);
+                          setIsButtonImgDisabled(false);
+                          onSubmitSuccessEdit(
+                            `Edit a product with name ${productName} was successful.`
+                          );
+                          handleNewProductId(newProductId);
+                        });
+                    });
+                });
+              console.log("imageSrc :", data[0].attributes.thumbnail);
+              console.log("file :", file);
+            }
           }
         });
       setValidated(false);
@@ -166,17 +172,35 @@ const ModalEditProduct = ({
   };
   const handleFileChange = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      setFile(file);
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const imageUrl = event.target.result;
-        setImageSrc(imageUrl);
-      };
-      reader.readAsDataURL(file);
+
+    if (file && file.size > MAX_FILE_SIZE_THUMB) {
+      // TODO
+      setLimitedSizeThumb(true);
+      setFile(null);
+    } else {
+      setLimitedSizeThumb(false);
+
+      if (file) {
+        setFile(file);
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const imageUrl = event.target.result;
+          setImageSrc(imageUrl);
+        };
+        reader.readAsDataURL(file);
+      }
     }
   };
-
+  if (alertMessageEdit) {
+    setTimeout(() => {
+      setAlertMessageEdit(false);
+    }, 3000);
+  }
+  if(limitedSizeThumb) {
+    setTimeout(()=>{
+      setLimitedSizeThumb(false)
+    }, 2000)
+  }
   return (
     <>
       <Modal
@@ -215,6 +239,19 @@ const ModalEditProduct = ({
                 onChange={(e) => setNewProductId(e.target.value)}
                 required
               />
+
+              {alertMessageEdit ? (
+                <div style={{ fontSize: "80%", color: "#dc3545" }}>
+                  <BsFillExclamationCircleFill
+                    style={{ display: "inline", margin: "5px 10px" }}
+                  />
+                  <b>Duplication id</b>! Please choose diferrent product id.
+                </div>
+              ) : (
+                <Form.Control.Feedback type="invalid">
+                  Please enter product id
+                </Form.Control.Feedback>
+              )}
             </Form.Group>
             <Form.Group
               controlId="validationProductName"
@@ -303,7 +340,14 @@ const ModalEditProduct = ({
                 onChange={handleFileChange}
                 style={{ width: "513px", display: "none" }}
                 ref={fileInputRef}
+                isInvalid={limitedSizeThumb}
               />
+              <Form.Control.Feedback type="invalid">
+                <>
+                  This file is too big to load. Please limit the file to &lt;
+                  300kB
+                </>
+              </Form.Control.Feedback>
             </Form.Group>
           </Form>
         </Modal.Body>

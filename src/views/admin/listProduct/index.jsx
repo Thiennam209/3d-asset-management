@@ -111,7 +111,7 @@ const ListProduct = () => {
       setSuccessMessageDelete(null);
     }, 3000);
   }
-  console.log("item?.attributes?.tryoutLink", data[0]?.attributes?.tryoutLink);
+  
   return (
     <>
       {successMessage && (
@@ -168,6 +168,7 @@ const ListProduct = () => {
 
         <ul id="myUL" style={{ listStyleType: "none" }}>
           {data.map((item, index) => (
+            
             <li>
               <Card
                 id="item"
@@ -188,7 +189,7 @@ const ListProduct = () => {
                           src={
                             urlStrapi +
                             "/" +
-                            item?.attributes?.testImage?.data?.attributes?.formats?.thumbnail?.url
+                            item?.attributes?.testImage?.data?.attributes?.url
 
                           }
                           style={{ width: "360px" }}

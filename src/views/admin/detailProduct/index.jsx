@@ -30,7 +30,7 @@ import ProgressBar from "react-bootstrap/ProgressBar";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import { BsSearch, BsFillCheckCircleFill } from "react-icons/bs";
-
+import { GoDotFill } from "react-icons/go";
 import axios from "axios";
 import ModalEditProduct from "./component/modalEditProduct";
 import DeleteModel from "./component/deleteModel";
@@ -59,6 +59,8 @@ const DetailProduct = () => {
   const [selectFile, enableUploadButton] = useState(false);
 
   const [file, setFile] = useState(null);
+  const [limitedSize, setLimitedSize] = useState(false);
+  const MAX_FILE_SIZE = 50 * 1024 * 1024; // MB
 
   const [percentage, animateProgress] = useState(0);
 
@@ -76,6 +78,8 @@ const DetailProduct = () => {
   const [dataEdit, setDataEdit] = useState([]);
   const [dataDelete, setDataDelete] = useState([]);
   const [productId, setProductId] = useState(_productId);
+  const [validated, setValidated] = useState(false);
+  const [nameAsset, setNameAsset] = useState("");
   const handleModalEditProductClose = () => setShowModalEditProduct(false);
   const handleModalEditProductShow = (data) => {
     setShowModalEditProduct(true);
@@ -83,123 +87,146 @@ const DetailProduct = () => {
   };
   const handleModalDeleteModelClose = () => setShowModalDeleteModel(false);
   const handleModalDeleteModelShow = (data) => {
-    console.log("data ::::::::", data);
-
-    debugger;
     setShowModalDeleteModel(true);
     setDataDelete(data);
   };
   const handleClose = () => {
     setShow(false);
-
+    setNameAsset("")
+    setFile(null)
     enableUploadButton(false);
-
+    setLimitedSize(false);
     animateProgress(0);
   };
 
   const handleFileChange = (event) => {
-    setFile(event.target.files[0]);
+    // setFile(event.target.files[0]);
+
+    // enableUploadButton(true);
+
+    const file = event.target.files[0];
+
+    if (file && file.size > MAX_FILE_SIZE) {
+      // TODO
+      setLimitedSize(true);
+      enableUploadButton(false);
+      setFile(null);
+      return;
+    }
+
+    setLimitedSize(false);
+    setFile(file);
 
     enableUploadButton(true);
   };
 
   const handleSubmit = async (event) => {
-    console.log(`handleSubmit: process ${percentage}`);
+    const form = event.currentTarget;
+    setValidated(true);
+    if (form.checkValidity() === false) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    setValidated(true);
 
-    setStatusUpload(true);
+    if (nameAsset) {
+      setStatusUpload(true);
 
-    enableUploadButton(false);
+      enableUploadButton(false);
 
-    const formData = new FormData();
+      const formData = new FormData();
 
-    formData.append("modelFile", file);
+      formData.append("modelFile", file);
 
-    formData.append("isInspectable", true);
+      formData.append("isInspectable", true);
 
-    formData.append("license", "by");
+      formData.append("license", "by");
 
-    try {
-      // Upload model to Sketchfab
+      try {
+        // Upload model to Sketchfab
 
-      const response = await axios("https://api.sketchfab.com/v3/models", {
-        method: "POST",
+        const response = await axios("https://api.sketchfab.com/v3/models", {
+          method: "POST",
 
-        headers: { Authorization: `Bearer sEPNs5kDTKonk0imjvw1bQNrcxbFrN` },
+          headers: { Authorization: `Bearer sEPNs5kDTKonk0imjvw1bQNrcxbFrN` },
 
-        data: formData,
+          data: formData,
 
-        onUploadProgress: (event) => {
-          const { loaded, total } = event;
+          onUploadProgress: (event) => {
+            const { loaded, total } = event;
 
-          let per = Math.floor((loaded * 100) / total);
+            let per = Math.floor((loaded * 100) / total);
 
-          console.log(`Process ${per}%`);
+            console.log(`Process ${per}%`);
 
-          animateProgress(per);
-        },
-      });
-
-      if (response.status == 201) {
-        console.log("UPLOAD SUCESSFUL");
-
-        // Create new asset in Strapi
-
-        const uidResponse = response.data.uid;
-
-        const name = file.name;
-
-        var dataRes = {
-          data: {
-            assetUID: uidResponse,
-
-            description: name,
-
-            productId: productId,
-
-            isPublished: false,
-
-            thumbnail: "null",
+            animateProgress(per);
           },
-        };
+        });
 
-        const modelInfo = await http
-          .post("assets", dataRes, {
-            headers: {
-              Authorization: `Bearer ${getJWTToken}`,
+        if (response.status == 201) {
+          console.log("UPLOAD SUCESSFUL");
+
+          // Create new asset in Strapi
+
+          const uidResponse = response.data.uid;
+
+          const name = file.name;
+
+          var dataRes = {
+            data: {
+              assetUID: uidResponse,
+
+              description: name,
+
+              productId: productId,
+              name: nameAsset,
+              isPublished: false,
+
+              thumbnail: "null",
             },
-          })
-          .then((res) => {
-            debugger;
-            const idProduct = data[0].id;
-            const idAsset = res.data.data.id;
-            arrayAssetId.push(idAsset);
-            var dataRequest = {
-              data: {
-                assets: arrayAssetId,
+          };
+
+          const modelInfo = await http
+            .post("assets", dataRes, {
+              headers: {
+                Authorization: `Bearer ${getJWTToken}`,
               },
-            };
-            http
-              .put(`/products/${idProduct}`, dataRequest, {
-                headers: {
-                  Authorization: `Bearer ${getJWTToken}`,
+            })
+            .then((res) => {
+              debugger;
+              const idProduct = data[0].id;
+              const idAsset = res.data.data.id;
+              arrayAssetId.push(idAsset);
+              var dataRequest = {
+                data: {
+                  assets: arrayAssetId,
                 },
-              })
-              .then((response) => {
-                console.log("up load thành công");
-              })
-              .catch((err) => {
-                console.log(err);
-              });
-          });
+              };
+              http
+                .put(`/products/${idProduct}`, dataRequest, {
+                  headers: {
+                    Authorization: `Bearer ${getJWTToken}`,
+                  },
+                })
+                .then((response) => {
+                  console.log("up load thành công");
+                  setNameAsset("")
+                  setFile(null)
+                })
+                .catch((err) => {
+                  console.log(err);
+                });
+            });
 
-        console.log("modelInfo", modelInfo);
+          console.log("modelInfo", modelInfo);
 
-        setUid(uidResponse);
+          setUid(uidResponse);
 
-        setStatusUpload(false);
+          setStatusUpload(false);
+        }
+      } catch (error) {
+        console.error("Error occurred:", error);
       }
-    } catch (error) {
-      console.error("Error occurred:", error);
     }
   };
 
@@ -571,8 +598,7 @@ const DetailProduct = () => {
                         src={
                           urlStrapi +
                           "/" +
-                          item?.attributes?.testImage?.data?.attributes?.formats
-                            ?.thumbnail?.url
+                          item?.attributes?.testImage?.data?.attributes?.url
                         }
                         style={{ width: "360px" }}
                       />
@@ -730,22 +756,77 @@ const DetailProduct = () => {
                         }}
                       />
 
+                      {/* <div className="titleItems">
+                        <div className="btnDelete">
+                          <TiDelete
+                            className="iconDelete"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleModalDeleteModelShow(item);
+                            }}
+                          />
+                        </div>
+
+
+                        <p className="contenTitle">3D Model Item</p>
+
+                        <div></div>
+                      </div> */}
                       <div className="titleItems">
+                        <div className="btnDelete">
+                          <TiDelete
+                            className="iconDelete"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleModalDeleteModelShow(item);
+                            }}
+                          />
+                        </div>
+
+                        <div className="groupTitle">
+                          <div className="bodyTitle">
+                            <p>{data[0].attributes.title}</p>
+
+                            <p className="idModel">
+                              <b>Model:</b> {item?.attributes?.name}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div></div>
+                      </div>
+
+                      {item.attributes.isPublished ? (
+                        <div className="tagStatusActive">
+                          <GoDotFill />
+
+                          <p>active</p>
+                        </div>
+                      ) : (
+                        <div className="tagStatusNotActive">
+                          <GoDotFill />
+
+                          <p>Not active</p>
+                        </div>
+                      )}
+                      {/* <div className="titleItems">
                         <p>3D Model Item</p>
                         <TiDelete
                           onClick={() => handleModalDeleteModelShow(item)}
                           className="titleIcon"
                         />
-                      </div>
+                      </div> */}
                     </div>
                   ))}
 
                 {listAsset
+
                   .filter(
                     (value) =>
                       value.attributes.thumbnail !== "null" &&
                       !checkImageDefault(value.attributes.thumbnail)
                   )
+
                   .map((item, index) => (
                     <div
                       onClick={() =>
@@ -753,9 +834,13 @@ const DetailProduct = () => {
                       }
                       style={{
                         width: "100%",
+
                         padding: "100% 0px 0px 0px",
+
                         position: "relative",
+
                         margin: "10px 0px",
+
                         boxSizing: "border-box",
                       }}
                     >
@@ -796,6 +881,44 @@ const DetailProduct = () => {
                           ? "Default Image"
                           : ""}
                       </p>
+
+                      <div className="titleItems">
+                        <div className="btnDelete">
+                          <TiDelete
+                            className="iconDelete"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleModalDeleteModelShow(item);
+                            }}
+                          />
+                        </div>
+
+                        <div className="groupTitle">
+                          <div className="bodyTitle">
+                            <p>{data[0].attributes.title}</p>
+
+                            <p className="idModel">
+                              <b>Model:</b> {item?.attributes?.name}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div></div>
+                      </div>
+
+                      {item.attributes.isPublished ? (
+                        <div className="tagStatusActive">
+                          <GoDotFill />
+
+                          <p>active</p>
+                        </div>
+                      ) : (
+                        <div className="tagStatusNotActive">
+                          <GoDotFill />
+
+                          <p>Not active</p>
+                        </div>
+                      )}
                     </div>
                   ))}
 
@@ -868,21 +991,49 @@ const DetailProduct = () => {
                       </Modal.Header>
 
                       <Modal.Body>
-                        <Form enctype="multipart/form-data">
+                        <Form
+                          noValidate
+                          validated={validated}
+                          enctype="multipart/form-data"
+                        >
+                          <Form.Group className="position-relative mb-3">
+                            <Form.Label>Asset name</Form.Label>
+                            <Form.Control
+                              type="text"
+                              placeholder="Enter name asset"
+                              value={nameAsset}
+                              onChange={(e) => setNameAsset(e.target.value)}
+                              required
+                            />
+
+                            <Form.Control.Feedback type="invalid">
+                              Please enter name model
+                            </Form.Control.Feedback>
+                          </Form.Group>
+                          <Form.Label>
+                            <b>3D Model</b>
+                          </Form.Label>
                           <InputGroup className="mb-3">
                             <Form.Control
                               id="file"
                               type="file"
                               accept=".obj*, .blend, .fbx, .gltf, .glb"
                               onChange={handleFileChange}
+                              isInvalid={limitedSize}
                             />
 
-                            <Button
+                            {/* <Button
                               disabled={!selectFile}
                               onClick={handleSubmit}
+                              style={{ borderRadius: "0 2px 2px 0" }}
                             >
                               Upload
-                            </Button>
+                            </Button> */}
+
+                            <Form.Control.Feedback type="invalid">
+                              This file is too big to load. Please limit the
+                              file to &lt; 50MB
+                            </Form.Control.Feedback>
                           </InputGroup>
 
                           <ProgressBar
@@ -903,6 +1054,14 @@ const DetailProduct = () => {
                         >
                           {" "}
                           Close{" "}
+                        </Button>
+
+                        <Button
+                          disabled={!selectFile}
+                          onClick={handleSubmit}
+                          style={{ borderRadius: "2px" }}
+                        >
+                          Submit
                         </Button>
                       </Modal.Footer>
                     </Modal>

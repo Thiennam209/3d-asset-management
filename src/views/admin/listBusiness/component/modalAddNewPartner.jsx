@@ -11,6 +11,7 @@ import {
   Spinner,
   ListGroup,
 } from "react-bootstrap";
+import { BsFillExclamationCircleFill } from "react-icons/bs";
 const ModalAddNewPartner = ({
   showModalAddPartner,
   handleModalAddPartnerClose,
@@ -25,6 +26,7 @@ const ModalAddNewPartner = ({
   const [selectedFile, setSelectedFile] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
+  const [alertMessageAdd, setAlertMessageAdd] = useState(false);
   const handleFileChange = (e) => {
     const file = e.target.files[0]; // Lấy tệp đầu tiên trong danh sách đã chọn
 
@@ -75,53 +77,74 @@ const ModalAddNewPartner = ({
       const dataImg = new FormData();
       dataImg.append("files", selectedFile);
 
-      setIsButtonAddDisabled(true);
-      setIsProcessing(true);
-      setIsButtonDisabled(true);
       // Gửi yêu cầu POST để tải ảnh lên Strapi (thay thế URL bằng URL thực tế của Strapi)
-
       http
-        .post("/upload", dataImg, {
+        .get(`/businesses?filters[businessId][$eq]=${partnerId}&populate=*`, {
           headers: {
             "Content-Type": "multipart/form-data",
-
             Authorization: `Bearer ${getJWTToken}`,
           },
         })
         .then((res) => {
-          const imgId = res.data[0].id;
-          http
-            .post(
-              `/businesses`,
-              {
-                data: {
-                  Name: partnerName,
-                  businessId: partnerId,
-                  Manager: manager,
-                  avatar: imgId,
-                },
-              },
-              {
+          const duplicateId = res.data.data.length;
+          if (duplicateId > 0) {
+            setAlertMessageAdd(true);
+            setPartnerId("");
+            setValidated(true);
+            // return;
+          } else {
+            setIsButtonAddDisabled(true);
+            setIsProcessing(true);
+            setIsButtonDisabled(true);
+            http
+              .post("/upload", dataImg, {
                 headers: {
+                  "Content-Type": "multipart/form-data",
+
                   Authorization: `Bearer ${getJWTToken}`,
                 },
-              }
-            )
-            .then((res) => {
-              handleModalAddPartnerClose();
-              setIsProcessing(false);
-              setIsButtonDisabled(false);
-              onSubmitSuccess(
-                `Add new partner with name ${formData.partnerName} was successful.`
-              );
-              setPartnerName("");
-              setPartnerId("");
-              setManager("");
-              setValidated(false);
-            });
+              })
+              .then((res) => {
+                const imgId = res.data[0].id;
+                http
+                  .post(
+                    `/businesses`,
+                    {
+                      data: {
+                        Name: partnerName,
+                        businessId: partnerId,
+                        Manager: manager,
+                        avatar: imgId,
+                      },
+                    },
+                    {
+                      headers: {
+                        Authorization: `Bearer ${getJWTToken}`,
+                      },
+                    }
+                  )
+                  .then((res) => {
+                    handleModalAddPartnerClose();
+                    setIsProcessing(false);
+                    setIsButtonDisabled(false);
+                    onSubmitSuccess(
+                      `Add new partner with name ${formData.partnerName} was successful.`
+                    );
+                    setPartnerName("");
+                    setPartnerId("");
+                    setManager("");
+                    setValidated(false);
+                  });
+              });
+          }
         });
     }
   };
+  if (alertMessageAdd) {
+    setTimeout(() => {
+      setAlertMessageAdd(false);
+    }, 3000);
+  }
   return (
     <>
       <Modal
@@ -169,9 +192,18 @@ const ModalAddNewPartner = ({
                 required
               />
 
-              <Form.Control.Feedback type="invalid">
-                Please enter partner id
-              </Form.Control.Feedback>
+              {alertMessageAdd ? (
+                <div style={{ fontSize: "80%", color: "#dc3545" }}>
+                  <BsFillExclamationCircleFill
+                    style={{ display: "inline", margin: "5px 10px" }}
+                  />
+                  <b>Duplication partner id</b>! Please choose diferrent partner id.
+                </div>
+              ) : (
+                <Form.Control.Feedback type="invalid">
+                  Please enter product id
+                </Form.Control.Feedback>
+              )}
             </Form.Group>
 
             <Form.Group
