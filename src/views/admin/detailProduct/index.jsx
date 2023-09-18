@@ -1017,7 +1017,7 @@ const DetailProduct = () => {
                             <Form.Control
                               id="file"
                               type="file"
-                              accept=".obj*, .blend, .fbx, .gltf, .glb"
+                              accept=".obj*, .blend, .fbx, .gltf, .glb, .zip"
                               onChange={handleFileChange}
                               isInvalid={limitedSize}
                             />

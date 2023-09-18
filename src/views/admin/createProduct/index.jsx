@@ -487,7 +487,7 @@ const CreateProduct = ({
               style={{ width: "513px" }}
               type="file"
               onChange={handleFilesChange}
-              accept=".obj*, .blend, .fbx, .gltf, .glb"
+              accept=".obj*, .blend, .fbx, .gltf, .glb, .zip"
               isInvalid={limitedSize}
               required
             />
