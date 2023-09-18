@@ -212,7 +212,7 @@ const CreateProduct = ({
                         productId: formData.tryoutLink,
                         isPublished: false,
                         thumbnail: "null",
-                        name : formData.nameAsset
+                        name: formData.nameAsset
                       },
                     };
                     http
@@ -246,27 +246,30 @@ const CreateProduct = ({
                               Authorization: `Bearer ${getJWTToken}`,
                             },
                           }
-                        );
+                        ).then((res) => {
+                          onSubmitSuccess(
+                            `Create new product with name ${formData.productName} was successful.`
+                          );
+                          handleModalInitClose();
+                          setIsButtonDisabled(false);
+                          setIsProcessing(false);
+                        }).catch((er) => {
+                          onSubmitSuccess("Fail");
+                          handleModalInitClose();
+                          setIsButtonDisabled(false);
+                          setIsProcessing(false);
+                        })
                       });
-                    onSubmitSuccess(
-                      `Create new product with name ${formData.productName} was successful.`
-                    );
-                    handleModalInitClose();
-                    setIsButtonDisabled(false);
-                    setIsProcessing(false);
+
                   }
-                  else{
-                    onSubmitSuccess(
-                      `Create new product with name ${formData.productName} was failed.`
-                    );
+                  else {
+                    onSubmitSuccess("Fail");
                     handleModalInitClose();
                     setIsButtonDisabled(false);
                     setIsProcessing(false);
                   }
                 }).catch((err) => {
-                  onSubmitSuccess(
-                    `Create new product with name ${formData.productName} was failed.`
-                  );
+                  onSubmitSuccess("Fail");
                   handleModalInitClose();
                   setIsButtonDisabled(false);
                   setIsProcessing(false);
@@ -350,7 +353,18 @@ const CreateProduct = ({
               type="text"
               placeholder="Enter product id"
               value={productId}
-              onChange={(e) => setProductId(e.target.value)}
+              onChange={(e) => {
+                // Lấy giá trị từ input
+                const value = e.target.value;
+
+                // Kiểm tra nếu giá trị chỉ chứa chữ cái, số và không chứa khoảng trắng
+                if (/^[a-zA-Z0-9]*$/.test(value)) {
+                  setProductId(value);
+                } else if (value === '') {
+                  // Cho phép giá trị rỗng
+                  setProductId('');
+                }
+              }}
               required
             />
             {alertMessageAdd ? (

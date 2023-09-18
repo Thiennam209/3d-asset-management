@@ -196,8 +196,8 @@ const ModalEditProduct = ({
       setAlertMessageEdit(false);
     }, 3000);
   }
-  if(limitedSizeThumb) {
-    setTimeout(()=>{
+  if (limitedSizeThumb) {
+    setTimeout(() => {
       setLimitedSizeThumb(false)
     }, 2000)
   }
@@ -236,7 +236,18 @@ const ModalEditProduct = ({
                 type="text"
                 placeholder="Enter Product ID"
                 value={newProductId}
-                onChange={(e) => setNewProductId(e.target.value)}
+                onChange={(e) => {
+                  // Lấy giá trị từ input
+                  const value = e.target.value;
+
+                  // Kiểm tra nếu giá trị chỉ chứa chữ cái, số và không chứa khoảng trắng
+                  if (/^[a-zA-Z0-9]*$/.test(value)) {
+                    setNewProductId(value);
+                  } else if (value === '') {
+                    // Cho phép giá trị rỗng
+                    setNewProductId('');
+                  }
+                }}
                 required
               />
 

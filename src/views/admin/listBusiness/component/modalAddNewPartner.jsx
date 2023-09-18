@@ -188,7 +188,18 @@ const ModalAddNewPartner = ({
                 type="text"
                 placeholder="Enter partner id"
                 value={partnerId}
-                onChange={(e) => setPartnerId(e.target.value)}
+                onChange={(e) => {
+                  // Lấy giá trị từ input
+                  const value = e.target.value;
+
+                  // Kiểm tra nếu giá trị chỉ chứa chữ cái, số và không chứa khoảng trắng
+                  if (/^[a-zA-Z0-9]*$/.test(value)) {
+                    setPartnerId(value);
+                  } else if (value === '') {
+                    // Cho phép giá trị rỗng
+                    setPartnerId('');
+                  }
+                }}
                 required
               />
 

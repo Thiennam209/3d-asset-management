@@ -81,6 +81,8 @@ const DetailProduct = () => {
   const [validated, setValidated] = useState(false);
   const [nameAsset, setNameAsset] = useState("");
   const [status, setStatus] = useState(false)
+  const [errors, setErrors] = useState({});
+
   const handleModalEditProductClose = () => setShowModalEditProduct(false);
   const handleModalEditProductShow = (data) => {
     setShowModalEditProduct(true);
@@ -112,6 +114,7 @@ const DetailProduct = () => {
       setLimitedSize(true);
       enableUploadButton(false);
       setFile(null);
+      document.getElementById("file").value = "";
       return;
     }
 
@@ -121,16 +124,34 @@ const DetailProduct = () => {
     enableUploadButton(true);
   };
 
+  const validateForm = () => {
+    const errors = {};
+
+    if (!nameAsset) {
+      errors.nameAsset = 'Please enter name model.';
+    }
+
+    if (!file) {
+      errors.file = 'Please choose file model.';
+    } else if (limitedSize) {
+      errors.file = "This file is too big to load. Please limit the file to &lt; 50MB"
+    }
+
+    return errors;
+  };
+
   const handleSubmit = async (event) => {
+
+    const errors = validateForm();
     const form = event.currentTarget;
-    setValidated(true);
+    // setValidated(true);
     if (form.checkValidity() === false) {
       event.preventDefault();
       event.stopPropagation();
     }
     setValidated(true);
 
-    if (nameAsset) {
+    if (Object.keys(errors).length === 0) {
       setStatusUpload(true);
 
       enableUploadButton(false);
@@ -210,11 +231,19 @@ const DetailProduct = () => {
                 })
                 .then((response) => {
                   console.log("up load thành công");
+                  handleClose()
                   // setNameAsset("")
                   // setFile(null)
                 })
                 .catch((err) => {
                   console.log(err);
+                  const errs = {}
+                  errs.strapi = "Uploading 3D model failed"
+                  setErrors(err);
+                  setNameAsset("")
+                  setFile(null)
+                  document.getElementById("file").value = "";
+                  animateProgress(0)
                 });
             });
 
@@ -224,9 +253,28 @@ const DetailProduct = () => {
 
           setStatusUpload(false);
         }
+        else {
+          const err = {}
+          err.strapi = "Uploading 3D model failed"
+          setNameAsset("")
+          setFile(null)
+          document.getElementById("file").value = "";
+          setErrors(err);
+          animateProgress(0)
+        }
       } catch (error) {
         console.error("Error occurred:", error);
+        const err = {}
+        err.strapi = "Uploading 3D model failed"
+        setErrors(err);
+        setNameAsset("")
+        setFile(null)
+        animateProgress(0)
+        document.getElementById("file").value = "";
       }
+    }
+    else {
+      setErrors(errors);
     }
   };
 
@@ -563,7 +611,7 @@ const DetailProduct = () => {
       })
 
       .catch((err) => err);
-    
+
   }
 
   if (
@@ -809,7 +857,7 @@ const DetailProduct = () => {
                         }}>
                           <GoDotFill />
 
-                          <div>active</div>
+                          <p>active</p>
                         </div>
                       ) : (
                         <div className="tagStatusNotActive" onClick={(e) => {
@@ -818,7 +866,7 @@ const DetailProduct = () => {
                         }}>
                           <GoDotFill />
 
-                          <div>Inactive</div>
+                          <p>Inactive</p>
                         </div>
                       )}
                       {/* <div className="titleItems">
@@ -982,7 +1030,10 @@ const DetailProduct = () => {
                     <label
                       className="label-input"
                       for="file-input"
-                      onClick={() => setShow(true)}
+                      onClick={() => {
+                        setShow(true)
+                        setErrors({})
+                      }}
                     >
                       <Icon
                         as={MdAdd}
@@ -1014,6 +1065,9 @@ const DetailProduct = () => {
                           validated={validated}
                           enctype="multipart/form-data"
                         >
+                          <Form.Control.Feedback type="invalid" style={{ display: "block", textAlign: "center" }}>
+                            {errors.strapi}
+                          </Form.Control.Feedback>
                           <Form.Group className="position-relative mb-3">
                             <Form.Label>Asset name</Form.Label>
                             <Form.Control
@@ -1025,7 +1079,7 @@ const DetailProduct = () => {
                             />
 
                             <Form.Control.Feedback type="invalid">
-                              Please enter name model
+                              {errors.nameAsset}
                             </Form.Control.Feedback>
                           </Form.Group>
                           <Form.Label>
@@ -1038,6 +1092,7 @@ const DetailProduct = () => {
                               accept=".obj*, .blend, .fbx, .gltf, .glb, .zip"
                               onChange={handleFileChange}
                               isInvalid={limitedSize}
+                              required
                             />
 
                             {/* <Button
@@ -1049,8 +1104,7 @@ const DetailProduct = () => {
                             </Button> */}
 
                             <Form.Control.Feedback type="invalid">
-                              This file is too big to load. Please limit the
-                              file to &lt; 50MB
+                              {errors.file}
                             </Form.Control.Feedback>
                           </InputGroup>
 

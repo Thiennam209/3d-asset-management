@@ -17,6 +17,7 @@ import "./css.css";
 import routes from "routes";
 import { CgAddR } from "react-icons/cg";
 import { BsSearch, BsFillCheckCircleFill } from "react-icons/bs";
+import { TiDeleteOutline } from "react-icons/ti";
 import CreateProduct from "../createProduct";
 import { ImBin } from "react-icons/im";
 import DeleteProduct from "./component/deleteProduct";
@@ -111,7 +112,7 @@ const ListProduct = () => {
       setSuccessMessageDelete(null);
     }, 3000);
   }
-  
+
   return (
     <>
       {successMessage && (
@@ -130,6 +131,24 @@ const ListProduct = () => {
           {successMessage}
         </Alert>
       )}
+
+      {successMessage === "Fail" && (
+        <Alert
+          variant="danger"
+          style={{
+            zIndex: "1",
+            position: "fixed",
+            left: "50%",
+            transform: "translate(-50%,-50%)",
+          }}
+        >
+          <TiDeleteOutline
+            style={{ display: "inline", margin: "5px 10px", scale: "1.7" }}
+          />{" "}
+          Create new product failed
+        </Alert>
+      )}
+
       {successMessageDelete && (
         <Alert
           variant="success"
@@ -168,7 +187,7 @@ const ListProduct = () => {
 
         <ul id="myUL" style={{ listStyleType: "none" }}>
           {data.map((item, index) => (
-            
+
             <li>
               <Card
                 id="item"
@@ -232,7 +251,7 @@ const ListProduct = () => {
                       >
                         Tryout Link:{" "}
                         {item?.attributes?.tryoutLink !== "" &&
-                        item?.attributes?.tryoutLink ? (
+                          item?.attributes?.tryoutLink ? (
                           <a target="_blank" href={`${item?.attributes?.tryoutLink}`}>
                             {item?.attributes?.tryoutLink}
                           </a>
@@ -287,7 +306,7 @@ const ListProduct = () => {
                           onClick={
                             !isButtonDeleteDisabled
                               ? () => handleModalDeleteProductShow(item)
-                              : () => {}
+                              : () => { }
                           }
                         >
                           Delete
