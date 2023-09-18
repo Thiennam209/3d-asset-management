@@ -208,7 +208,7 @@ const ModalEditProduct = ({
         onHide={handleModalEditProductClose}
         size="lg"
       >
-        <Modal.Header closeButton style={{ padding: "20px 20px 10px 50px" }}>
+        <Modal.Header style={{ padding: "20px 20px 10px 50px" }}>
           <Modal.Title>
             <b style={{ fontSize: "32px" }}>Edit Product</b>
           </Modal.Title>

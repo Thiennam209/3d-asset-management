@@ -255,6 +255,21 @@ const CreateProduct = ({
                     setIsButtonDisabled(false);
                     setIsProcessing(false);
                   }
+                  else{
+                    onSubmitSuccess(
+                      `Create new product with name ${formData.productName} was failed.`
+                    );
+                    handleModalInitClose();
+                    setIsButtonDisabled(false);
+                    setIsProcessing(false);
+                  }
+                }).catch((err) => {
+                  onSubmitSuccess(
+                    `Create new product with name ${formData.productName} was failed.`
+                  );
+                  handleModalInitClose();
+                  setIsButtonDisabled(false);
+                  setIsProcessing(false);
                 });
               });
           }
@@ -289,7 +304,7 @@ const CreateProduct = ({
       onHide={handleModalAddProductClose}
       size="lg"
     >
-      <Modal.Header closeButton style={{ padding: "20px 20px 10px 50px" }}>
+      <Modal.Header style={{ padding: "20px 20px 10px 50px" }}>
         <Modal.Title>
           <b style={{ fontSize: "32px" }}>Create new product</b>
         </Modal.Title>

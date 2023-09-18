@@ -80,6 +80,7 @@ const DetailProduct = () => {
   const [productId, setProductId] = useState(_productId);
   const [validated, setValidated] = useState(false);
   const [nameAsset, setNameAsset] = useState("");
+  const [status, setStatus] = useState(false)
   const handleModalEditProductClose = () => setShowModalEditProduct(false);
   const handleModalEditProductShow = (data) => {
     setShowModalEditProduct(true);
@@ -193,7 +194,6 @@ const DetailProduct = () => {
               },
             })
             .then((res) => {
-              debugger;
               const idProduct = data[0].id;
               const idAsset = res.data.data.id;
               arrayAssetId.push(idAsset);
@@ -210,8 +210,8 @@ const DetailProduct = () => {
                 })
                 .then((response) => {
                   console.log("up load thành công");
-                  setNameAsset("")
-                  setFile(null)
+                  // setNameAsset("")
+                  // setFile(null)
                 })
                 .catch((err) => {
                   console.log(err);
@@ -315,8 +315,6 @@ const DetailProduct = () => {
                     var dataRequest = {
                       data: {
                         thumbnail: imageURL,
-
-                        status: "default",
                       },
                     };
 
@@ -489,7 +487,7 @@ const DetailProduct = () => {
       .catch((err) => err);
 
     autoPlayAll3DViewers();
-  }, [onUploading, updateAsset, successMessageEdit, successMessageDelete]);
+  }, [onUploading, updateAsset, successMessageEdit, successMessageDelete, status]);
 
   const checkImageDefault = (value) => {
     if (value.includes("https://media.sketchfab.com/models")) {
@@ -543,6 +541,31 @@ const DetailProduct = () => {
       setSuccessMessageDelete(null);
     }, 3000);
   }
+
+
+  const changeStatus = (id, sta) => {
+    var dataRequest = {
+      data: {
+        isPublished: sta,
+      },
+    };
+
+    http
+      .put(`/assets/${id}`, dataRequest, {
+        headers: {
+          Authorization: `Bearer ${getJWTToken}`,
+        },
+      })
+
+      .then((responseAsset) => {
+        const tmp = !status
+        setStatus(tmp)
+      })
+
+      .catch((err) => err);
+    
+  }
+
   if (
     businessId !== null &&
     businessId !== "" &&
@@ -632,7 +655,7 @@ const DetailProduct = () => {
                     >
                       Tryout Link:{" "}
                       {item?.attributes?.tryoutLink !== "" &&
-                      item?.attributes?.tryoutLink ? (
+                        item?.attributes?.tryoutLink ? (
                         <a
                           target="_blank"
                           href={`${item?.attributes?.tryoutLink}`}
@@ -755,23 +778,6 @@ const DetailProduct = () => {
                           boxShadow: "2px 2px 4px rgba(0, 0, 0, 0.2)",
                         }}
                       />
-
-                      {/* <div className="titleItems">
-                        <div className="btnDelete">
-                          <TiDelete
-                            className="iconDelete"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleModalDeleteModelShow(item);
-                            }}
-                          />
-                        </div>
-
-
-                        <p className="contenTitle">3D Model Item</p>
-
-                        <div></div>
-                      </div> */}
                       <div className="titleItems">
                         <div className="btnDelete">
                           <TiDelete
@@ -797,16 +803,22 @@ const DetailProduct = () => {
                       </div>
 
                       {item.attributes.isPublished ? (
-                        <div className="tagStatusActive">
+                        <div className="tagStatusActive" onClick={(e) => {
+                          e.stopPropagation();
+                          changeStatus(item.id, false)
+                        }}>
                           <GoDotFill />
 
-                          <p>active</p>
+                          <div>active</div>
                         </div>
                       ) : (
-                        <div className="tagStatusNotActive">
+                        <div className="tagStatusNotActive" onClick={(e) => {
+                          e.stopPropagation();
+                          changeStatus(item.id, true)
+                        }}>
                           <GoDotFill />
 
-                          <p>Not active</p>
+                          <div>Inactive</div>
                         </div>
                       )}
                       {/* <div className="titleItems">
@@ -907,16 +919,22 @@ const DetailProduct = () => {
                       </div>
 
                       {item.attributes.isPublished ? (
-                        <div className="tagStatusActive">
+                        <div className="tagStatusActive" onClick={(e) => {
+                          e.stopPropagation();
+                          changeStatus(item.id, false)
+                        }}>
                           <GoDotFill />
 
                           <p>active</p>
                         </div>
                       ) : (
-                        <div className="tagStatusNotActive">
+                        <div className="tagStatusNotActive" onClick={(e) => {
+                          e.stopPropagation();
+                          changeStatus(item.id, true)
+                        }}>
                           <GoDotFill />
 
-                          <p>Not active</p>
+                          <p>Inactive</p>
                         </div>
                       )}
                     </div>
@@ -983,7 +1001,7 @@ const DetailProduct = () => {
                       backdrop="static"
                       centered="true"
                       show={show}
-                      onShow={() => {}}
+                      onShow={() => { }}
                       onHide={handleClose}
                     >
                       <Modal.Header>
@@ -1038,7 +1056,7 @@ const DetailProduct = () => {
 
                           <ProgressBar
                             animated={percentage < 100}
-                            now={percentage}
+                            now={percentage} onUploading
                             label={
                               percentage < 100 ? `${percentage}%` : "Successful"
                             }
