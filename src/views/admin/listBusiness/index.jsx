@@ -8,6 +8,7 @@ import { CgAddR, CgCodeSlash } from "react-icons/cg";
 import { Form } from "react-bootstrap";
 import { FaRegCopy } from "react-icons/fa";
 import { BsSearch, BsFillCheckCircleFill } from "react-icons/bs";
+import { TiDeleteOutline } from "react-icons/ti";
 import ModalAddNewPartner from "./component/modalAddNewPartner";
 
 const ListBusiness = () => {
@@ -64,6 +65,7 @@ const ListBusiness = () => {
   };
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     http
       .get("businesses?populate=*", {
         headers: {
@@ -139,6 +141,22 @@ const ListBusiness = () => {
             style={{ display: "inline", margin: "0 5px" }}
           />{" "}
           {successMessageAddPartner}
+        </Alert>
+      )}
+      {successMessageAddPartner === "Fail" && (
+        <Alert
+          variant="danger"
+          style={{
+            zIndex: "9000",
+            position: "fixed",
+            left: "50%",
+            transform: "translate(-50%,-50%)",
+          }}
+        >
+          <TiDeleteOutline
+            style={{ display: "inline", margin: "0 5px" }}
+          />{" "}
+          Add new partnet Failed.
         </Alert>
       )}
       <Box pt={{ base: "180px", md: "80px", xl: "80px" }} w="100%">

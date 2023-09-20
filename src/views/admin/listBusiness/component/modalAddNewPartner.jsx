@@ -134,10 +134,43 @@ const ModalAddNewPartner = ({
                     setPartnerId("");
                     setManager("");
                     setValidated(false);
-                  });
-              });
+                  }).catch((err) => {
+                    handleModalAddPartnerClose();
+                    setIsProcessing(false);
+                    setIsButtonDisabled(false);
+                    onSubmitSuccess(
+                      `Fail`
+                    );
+                    setPartnerName("");
+                    setPartnerId("");
+                    setManager("");
+                    setValidated(false);
+                  })
+              }).catch((error) => {
+                handleModalAddPartnerClose();
+                setIsProcessing(false);
+                setIsButtonDisabled(false);
+                onSubmitSuccess(
+                  `Fail`
+                );
+                setPartnerName("");
+                setPartnerId("");
+                setManager("");
+                setValidated(false);
+              })
           }
-        });
+        }).catch((err) => {
+          handleModalAddPartnerClose();
+          setIsProcessing(false);
+          setIsButtonDisabled(false);
+          onSubmitSuccess(
+            `Fail`
+          );
+          setPartnerName("");
+          setPartnerId("");
+          setManager("");
+          setValidated(false);
+        })
     }
   };
   if (alertMessageAdd) {

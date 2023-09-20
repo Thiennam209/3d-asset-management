@@ -80,6 +80,7 @@ const ListProduct = () => {
     setSuccessMessageDelete(message);
   };
   useEffect(() => {
+    window.scrollTo(0, 0);
     if (getIDBusiness !== null) {
       setBusinessId(getIDBusiness);
       http

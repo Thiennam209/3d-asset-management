@@ -14,6 +14,8 @@ import Col from "react-bootstrap/Col";
 
 import Modal from "react-bootstrap/Modal";
 
+import Spinner from "react-bootstrap/Spinner";
+
 import { useLocation } from "react-router-dom";
 
 import Sketchfab from "@sketchfab/viewer-api";
@@ -82,6 +84,7 @@ const DetailProduct = () => {
   const [nameAsset, setNameAsset] = useState("");
   const [status, setStatus] = useState(false)
   const [errors, setErrors] = useState({});
+  const [selectedOption, setSelectedOption] = useState('basic');
 
   const handleModalEditProductClose = () => setShowModalEditProduct(false);
   const handleModalEditProductShow = (data) => {
@@ -314,6 +317,7 @@ const DetailProduct = () => {
     setProductId(newProductId);
   };
   useEffect(() => {
+    window.scrollTo(0, 0);
     const searchParams = new URLSearchParams(location.search);
 
     const getIdBusiness = searchParams.get("idBusiness");
@@ -343,6 +347,8 @@ const DetailProduct = () => {
             dataDetailProduct.attributes.assets.data;
 
           objectsDataListAssest.forEach((item, index) => {
+            updateStatusIsPublish(item.id, item.attributes.isPublished)
+
             if (item.attributes.thumbnail === "null") {
               axios(
                 `https://api.sketchfab.com/v3/models/${item.attributes.assetUID}`,
@@ -590,8 +596,26 @@ const DetailProduct = () => {
     }, 3000);
   }
 
+  const [isLoadingMap, setIsLoadingMap] = useState({});
+  const [isStatusPublish, setIsStatusPublish] = useState({})
 
-  const changeStatus = (id, sta) => {
+  const updateStatusIsPublish = (itemId, isPublish) => {
+    setIsStatusPublish((prevMap) => ({
+      ...prevMap,
+      [itemId]: isPublish,
+    }));
+  }
+
+  // Hàm để cập nhật trạng thái isLoading cho một mục cụ thể
+  const updateLoadingState = (itemId, isLoading) => {
+    setIsLoadingMap((prevMap) => ({
+      ...prevMap,
+      [itemId]: isLoading,
+    }));
+  };
+
+  const changeStatus = async (id, sta) => {
+    updateLoadingState(id, true);
     var dataRequest = {
       data: {
         isPublished: sta,
@@ -606,13 +630,19 @@ const DetailProduct = () => {
       })
 
       .then((responseAsset) => {
-        const tmp = !status
-        setStatus(tmp)
+        //setStatus(tmp)
+        updateLoadingState(id, false);
+        updateStatusIsPublish(id, sta)
+        console.log("change success")
       })
 
       .catch((err) => err);
 
   }
+
+  const handleRadioChange = (event) => {
+    setSelectedOption(event.target.value);
+  };
 
   if (
     businessId !== null &&
@@ -724,6 +754,31 @@ const DetailProduct = () => {
                     >
                       {item?.attributes?.description}
                     </Card.Text>
+
+                    <div key="inline-radio" className="mb-3">
+                      <Form.Check
+                        inline
+                        label="Basic"
+                        value="basic"
+                        name="group1"
+                        type="radio"
+                        id="inline-radio-1"
+                        checked = {selectedOption === 'basic'}
+                        onChange={handleRadioChange}
+                        disabled = {selectedOption === "advanced"}
+                      />
+                      <Form.Check
+                        inline
+                        label="Advanced"
+                        value="advanced"
+                        name="group1"
+                        type="radio"
+                        id="inline-radio-2"
+                        checked= {selectedOption === "advanced"}
+                        onChange={handleRadioChange}
+                        disabled = {selectedOption === "basic"}
+                      />
+                    </div>
 
                     <div
                       className="position-absolute bottom-0 end-0 text-muted"
@@ -850,12 +905,19 @@ const DetailProduct = () => {
                         <div></div>
                       </div>
 
-                      {item.attributes.isPublished ? (
+                      {isStatusPublish[item.id] ? (
                         <div className="tagStatusActive" onClick={(e) => {
                           e.stopPropagation();
                           changeStatus(item.id, false)
                         }}>
-                          <GoDotFill />
+                          {/* <GoDotFill /> */}
+
+
+                          {isLoadingMap[item.id] ? (<Spinner
+                            animation="border"
+                            size="sm"
+                            style={{ verticalAlign: "middle", fontSize: "10px" }}
+                          />) : (<GoDotFill />)}
 
                           <p>active</p>
                         </div>
@@ -864,7 +926,11 @@ const DetailProduct = () => {
                           e.stopPropagation();
                           changeStatus(item.id, true)
                         }}>
-                          <GoDotFill />
+                          {isLoadingMap[item.id] ? (<Spinner
+                            animation="border"
+                            size="sm"
+                            style={{ verticalAlign: "middle", fontSize: "10px" }}
+                          />) : (<GoDotFill />)}
 
                           <p>Inactive</p>
                         </div>
@@ -966,7 +1032,7 @@ const DetailProduct = () => {
                         <div></div>
                       </div>
 
-                      {item.attributes.isPublished ? (
+                      {isStatusPublish[item.id] ? (
                         <div className="tagStatusActive" onClick={(e) => {
                           e.stopPropagation();
                           changeStatus(item.id, false)
