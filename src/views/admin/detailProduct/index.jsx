@@ -1,4 +1,4 @@
-import { Box, Divider, Icon, color } from "@chakra-ui/react";
+import { Box, Icon } from "@chakra-ui/react";
 
 import { useEffect, useState } from "react";
 
@@ -31,7 +31,7 @@ import InputGroup from "react-bootstrap/InputGroup";
 import ProgressBar from "react-bootstrap/ProgressBar";
 
 import "bootstrap/dist/css/bootstrap.min.css";
-import { BsSearch, BsFillCheckCircleFill } from "react-icons/bs";
+import { BsFillCheckCircleFill } from "react-icons/bs";
 import { GoDotFill } from "react-icons/go";
 import axios from "axios";
 import ModalEditProduct from "./component/modalEditProduct";
@@ -82,9 +82,7 @@ const DetailProduct = () => {
   const [productId, setProductId] = useState(_productId);
   const [validated, setValidated] = useState(false);
   const [nameAsset, setNameAsset] = useState("");
-  const [status, setStatus] = useState(false)
   const [errors, setErrors] = useState({});
-  const [selectedOption, setSelectedOption] = useState('basic');
 
   const handleModalEditProductClose = () => setShowModalEditProduct(false);
   const handleModalEditProductShow = (data) => {
@@ -188,7 +186,7 @@ const DetailProduct = () => {
           },
         });
 
-        if (response.status == 201) {
+        if (response.status === 201) {
           console.log("UPLOAD SUCESSFUL");
 
           // Create new asset in Strapi
@@ -320,7 +318,6 @@ const DetailProduct = () => {
     window.scrollTo(0, 0);
     const searchParams = new URLSearchParams(location.search);
 
-    const getIdBusiness = searchParams.get("idBusiness");
 
     http
       .get(
@@ -541,7 +538,7 @@ const DetailProduct = () => {
       .catch((err) => err);
 
     autoPlayAll3DViewers();
-  }, [onUploading, updateAsset, successMessageEdit, successMessageDelete, status]);
+  }, [onUploading, updateAsset, successMessageEdit, successMessageDelete]);
 
   const checkImageDefault = (value) => {
     if (value.includes("https://media.sketchfab.com/models")) {
@@ -640,9 +637,9 @@ const DetailProduct = () => {
 
   }
 
-  const handleRadioChange = (event) => {
-    setSelectedOption(event.target.value);
-  };
+  // const handleRadioChange = (event) => {
+  //   setSelectedOption(event.target.value);
+  // };
 
   if (
     businessId !== null &&
@@ -763,9 +760,8 @@ const DetailProduct = () => {
                         name="group1"
                         type="radio"
                         id="inline-radio-1"
-                        checked = {selectedOption === 'basic'}
-                        onChange={handleRadioChange}
-                        disabled = {selectedOption === "advanced"}
+                        checked = {item?.attributes?.arViewer === 'basic'}
+                        disabled = {item?.attributes?.arViewer === "advanced"}
                       />
                       <Form.Check
                         inline
@@ -774,9 +770,8 @@ const DetailProduct = () => {
                         name="group1"
                         type="radio"
                         id="inline-radio-2"
-                        checked= {selectedOption === "advanced"}
-                        onChange={handleRadioChange}
-                        disabled = {selectedOption === "basic"}
+                        checked = {item?.attributes?.arViewer === "advanced"}
+                        disabled = {item?.attributes?.arViewer === "basic"}
                       />
                     </div>
 

@@ -1,18 +1,13 @@
 import { http, urlStrapi } from "../../../../axios/init";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import {
   Modal,
   Form,
-  FormControl,
   Button,
   Row,
   Col,
-  Card,
-  ListGroup,
   Image,
-  Container,
   Spinner,
-  Alert,
 } from "react-bootstrap";
 import { BsFillExclamationCircleFill } from "react-icons/bs";
 const ModalEditProduct = ({
@@ -47,10 +42,15 @@ const ModalEditProduct = ({
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
   const [isButtonImgDisabled, setIsButtonImgDisabled] = useState(false);
   const [alertMessageEdit, setAlertMessageEdit] = useState(false);
+  const [selectOption, setSelectOption] = useState(data[0].attributes.arViewer);
   const fileInputRef = useRef(null);
   const handleEdit = (event) => {
     const form = event.currentTarget;
 
+    setIsProcessing(true);
+    setIsButtonDisabled(true);
+    setIsButtonImgDisabled(true);
+    
     if (form.checkValidity() === false) {
       event.preventDefault();
       event.stopPropagation();
@@ -75,6 +75,9 @@ const ModalEditProduct = ({
             setAlertMessageEdit(true);
             setNewProductId("");
             setValidated(true);
+            setIsProcessing(false);
+            setIsButtonDisabled(false);
+            setIsButtonImgDisabled(false);
             // return;
           } else {
             setIsProcessing(true);
@@ -92,6 +95,7 @@ const ModalEditProduct = ({
                       tryoutLink: productTryoutLink,
                       title: productName,
                       description: productDescription,
+                      arViewer: selectOption,
                     },
                   },
                   {
@@ -191,6 +195,11 @@ const ModalEditProduct = ({
       }
     }
   };
+
+  const handleChangeRadio = (e) => {
+    setSelectOption(e.target.value);
+  }
+
   if (alertMessageEdit) {
     setTimeout(() => {
       setAlertMessageEdit(false);
@@ -288,7 +297,6 @@ const ModalEditProduct = ({
                 Please enter product name
               </Form.Control.Feedback>
             </Form.Group>
-
             <Form.Group>
               <Form.Label>Try out link</Form.Label>
               <Form.Control
@@ -298,6 +306,31 @@ const ModalEditProduct = ({
                 value={productTryoutLink}
                 onChange={(e) => setProductTryoutLink(e.target.value)}
               />
+            </Form.Group>
+            <Form.Group className="mt-2">
+              <Form.Label>Ar Viewer</Form.Label>
+              <div key="inline-radio" className="mb-1">
+                <Form.Check
+                  inline
+                  label="Basic"
+                  value="basic"
+                  name="group1"
+                  type="radio"
+                  id="inline-radio-1"
+                  checked={selectOption === "basic"}
+                  onChange={handleChangeRadio}
+                />
+                <Form.Check
+                  inline
+                  label="Advanced"
+                  value="advanced"
+                  name="group1"
+                  type="radio"
+                  id="inline-radio-2"
+                  checked={selectOption === "advanced"}
+                  onChange={handleChangeRadio}
+                />
+              </div>
             </Form.Group>
             <Form.Group
               controlId="validationProductDescription"

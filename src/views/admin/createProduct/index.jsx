@@ -1,4 +1,4 @@
-import { Box, Icon } from "@chakra-ui/react";
+import { Box, Icon, Textarea } from "@chakra-ui/react";
 
 import { MdOutlineEdit, MdAdd } from "react-icons/md";
 
@@ -61,6 +61,8 @@ const CreateProduct = ({
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [alertMessageAdd, setAlertMessageAdd] = useState(false);
+
+  const [selectOption, setSelectOption] = useState("basic");
 
   const handleFileChange = (e) => {
     const file = e.target.files[0]; // Lấy tệp đầu tiên trong danh sách đã chọn
@@ -135,6 +137,9 @@ const CreateProduct = ({
   };
 
   const handleFinnish = (event) => {
+    setIsProcessing(true);
+    setIsButtonDisabled(true);
+    setIsButtonAddDisabled(true);
     const form = event.currentTarget;
     const formData = {
       productName,
@@ -180,11 +185,11 @@ const CreateProduct = ({
             setProductId("");
             setValidated(true);
             setAlertMessageAdd(true);
+            setIsProcessing(false);
+            setIsButtonDisabled(false);
+            setIsButtonAddDisabled(false);
             // return;
           } else {
-            setIsButtonDisabled(true);
-            setIsButtonAddDisabled(true);
-            setIsProcessing(true);
             http
               .post("/upload", dataImg, {
                 headers: {
@@ -235,6 +240,7 @@ const CreateProduct = ({
                               productId: formData.productId,
                               tryoutLink: formData.tryoutLink,
                               businessId: formData.getIDBusiness,
+                              arViewer: selectOption,
 
                               thumbnail: urlImg,
                               testImage: imgId,
@@ -289,6 +295,7 @@ const CreateProduct = ({
     setNameAsset("")
     setProductId("");
     setTryoutLink("");
+    setSelectOption("basic");
 
     setProductDescription("");
 
@@ -296,6 +303,10 @@ const CreateProduct = ({
     setLimitedSize(false);
     setLimitedSizeThumb(false);
   };
+
+  const handleChangeRadio = (e) => {
+    setSelectOption(e.target.value);
+  }
   if (alertMessageAdd) {
     setTimeout(() => {
       setAlertMessageAdd(false);
@@ -428,6 +439,31 @@ const CreateProduct = ({
               onChange={(e) => setTryoutLink(e.target.value)}
             />
           </Form.Group>
+          <Form.Group className="mt-2">
+            <Form.Label>Ar Viewer</Form.Label>
+            <div key="inline-radio" className="mb-2">
+              <Form.Check
+                inline
+                label="Basic"
+                value="basic"
+                name="group1"
+                type="radio"
+                id="inline-radio-1"
+                checked={selectOption === "basic"}
+                onChange={handleChangeRadio}
+              />
+              <Form.Check
+                inline
+                label="Advanced"
+                value="advanced"
+                name="group1"
+                type="radio"
+                id="inline-radio-2"
+                checked={selectOption === "advanced"}
+                onChange={handleChangeRadio}
+              />
+            </div>
+          </Form.Group>
           <Form.Group
             controlId="validationProductDescription"
             style={{
@@ -449,6 +485,8 @@ const CreateProduct = ({
               value={productDescription}
               onChange={(e) => setProductDescription(e.target.value)}
               required
+              as={Textarea}
+              rows={5}
             />
 
             <Form.Control.Feedback type="invalid">

@@ -1,26 +1,14 @@
-import { Box, Icon } from "@chakra-ui/react";
-
-import { MdOutlineEdit, MdAdd } from "react-icons/md";
 import { PiWarningDiamondFill } from "react-icons/pi";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import {
-  Form,
-  FormControl,
   Button,
-  Row,
-  Col,
-  Card,
   Modal,
   Spinner,
-  ListGroup,
-  Image,
 } from "react-bootstrap";
 
-import axios from "axios";
-
-import { http, urlStrapi } from "../../../../axios/init";
+import { http } from "../../../../axios/init";
 
 const DeleteProduct = ({
   showModalDeleteProduct,
@@ -32,9 +20,11 @@ const DeleteProduct = ({
 }) => {
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const dataAssets = dataDelete?.attributes?.assets?.data;
   const handleFinnish = () => {
     setIsButtonDisabled(true);
     setIsButtonDeleteDisabled(true)
+    setIsProcessing(true)
     http
       .delete(`products/${dataDelete.id}`, {
         headers: {
@@ -42,12 +32,23 @@ const DeleteProduct = ({
         },
       })
       .then((res) => {
+        dataAssets.forEach((item, index) => {
+          http
+            .delete(`assets/${item.id}`, {
+              headers: {
+                Authorization: `Bearer ${getJWTToken}`,
+              },
+            })
+        })
+
         onSubmitSuccessDelete(
           `Delete a product with name ${dataDelete?.attributes?.title} was successful.`
         );
         setIsButtonDisabled(false);
+        setIsProcessing(false)
+        handleModalDeleteProductClose();
+
       });
-    handleModalDeleteProductClose();
   };
   const handleCancel = () => {
     handleModalDeleteProductClose();

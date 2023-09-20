@@ -1,15 +1,10 @@
 import { http } from "../../../../axios/init";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Modal,
   Form,
-  FormControl,
   Button,
-  Row,
-  Col,
-  Card,
   Spinner,
-  ListGroup,
 } from "react-bootstrap";
 import { BsFillExclamationCircleFill } from "react-icons/bs";
 const ModalAddNewPartner = ({

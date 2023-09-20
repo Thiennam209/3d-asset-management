@@ -8,13 +8,10 @@ import {
   Row,
   Col,
   Card,
-  Modal,
   Alert,
 } from "react-bootstrap";
 import { useLocation, Link } from "react-router-dom";
-import { MdOutlineEdit, MdAdd } from "react-icons/md";
 import "./css.css";
-import routes from "routes";
 import { CgAddR } from "react-icons/cg";
 import { BsSearch, BsFillCheckCircleFill } from "react-icons/bs";
 import { TiDeleteOutline } from "react-icons/ti";
@@ -64,7 +61,6 @@ const ListProduct = () => {
   const handleModalAddProductShow = () => setShowModalAddProduct(true);
   const [successMessage, setSuccessMessage] = useState("");
   const [successMessageDelete, setSuccessMessageDelete] = useState("");
-  const [modelQuantity, setModelQuatity] = useState("");
   const [dataDelete, setDataDelete] = useState([]);
 
   const [showModalDeleteProduct, setShowModalDeleteProduct] = useState(false);
