@@ -18,7 +18,7 @@ import {
 
 import axios from "axios";
 
-import { http, urlStrapi } from "../../../axios/init";
+import { http, urlStrapi, tokenSketchfab } from "../../../axios/init";
 
 import InputGroup from "react-bootstrap/InputGroup";
 
@@ -203,7 +203,7 @@ const CreateProduct = ({
                 axios("https://api.sketchfab.com/v3/models", {
                   method: "POST",
                   headers: {
-                    Authorization: `Bearer sEPNs5kDTKonk0imjvw1bQNrcxbFrN`,
+                    Authorization: tokenSketchfab,
                   },
                   data: formDataSketchfab,
                 }).then((res) => {

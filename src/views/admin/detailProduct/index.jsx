@@ -2,7 +2,7 @@ import { Box, Icon } from "@chakra-ui/react";
 
 import { useEffect, useState } from "react";
 
-import { http, urlStrapi } from "../../../axios/init";
+import { http, urlStrapi, tokenSketchfab } from "../../../axios/init";
 
 import Card from "react-bootstrap/Card";
 
@@ -171,7 +171,7 @@ const DetailProduct = () => {
         const response = await axios("https://api.sketchfab.com/v3/models", {
           method: "POST",
 
-          headers: { Authorization: `Bearer sEPNs5kDTKonk0imjvw1bQNrcxbFrN` },
+          headers: { Authorization: tokenSketchfab },
 
           data: formData,
 
@@ -353,7 +353,7 @@ const DetailProduct = () => {
                   method: "GET",
 
                   headers: {
-                    Authorization: "Bearer sEPNs5kDTKonk0imjvw1bQNrcxbFrN",
+                    Authorization: tokenSketchfab,
                   },
                 }
               )
@@ -391,7 +391,7 @@ const DetailProduct = () => {
                   method: "GET",
 
                   headers: {
-                    Authorization: "Bearer sEPNs5kDTKonk0imjvw1bQNrcxbFrN",
+                    Authorization: tokenSketchfab,
                   },
                 }
               )
@@ -590,7 +590,7 @@ const DetailProduct = () => {
             <BsFillCheckCircleFill
               style={{ display: "inline", margin: "5px 10px" }}
             />{" "}
-            Delete a 3D model Failed
+            {successMessageDelete}
           </Alert>
         )}
 
@@ -946,7 +946,14 @@ const DetailProduct = () => {
                           e.stopPropagation();
                           changeStatus(item.id, false)
                         }}>
-                          <GoDotFill />
+                          {/* <GoDotFill /> */}
+
+
+                          {isLoadingMap[item.id] ? (<Spinner
+                            animation="border"
+                            size="sm"
+                            style={{ verticalAlign: "middle", fontSize: "10px" }}
+                          />) : (<GoDotFill />)}
 
                           <p>active</p>
                         </div>
@@ -955,7 +962,11 @@ const DetailProduct = () => {
                           e.stopPropagation();
                           changeStatus(item.id, true)
                         }}>
-                          <GoDotFill />
+                          {isLoadingMap[item.id] ? (<Spinner
+                            animation="border"
+                            size="sm"
+                            style={{ verticalAlign: "middle", fontSize: "10px" }}
+                          />) : (<GoDotFill />)}
 
                           <p>Inactive</p>
                         </div>

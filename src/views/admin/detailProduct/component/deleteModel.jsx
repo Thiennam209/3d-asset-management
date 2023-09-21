@@ -20,7 +20,7 @@ import {
 
 import axios from "axios";
 
-import { http, urlStrapi } from "../../../../axios/init";
+import { http, urlStrapi, tokenSketchfab } from "../../../../axios/init";
 
 const DeleteModel = ({
   showModalDeleteModel,
@@ -49,7 +49,7 @@ const DeleteModel = ({
             method: "DELETE",
 
             headers: {
-              Authorization: "Bearer sEPNs5kDTKonk0imjvw1bQNrcxbFrN",
+              Authorization: tokenSketchfab,
             },
           }
         ).then((response) => {
