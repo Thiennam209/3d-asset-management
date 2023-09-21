@@ -221,7 +221,7 @@ const ListBusiness = () => {
                           height: "40px",
                           objectFit: "cover",
                         }}
-                        src={`${urlStrapi}/${item?.attributes?.avatar?.data?.attributes?.formats?.small?.url}`}
+                        src={`${urlStrapi}/${item?.attributes?.avatar?.data?.attributes?.url}`}
                         alt="null"
                       />
                     </div>
@@ -271,7 +271,7 @@ const ListBusiness = () => {
                           height: "40px",
                           objectFit: "cover",
                         }}
-                        src={`${urlStrapi}/${item?.attributes?.avatar?.data?.attributes?.formats?.small?.url}`}
+                        src={`${urlStrapi}/${item?.attributes?.avatar?.data?.attributes?.url}`}
                         alt="null"
                       />
                     </div>

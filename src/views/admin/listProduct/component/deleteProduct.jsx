@@ -2,6 +2,8 @@ import { PiWarningDiamondFill } from "react-icons/pi";
 
 import { useState } from "react";
 
+import axios from "axios";
+
 import {
   Button,
   Modal,
@@ -38,7 +40,24 @@ const DeleteProduct = ({
               headers: {
                 Authorization: `Bearer ${getJWTToken}`,
               },
+            }).then((resp) => {
+              axios(
+                `https://api.sketchfab.com/v3/models/${item.attributes.assetUID}`,
+                {
+                  method: "DELETE",
+
+                  headers: {
+                    Authorization: "Bearer sEPNs5kDTKonk0imjvw1bQNrcxbFrN",
+                  },
+                }
+              ).then((response) => {
+
+              }).catch((err) => {
+                
+              })
             })
+
+
         })
 
         onSubmitSuccessDelete(

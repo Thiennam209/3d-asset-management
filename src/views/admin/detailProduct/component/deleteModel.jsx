@@ -32,8 +32,10 @@ const DeleteModel = ({
   console.log("dataDelete :", dataDelete);
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+
   const handleFinnish = () => {
     setIsButtonDisabled(true);
+    setIsProcessing(true)
     http
       .delete(`assets/${dataDelete.id}`, {
         headers: {
@@ -41,12 +43,36 @@ const DeleteModel = ({
         },
       })
       .then((res) => {
+        axios(
+          `https://api.sketchfab.com/v3/models/${dataDelete.attributes.assetUID}`,
+          {
+            method: "DELETE",
+
+            headers: {
+              Authorization: "Bearer sEPNs5kDTKonk0imjvw1bQNrcxbFrN",
+            },
+          }
+        ).then((response) => {
+
+          setIsButtonDisabled(false);
+          setIsProcessing(false)
+          handleModalDeleteModelClose();
+        }).catch((err) => {
+          setIsButtonDisabled(false);
+          setIsProcessing(false)
+          handleModalDeleteModelClose();
+        })
         onSubmitSuccessDelete(
           `Delete a 3D model was successful.`
         );
+      }).catch((err) => {
         setIsButtonDisabled(false);
-      });
-    handleModalDeleteModelClose();
+        setIsProcessing(false)
+        handleModalDeleteModelClose();
+        onSubmitSuccessDelete(
+          `Fail`
+        );
+      })
   };
   const handleCancel = () => {
     handleModalDeleteModelClose();

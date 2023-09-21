@@ -113,7 +113,7 @@ const CreateProduct = ({
       // Kiểm tra phần mở rộng của tệp (extension)
 
       if (file) {
-        const allowedExtensions = [".obj", ".blend", ".fbx", ".gltf", ".glb"]; // Các phần mở rộng cho tệp ảnh
+        const allowedExtensions = [".obj", ".blend", ".fbx", ".gltf", ".glb", ".zip"]; // Các phần mở rộng cho tệp ảnh
 
         const fileExtension = file.name.substring(file.name.lastIndexOf("."));
 

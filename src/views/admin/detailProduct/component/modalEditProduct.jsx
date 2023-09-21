@@ -64,7 +64,7 @@ const ModalEditProduct = ({
     };
     if (newProductId && productName && productDescription) {
       http
-        .get(`/products?filters[productId][$eq]=${productId}&populate=*`, {
+        .get(`/products?filters[productId][$eq]=${newProductId}&populate=*`, {
           headers: {
             Authorization: `Bearer ${getJWTToken}`,
           },
@@ -83,8 +83,8 @@ const ModalEditProduct = ({
             setIsProcessing(true);
             setIsButtonDisabled(true);
             setIsButtonImgDisabled(true);
-            const getID = res.data.data[0].id;
-            const imgID = res.data.data[0].attributes.testImage.data.id;
+            const getID = data[0].id;
+            const imgID = data[0].attributes.testImage.data.id;
             if (file === null) {
               http
                 .put(

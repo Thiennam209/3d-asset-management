@@ -342,7 +342,7 @@ const DetailProduct = () => {
         if (objectsData.length !== 0) {
           const objectsDataListAssest =
             dataDetailProduct.attributes.assets.data;
-
+            setListAsset(objectsDataListAssest);
           objectsDataListAssest.forEach((item, index) => {
             updateStatusIsPublish(item.id, item.attributes.isPublished)
 
@@ -428,110 +428,6 @@ const DetailProduct = () => {
             setListAsset(objectsDataListAssest);
           });
 
-          // check thumbnails == null
-
-          // http
-          //   .get(`assets?filters[productId][$eq]=${productId}`, {
-          //     headers: {
-          //       Authorization: `Bearer ${getJWTToken}`,
-          //     },
-          //   })
-
-          //   .then((response) => {
-          //     const objectDataListAssest = response.data.data;
-          //     const objectsDataListAssest = [...objectDataListAssest];
-          //     console.log(
-          //       "response.data.length :",
-          //       response.data.data["length"]
-          //     );
-          //     setModelQuatity(response.data.data["length"]);
-          //     objectsDataListAssest.forEach((item, index) => {
-          //       if (item.attributes.thumbnail === "null") {
-          //         axios(
-          //           `https://api.sketchfab.com/v3/models/${item.attributes.assetUID}`,
-          //           {
-          //             method: "GET",
-
-          //             headers: {
-          //               Authorization: "Bearer sEPNs5kDTKonk0imjvw1bQNrcxbFrN",
-          //             },
-          //           }
-          //         )
-          //           .then((repo) => {
-          //             const assetId = item.id;
-
-          //             const imageURL = repo.data.thumbnails.images[2].url;
-
-          //             if (repo.data.publishedAt !== null) {
-          //               var dataRequest = {
-          //                 data: {
-          //                   thumbnail: imageURL,
-
-          //                   status: "default",
-          //                 },
-          //               };
-
-          //               http
-          //                 .put(`/assets/${assetId}`, dataRequest, {
-          //                   headers: {
-          //                     Authorization: `Bearer ${getJWTToken}`,
-          //                   },
-          //                 })
-
-          //                 .then((responseAsset) => {
-          //                   setUpdateAsset(true);
-          //                 })
-
-          //                 .catch((err) => err);
-          //             }
-          //           })
-          //           .catch((err) => err);
-          //       } else {
-          //         axios(
-          //           `https://api.sketchfab.com/v3/models/${item.attributes.assetUID}`,
-          //           {
-          //             method: "GET",
-
-          //             headers: {
-          //               Authorization: "Bearer sEPNs5kDTKonk0imjvw1bQNrcxbFrN",
-          //             },
-          //           }
-          //         )
-          //           .then((repo) => {
-          //             const assetId = item.id;
-
-          //             const imageURL = repo.data.thumbnails.images[2].url;
-
-          //             if (item.attributes.thumbnail !== imageURL) {
-          //               var dataRequest = {
-          //                 data: {
-          //                   thumbnail: imageURL,
-
-          //                   status: "true",
-          //                 },
-          //               };
-
-          //               http
-          //                 .put(`/assets/${assetId}`, dataRequest, {
-          //                   headers: {
-          //                     Authorization: `Bearer ${getJWTToken}`,
-          //                   },
-          //                 })
-
-          //                 .then((responseAsset) => {
-          //                   setUpdateAsset(true);
-          //                 })
-
-          //                 .catch((err) => err);
-          //             }
-          //           })
-          //           .catch((err) => err);
-          //       }
-          //       setListAsset(objectsDataListAssest);
-          //     });
-          //   })
-
-          //   .catch((err) => err);
         }
       })
 
@@ -665,7 +561,23 @@ const DetailProduct = () => {
             {successMessageEdit}
           </Alert>
         )}
-        {successMessageDelete && (
+        {successMessageDelete === "Fail" && (
+          <Alert
+            variant="danger"
+            style={{
+              zIndex: "1",
+              position: "fixed",
+              left: "50%",
+              transform: "translate(-50%,-50%)",
+            }}
+          >
+            <BsFillCheckCircleFill
+              style={{ display: "inline", margin: "5px 10px" }}
+            />{" "}
+            Delete a 3D model Failed
+          </Alert>
+        )}
+        {successMessageDelete && successMessageDelete !== "Fail"  && (
           <Alert
             variant="success"
             style={{
@@ -678,9 +590,11 @@ const DetailProduct = () => {
             <BsFillCheckCircleFill
               style={{ display: "inline", margin: "5px 10px" }}
             />{" "}
-            {successMessageDelete}
+            Delete a 3D model Failed
           </Alert>
         )}
+
+
         <Box pt={{ base: "180px", md: "80px", xl: "80px" }}>
           {data.map((item, index) => (
             <Card
@@ -760,8 +674,8 @@ const DetailProduct = () => {
                         name="group1"
                         type="radio"
                         id="inline-radio-1"
-                        checked = {item?.attributes?.arViewer === 'basic'}
-                        disabled = {item?.attributes?.arViewer === "advanced"}
+                        checked={item?.attributes?.arViewer === 'basic'}
+                        disabled={item?.attributes?.arViewer === "advanced"}
                       />
                       <Form.Check
                         inline
@@ -770,8 +684,8 @@ const DetailProduct = () => {
                         name="group1"
                         type="radio"
                         id="inline-radio-2"
-                        checked = {item?.attributes?.arViewer === "advanced"}
-                        disabled = {item?.attributes?.arViewer === "basic"}
+                        checked={item?.attributes?.arViewer === "advanced"}
+                        disabled={item?.attributes?.arViewer === "basic"}
                       />
                     </div>
 
