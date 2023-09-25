@@ -612,7 +612,7 @@ const DetailProduct = () => {
                           "/" +
                           item?.attributes?.testImage?.data?.attributes?.url
                         }
-                        style={{ width: "360px" }}
+                        style={{ width: "360px", maxHeight: "360px", objectFit: "contain" }}
                       />
                     </div>
                   </Col>
