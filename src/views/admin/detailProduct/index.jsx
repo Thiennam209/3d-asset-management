@@ -74,6 +74,7 @@ const DetailProduct = () => {
   const [updateAsset, setUpdateAsset] = useState(false);
   const [successMessageEdit, setSuccessMessageEdit] = useState("");
   const [successMessageDelete, setSuccessMessageDelete] = useState("");
+  const [successMessageUpload, setSuccessMessageUpload] = useState("");
 
   const [showModalEditProduct, setShowModalEditProduct] = useState(false);
   const [showModalDeleteModel, setShowModalDeleteModel] = useState(false);
@@ -232,9 +233,10 @@ const DetailProduct = () => {
                 })
                 .then((response) => {
                   console.log("up load thành công");
+                  setUid(uidResponse);
+                  setStatusUpload(false);
                   handleClose()
-                  // setNameAsset("")
-                  // setFile(null)
+
                 })
                 .catch((err) => {
                   console.log(err);
@@ -249,10 +251,6 @@ const DetailProduct = () => {
             });
 
           console.log("modelInfo", modelInfo);
-
-          setUid(uidResponse);
-
-          setStatusUpload(false);
         }
         else {
           const err = {}
@@ -314,6 +312,41 @@ const DetailProduct = () => {
   const handleNewProductId = (newProductId) => {
     setProductId(newProductId);
   };
+
+  const deleteModelFailed = (id, assetUID) => {
+    setStatusUpload(true)
+    http
+      .delete(`assets/${id}`, {
+        headers: {
+          Authorization: `Bearer ${getJWTToken}`,
+        },
+      })
+      .then((res) => {
+        axios(
+          `https://api.sketchfab.com/v3/models/${assetUID}`,
+          {
+            method: "DELETE",
+
+            headers: {
+              Authorization: tokenSketchfab,
+            },
+          }
+        ).then((response) => {
+
+        }).catch((err) => {
+
+        })
+
+        setStatusUpload(false)
+        setSuccessMessageUpload(
+          `Upload a 3D model was successful.`
+        );
+
+      }).catch((err) => {
+
+      })
+  }
+
   useEffect(() => {
     window.scrollTo(0, 0);
     const searchParams = new URLSearchParams(location.search);
@@ -342,7 +375,7 @@ const DetailProduct = () => {
         if (objectsData.length !== 0) {
           const objectsDataListAssest =
             dataDetailProduct.attributes.assets.data;
-            setListAsset(objectsDataListAssest);
+          setListAsset(objectsDataListAssest);
           objectsDataListAssest.forEach((item, index) => {
             updateStatusIsPublish(item.id, item.attributes.isPublished)
 
@@ -362,7 +395,7 @@ const DetailProduct = () => {
 
                   const imageURL = repo.data.thumbnails.images[2].url;
 
-                  if (repo.data.publishedAt !== null) {
+                  if (repo.data.status.processing === "SUCCEEDED") {
                     var dataRequest = {
                       data: {
                         thumbnail: imageURL,
@@ -382,6 +415,11 @@ const DetailProduct = () => {
 
                       .catch((err) => err);
                   }
+
+                  if (repo.data.status.processing === "FAILED") {
+                    deleteModelFailed(item.id, item.attributes.assetUID)
+                  }
+
                 })
                 .catch((err) => err);
             } else {
@@ -399,6 +437,7 @@ const DetailProduct = () => {
                   const assetId = item.id;
 
                   const imageURL = repo.data.thumbnails.images[2].url;
+
 
                   if (item.attributes.thumbnail !== imageURL) {
                     var dataRequest = {
@@ -481,6 +520,11 @@ const DetailProduct = () => {
   if (successMessageEdit) {
     setTimeout(() => {
       setSuccessMessageEdit(null);
+    }, 3000);
+  }
+  if (successMessageUpload) {
+    setTimeout(() => {
+      setSuccessMessageUpload(null);
     }, 3000);
   }
   if (successMessageDelete) {
@@ -577,7 +621,25 @@ const DetailProduct = () => {
             Delete a 3D model Failed
           </Alert>
         )}
-        {successMessageDelete && successMessageDelete !== "Fail"  && (
+
+        {successMessageUpload && (
+          <Alert
+            variant="danger"
+            style={{
+              zIndex: "1",
+              position: "fixed",
+              left: "50%",
+              transform: "translate(-50%,-50%)",
+            }}
+          >
+            <BsFillCheckCircleFill
+              style={{ display: "inline", margin: "5px 10px" }}
+            />{" "}
+            Upload a 3D model Failed
+          </Alert>
+        )}
+
+        {successMessageDelete && successMessageDelete !== "Fail" && (
           <Alert
             variant="success"
             style={{
