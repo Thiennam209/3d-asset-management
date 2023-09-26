@@ -84,6 +84,7 @@ const DetailProduct = () => {
   const [validated, setValidated] = useState(false);
   const [nameAsset, setNameAsset] = useState("");
   const [errors, setErrors] = useState({});
+  const [hasNavigated, setHasNavigated] = useState(false);
 
   const handleModalEditProductClose = () => setShowModalEditProduct(false);
   const handleModalEditProductShow = (data) => {
@@ -348,7 +349,12 @@ const DetailProduct = () => {
   }
 
   useEffect(() => {
-    window.scrollTo(0, 0);
+    if (!hasNavigated) {
+      // Chỉ chạy scrollTo(0, 0) khi chuyển trang lần đầu
+      window.scrollTo(0, 0);
+      // Đánh dấu là đã chuyển trang lần đầu
+      setHasNavigated(true);
+    }
     const searchParams = new URLSearchParams(location.search);
 
 
