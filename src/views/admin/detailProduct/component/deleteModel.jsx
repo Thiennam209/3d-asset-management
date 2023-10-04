@@ -20,12 +20,13 @@ import {
 
 import axios from "axios";
 
-import { http, urlStrapi, tokenSketchfab } from "../../../../axios/init";
+import { http, urlStrapi } from "../../../../axios/init";
 
 const DeleteModel = ({
   showModalDeleteModel,
   handleModalDeleteModelClose,
   getJWTToken,
+  tokenSket,
   dataDelete,
   onSubmitSuccessDelete
 }) => {
@@ -49,7 +50,7 @@ const DeleteModel = ({
             method: "DELETE",
 
             headers: {
-              Authorization: tokenSketchfab,
+              Authorization: "Bearer " + tokenSket,
             },
           }
         ).then((response) => {

@@ -2,7 +2,7 @@ import { Box, Icon } from "@chakra-ui/react";
 
 import { useEffect, useState } from "react";
 
-import { http, urlStrapi, tokenSketchfab } from "../../../axios/init";
+import { http, urlStrapi } from "../../../axios/init";
 
 import Card from "react-bootstrap/Card";
 
@@ -85,6 +85,7 @@ const DetailProduct = () => {
   const [nameAsset, setNameAsset] = useState("");
   const [errors, setErrors] = useState({});
   const [hasNavigated, setHasNavigated] = useState(false);
+  const [tokenSket, setTokenSket] = useState("")
 
   const handleModalEditProductClose = () => setShowModalEditProduct(false);
   const handleModalEditProductShow = (data) => {
@@ -173,7 +174,7 @@ const DetailProduct = () => {
         const response = await axios("https://api.sketchfab.com/v3/models", {
           method: "POST",
 
-          headers: { Authorization: tokenSketchfab },
+          headers: { Authorization: "Bearer " + tokenSket },
 
           data: formData,
 
@@ -329,7 +330,7 @@ const DetailProduct = () => {
             method: "DELETE",
 
             headers: {
-              Authorization: tokenSketchfab,
+              Authorization: "Bearer " + tokenSket,
             },
           }
         ).then((response) => {
@@ -357,6 +358,15 @@ const DetailProduct = () => {
     }
     const searchParams = new URLSearchParams(location.search);
 
+    http
+        .get(`/businesses?filters[businessId][$eq]=${businessId}`, {
+          headers: {
+            Authorization: `Bearer ${getJWTToken}`,
+          },
+        })
+        .then((res) => {
+          setTokenSket(res.data.data[0].attributes.sketchfabCredentialCode)
+        })
 
     http
       .get(
@@ -392,7 +402,7 @@ const DetailProduct = () => {
                   method: "GET",
 
                   headers: {
-                    Authorization: tokenSketchfab,
+                    Authorization: "Bearer " + tokenSket,
                   },
                 }
               )
@@ -435,7 +445,7 @@ const DetailProduct = () => {
                   method: "GET",
 
                   headers: {
-                    Authorization: tokenSketchfab,
+                    Authorization: "Bearer " + tokenSket,
                   },
                 }
               )
@@ -1158,7 +1168,16 @@ const DetailProduct = () => {
                             </Button> */}
 
                             <Form.Control.Feedback type="invalid">
-                              {errors.file}
+                              {!limitedSize ? (
+                                <>
+                                  {errors.file}
+                                </>) : (
+                                <>
+                                  This file is too big to load. Please limit the file to &lt;
+                                  50MB
+                                </>
+                              )}
+
                             </Form.Control.Feedback>
                           </InputGroup>
 
@@ -1247,6 +1266,7 @@ const DetailProduct = () => {
           showModalDeleteModel={showModalDeleteModel}
           handleModalDeleteModelClose={handleModalDeleteModelClose}
           data={data}
+          tokenSket = {tokenSket}
           getJWTToken={getJWTToken}
           onSubmitSuccessDelete={handleModalSubmitSuccessDelete}
           dataDelete={dataDelete}

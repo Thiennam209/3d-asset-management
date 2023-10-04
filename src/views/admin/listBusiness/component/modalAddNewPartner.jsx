@@ -228,6 +228,8 @@ const ModalAddNewPartner = ({
                     setPartnerId('');
                   }
                 }}
+
+                maxLength={20}
                 required
               />
 
@@ -263,6 +265,7 @@ const ModalAddNewPartner = ({
                 value={partnerName}
                 onChange={(e) => setPartnerName(e.target.value)}
                 required
+                maxLength={30}
               />
 
               <Form.Control.Feedback type="invalid">
@@ -287,6 +290,7 @@ const ModalAddNewPartner = ({
                 value={manager}
                 onChange={(e) => setManager(e.target.value)}
                 required
+                maxLength={30}
               />
               <Form.Control.Feedback type="invalid">
                 Please enter manager

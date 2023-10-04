@@ -257,6 +257,8 @@ const ModalEditProduct = ({
                     setNewProductId('');
                   }
                 }}
+
+                maxLength={20}
                 required
               />
 
@@ -291,6 +293,7 @@ const ModalEditProduct = ({
                 value={productName}
                 onChange={(e) => setProductName(e.target.value)}
                 required
+                maxLength={30}
               />
 
               <Form.Control.Feedback type="invalid">
@@ -350,7 +353,8 @@ const ModalEditProduct = ({
                 onChange={(e) => setProductDescription(e.target.value)}
                 as="textarea"
                 rows={5}
-                required
+                require
+                maxLength={500}
               />
               <Form.Control.Feedback type="invalid">
                 Please enter product description

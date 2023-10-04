@@ -62,6 +62,7 @@ const ListProduct = () => {
   const [successMessage, setSuccessMessage] = useState("");
   const [successMessageDelete, setSuccessMessageDelete] = useState("");
   const [dataDelete, setDataDelete] = useState([]);
+  const [tokenSket, setTokenSket] = useState("");
 
   const [showModalDeleteProduct, setShowModalDeleteProduct] = useState(false);
   const handleModalDeleteProductClose = () => setShowModalDeleteProduct(false);
@@ -79,6 +80,16 @@ const ListProduct = () => {
     window.scrollTo(0, 0);
     if (getIDBusiness !== null) {
       setBusinessId(getIDBusiness);
+      http
+        .get(`/businesses?filters[businessId][$eq]=${getIDBusiness}`, {
+          headers: {
+            Authorization: `Bearer ${getJWTToken}`,
+          },
+        })
+        .then((res) => {
+          setTokenSket(res.data.data[0].attributes.sketchfabCredentialCode)
+        })
+
       http
         .get(`products?filters[businessId][$eq]=${getIDBusiness}&populate=*`, {
           headers: {
@@ -328,6 +339,7 @@ const ListProduct = () => {
           showModalDeleteProduct={showModalDeleteProduct}
           handleModalDeleteProductClose={handleModalDeleteProductClose}
           onSubmitSuccessDelete={handleModalSubmitSuccessDelete}
+          tokenSketfab={tokenSket}
           dataDelete={dataDelete}
           getJWTToken={getJWTToken}
           setIsButtonDeleteDisabled={setIsButtonDeleteDisabled}

@@ -18,7 +18,7 @@ import {
 
 import axios from "axios";
 
-import { http, urlStrapi, tokenSketchfab } from "../../../axios/init";
+import { http, urlStrapi } from "../../../axios/init";
 
 import InputGroup from "react-bootstrap/InputGroup";
 
@@ -173,118 +173,137 @@ const CreateProduct = ({
       formDataSketchfab.append("license", "by");
       // Gửi yêu cầu POST để tải ảnh lên Strapi (thay thế URL bằng URL thực tế của Strapi)
       http
-        .get(`/products?filters[productId][$eq]=${productId}&populate=*`, {
+        .get(`/businesses?filters[businessId][$eq]=${getIDBusiness}`, {
           headers: {
             Authorization: `Bearer ${getJWTToken}`,
           },
         })
         .then((res) => {
-          const duplicateId = res.data.data.length;
-          if (duplicateId > 0) {
-            // setAlertMessageEdit(true);
-            setProductId("");
-            setValidated(true);
-            setAlertMessageAdd(true);
-            setIsProcessing(false);
-            setIsButtonDisabled(false);
-            setIsButtonAddDisabled(false);
-            // return;
-          } else {
-            http
-              .post("/upload", dataImg, {
-                headers: {
-                  "Content-Type": "multipart/form-data",
-                  Authorization: `Bearer ${getJWTToken}`,
-                },
-              })
-              .then((res) => {
-                const urlImg = `${urlStrapi}${res.data[0].url}`;
-                const imgId = res.data[0].id;
-                axios("https://api.sketchfab.com/v3/models", {
-                  method: "POST",
-                  headers: {
-                    Authorization: tokenSketchfab,
-                  },
-                  data: formDataSketchfab,
-                }).then((res) => {
-                  if (res.status === 201) {
-                    const uidResponse = res.data.uid;
-                    var data = {
-                      data: {
-                        assetUID: uidResponse,
-                        description: formData.productName,
-                        productId: formData.productId,
-                        productId: formData.tryoutLink,
-                        isPublished: false,
-                        thumbnail: "null",
-                        name: formData.nameAsset
+          const tokenSket = res.data.data[0].attributes.sketchfabCredentialCode
+          http
+            .get(`/products?filters[productId][$eq]=${productId}&populate=*`, {
+              headers: {
+                Authorization: `Bearer ${getJWTToken}`,
+              },
+            })
+            .then((res) => {
+              const duplicateId = res.data.data.length;
+              if (duplicateId > 0) {
+                // setAlertMessageEdit(true);
+                setProductId("");
+                setValidated(true);
+                setAlertMessageAdd(true);
+                setIsProcessing(false);
+                setIsButtonDisabled(false);
+                setIsButtonAddDisabled(false);
+                // return;
+              } else {
+                http
+                  .post("/upload", dataImg, {
+                    headers: {
+                      "Content-Type": "multipart/form-data",
+                      Authorization: `Bearer ${getJWTToken}`,
+                    },
+                  })
+                  .then((res) => {
+                    const urlImg = `${urlStrapi}${res.data[0].url}`;
+                    const imgId = res.data[0].id;
+                    axios("https://api.sketchfab.com/v3/models", {
+                      method: "POST",
+                      headers: {
+                        Authorization: "Bearer " + tokenSket,
                       },
-                    };
-                    http
-                      .post("assets", data, {
-                        headers: {
-                          Authorization: `Bearer ${getJWTToken}`,
-                        },
-                      })
-                      .then((res) => {
-                        const idAsset = res.data.data.id;
-                        http.post(
-                          "/products",
-
-                          {
-                            data: {
-                              title: formData.productName,
-                              assets: idAsset,
-                              description: formData.productDescription,
-
-                              productId: formData.productId,
-                              tryoutLink: formData.tryoutLink,
-                              businessId: formData.getIDBusiness,
-                              arViewer: selectOption,
-
-                              thumbnail: urlImg,
-                              testImage: imgId,
-                            },
+                      data: formDataSketchfab,
+                    }).then((res) => {
+                      if (res.status === 201) {
+                        const uidResponse = res.data.uid;
+                        var data = {
+                          data: {
+                            assetUID: uidResponse,
+                            description: formData.productName,
+                            productId: formData.productId,
+                            productId: formData.tryoutLink,
+                            isPublished: false,
+                            thumbnail: "null",
+                            name: formData.nameAsset
                           },
-
-                          {
+                        };
+                        http
+                          .post("assets", data, {
                             headers: {
                               Authorization: `Bearer ${getJWTToken}`,
                             },
-                          }
-                        ).then((res) => {
-                          onSubmitSuccess(
-                            `Create new product with name ${formData.productName} was successful.`
-                          );
-                          handleModalInitClose();
-                          setIsButtonDisabled(false);
-                          setIsProcessing(false);
-                        }).catch((er) => {
-                          onSubmitSuccess("Fail");
-                          handleModalInitClose();
-                          setIsButtonDisabled(false);
-                          setIsProcessing(false);
-                        })
-                      });
+                          })
+                          .then((res) => {
+                            const idAsset = res.data.data.id;
+                            http.post(
+                              "/products",
 
-                  }
-                  else {
-                    onSubmitSuccess("Fail");
-                    handleModalInitClose();
-                    setIsButtonDisabled(false);
-                    setIsProcessing(false);
-                  }
-                }).catch((err) => {
-                  onSubmitSuccess("Fail");
-                  handleModalInitClose();
-                  setIsButtonDisabled(false);
-                  setIsProcessing(false);
-                });
-              });
-          }
-        });
+                              {
+                                data: {
+                                  title: formData.productName,
+                                  assets: idAsset,
+                                  description: formData.productDescription,
+
+                                  productId: formData.productId,
+                                  tryoutLink: formData.tryoutLink,
+                                  businessId: formData.getIDBusiness,
+                                  arViewer: selectOption,
+
+                                  thumbnail: urlImg,
+                                  testImage: imgId,
+                                },
+                              },
+
+                              {
+                                headers: {
+                                  Authorization: `Bearer ${getJWTToken}`,
+                                },
+                              }
+                            ).then((res) => {
+                              onSubmitSuccess(
+                                `Create new product with name ${formData.productName} was successful.`
+                              );
+                              handleModalInitClose();
+                              setIsButtonDisabled(false);
+                              setIsProcessing(false);
+                            }).catch((er) => {
+                              onSubmitSuccess("Fail");
+                              handleModalInitClose();
+                              setIsButtonDisabled(false);
+                              setIsProcessing(false);
+                            })
+                          });
+
+                      }
+                      else {
+                        onSubmitSuccess("Fail");
+                        handleModalInitClose();
+                        setIsButtonDisabled(false);
+                        setIsProcessing(false);
+                      }
+                    }).catch((err) => {
+                      onSubmitSuccess("Fail");
+                      handleModalInitClose();
+                      setIsButtonDisabled(false);
+                      setIsProcessing(false);
+                    });
+                  });
+              }
+            });
+        })
+        .catch((er) => {
+          onSubmitSuccess("Fail");
+          handleModalInitClose();
+          setIsButtonDisabled(false);
+          setIsProcessing(false);
+        })
+
+
     } else {
-      console.error("Please select an image.");
+      setIsButtonDisabled(false);
+      setIsProcessing(false);
+      setIsButtonAddDisabled(false);
     }
   };
 
@@ -362,6 +381,7 @@ const CreateProduct = ({
             <Form.Control
               style={{ width: "513px" }}
               type="text"
+              maxLength={20}
               placeholder="Enter product id"
               value={productId}
               onChange={(e) => {
@@ -376,6 +396,18 @@ const CreateProduct = ({
                   setProductId('');
                 }
               }}
+
+              onKeyDown={(e) => {
+                if (e.isComposing) {
+                  e.preventDefault();
+                }
+              }}
+
+              onCompositionUpdate={(e) => {
+                e.preventDefault();
+              }}
+
+              autocorrect="off"
               required
             />
             {alertMessageAdd ? (
@@ -412,6 +444,7 @@ const CreateProduct = ({
               value={productName}
               onChange={(e) => setProductName(e.target.value)}
               required
+              maxLength={50}
             />
 
             <Form.Control.Feedback type="invalid">
@@ -487,6 +520,7 @@ const CreateProduct = ({
               required
               as={Textarea}
               rows={5}
+              maxLength={500}
             />
 
             <Form.Control.Feedback type="invalid">
@@ -541,6 +575,7 @@ const CreateProduct = ({
               value={nameAsset}
               onChange={(e) => setNameAsset(e.target.value)}
               required
+              maxLength={20}
             />
 
             <Form.Control.Feedback type="invalid">

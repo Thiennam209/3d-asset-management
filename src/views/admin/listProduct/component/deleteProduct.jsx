@@ -10,12 +10,13 @@ import {
   Spinner,
 } from "react-bootstrap";
 
-import { http, tokenSketchfab } from "../../../../axios/init";
+import { http } from "../../../../axios/init";
 
 const DeleteProduct = ({
   showModalDeleteProduct,
   handleModalDeleteProductClose,
   getJWTToken,
+  tokenSketfab,
   dataDelete,
   onSubmitSuccessDelete,
   setIsButtonDeleteDisabled
@@ -47,7 +48,7 @@ const DeleteProduct = ({
                   method: "DELETE",
 
                   headers: {
-                    Authorization: tokenSketchfab,
+                    Authorization: "Bearer " + tokenSketfab,
                   },
                 }
               ).then((response) => {
