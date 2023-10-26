@@ -396,8 +396,9 @@ const DetailProduct = () => {
             updateStatusIsPublish(item.id, item.attributes.isPublished)
 
             if (item.attributes.thumbnail === "null") {
+              const timestamp = new Date().getTime();
               axios(
-                `https://api.sketchfab.com/v3/models/${item.attributes.assetUID}`,
+                `https://api.sketchfab.com/v3/models/${item.attributes.assetUID}?timestamp=${timestamp}`,
                 {
                   method: "GET",
 
