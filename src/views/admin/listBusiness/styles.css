@@ -36,3 +36,8 @@
 .btnSearch:hover {
     scale: 1.5;
 }
+.search {
+    margin-bottom: 15px;
+    border-radius: 8px !important;
+    padding: 5px 0;
+}

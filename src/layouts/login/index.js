@@ -1,187 +1,240 @@
-import React, { useEffect, useState } from 'react';
-import { Container, Form, Button } from 'react-bootstrap';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import { http } from '../../axios/init';
+import React, { useEffect, useState } from "react";
+import { Container, Form, Button } from "react-bootstrap";
+import "bootstrap/dist/css/bootstrap.min.css";
+import { http } from "../../axios/init";
 import { Flex, useColorModeValue } from "@chakra-ui/react";
 import logoFPT from "../../assets/img/showroom_pic1.png";
-import { Link } from 'react-router-dom';
-import { MDBIcon } from 'mdbreact';
+import { Link } from "react-router-dom";
+import { MDBIcon } from "mdbreact";
 
 const LoginPage = () => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [errors, setErrors] = useState({});
-    const [validated, setValidated] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [errors, setErrors] = useState({});
+  const [validated, setValidated] = useState(false);
 
-    // const [auth, setAuth] = useState(false)
+  // const [auth, setAuth] = useState(false)
 
-    // useEffect(() => {
-    //     if (auth) {
-    //         console.log("auth 1", auth);
-    //     } else {
-    //         console.log("auth 2", auth);
+  // useEffect(() => {
+  //     if (auth) {
+  //         console.log("auth 1", auth);
+  //     } else {
+  //         console.log("auth 2", auth);
 
-    //     }
-    // }, [auth])
-    const postAPILogin = () => {
-        http.post('auth/local', {
-            "identifier": email,
-            "password": password
-        })
-            .then((response) => {
-                if (response.status === 200 && response.data.user.userType === '3dcms') {
-                    const token = response.data.jwt
-                    localStorage.setItem('dtvt', token);
-                    window.location.reload();
-                    // setAuth(true)
+  //     }
+  // }, [auth])
+  const postAPILogin = () => {
+    http
+      .post("auth/local", {
+        identifier: email,
+        password: password,
+      })
+      .then((response) => {
+        console.log("user", response);
+        if (
+          response.status === 200 &&
+          response.data.user.userType === "3dcms"
+        ) {
+          const token = response.data.jwt;
+          const user = {
+            username: response.data.user.username,
+            email: response.data.user.email,
+            businessId: response.data.user.businessId,
+            userType: response.data.user.userType,
+            roles : response.data.user.roles
+          };
+          localStorage.setItem("dtvt", token);
+          localStorage.setItem("info", JSON.stringify(user));
+          window.location.reload();
+          // setAuth(true)
+        } else {
+          const errors = {};
+          errors.author = "This email doesn't have access rights";
+          setErrors(errors);
+          setEmail("");
+          setPassword("");
+          // setAuth(false)
+        }
+      })
+      .catch((error) => {
+        const errors = {};
+        errors.author = "Email or password is invalid";
+        setErrors(errors);
+        setEmail("");
+        setPassword("");
+      });
+  };
 
-                } else {
-                    const errors = {};
-                    errors.author = "This email doesn't have access rights";
-                    setErrors(errors);
-                    setEmail("")
-                    setPassword("")
-                    // setAuth(false)
-                }
-            })
-            .catch((error) => {
-                const errors = {};
-                errors.author = "Email or password is invalid";
-                setErrors(errors);
-                setEmail("")
-                setPassword("")
-            });
+  const validateForm = () => {
+    const errors = {};
+
+    if (!email) {
+      errors.email = "This value is required.";
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      errors.email = "This is an invalid email";
     }
 
-    const validateForm = () => {
-        const errors = {};
+    if (!password) {
+      errors.password = "This value is required.";
+    }
 
-        if (!email) {
-            errors.email = 'This value is required.';
-        } else if (!/\S+@\S+\.\S+/.test(email)) {
-            errors.email = 'This is an invalid email';
-        }
+    return errors;
+  };
 
-        if (!password) {
-            errors.password = 'This value is required.';
-        }
+  const handleLogin = (event) => {
+    // Xử lý đăng nhập tại đây
+    // event.preventDefault();
+    // const errors = validateForm();
 
-        return errors;
-    };
+    // if (Object.keys(errors).length === 0) {
+    //     // Xử lý khi biểu mẫu hợp lệ
+    //     postAPILogin()
+    //     console.log('Biểu mẫu đã gửi');
+    // } else {
+    //     // Hiển thị thông báo lỗi
+    //     setErrors(errors);
+    // }
 
-    const handleLogin = (event) => {
-        // Xử lý đăng nhập tại đây
-        // event.preventDefault();
-        // const errors = validateForm();
+    const errors = validateForm();
+    const form = event.currentTarget;
+    if (form.checkValidity() === false) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    setValidated(true);
+    if (Object.keys(errors).length === 0) {
+      // Xử lý khi biểu mẫu hợp lệ
+      postAPILogin();
+    } else {
+      // Hiển thị thông báo lỗi
+      setErrors(errors);
+    }
+  };
 
-        // if (Object.keys(errors).length === 0) {
-        //     // Xử lý khi biểu mẫu hợp lệ
-        //     postAPILogin()
-        //     console.log('Biểu mẫu đã gửi');
-        // } else {
-        //     // Hiển thị thông báo lỗi
-        //     setErrors(errors);
-        // }
-
-        const errors = validateForm();
-        const form = event.currentTarget;
-        if (form.checkValidity() === false) {
-            event.preventDefault();
-            event.stopPropagation();
-        }
-        setValidated(true);
-        if (Object.keys(errors).length === 0) {
-            // Xử lý khi biểu mẫu hợp lệ
-            postAPILogin()
-            console.log('Biểu mẫu đã gửi');
-        } else {
-            // Hiển thị thông báo lỗi
-            setErrors(errors);
-        }
-    };
-
-    return (
-        <div
-            className="d-flex justify-content-center align-items-center"
-            style={{ minHeight: '100vh', backgroundColor: '#0b1437' }}
+  return (
+    <div
+      className="d-flex justify-content-center align-items-center"
+      style={{ minHeight: "100vh", backgroundColor: "#0b1437" }}
+    >
+      <div
+        className="p-4 shadow-lg rounded bg-white"
+        style={{ width: "636px" }}
+      >
+        <Flex align="center" direction="column">
+          <img
+            src={logoFPT}
+            alt="image"
+            style={{ width: "50%", padding: "30px" }}
+          />
+        </Flex>
+        <h2
+          className="text-center"
+          style={{ color: "black", fontSize: "2rem" }}
         >
-            <div className="p-4 shadow-lg rounded bg-white" style={{ width: '636px' }}>
-                <Flex align='center' direction='column'>
-                    <img src={logoFPT} alt="image" style={{ width: "50%", padding: "30px" }} />
-                </Flex>
-                <h2 className="text-center" style={{ color: 'black', fontSize: '2rem' }}>Log in to your account</h2>
-                <h5 className="text-center mb-4" style={{ color: 'black' }}>Welcome to 3D CMS portal! Please enter your details.</h5>
-                <Form style={{ color: 'black', margin: '0 15%' }} noValidate validated={validated}>
-                    <Form.Control.Feedback style={{ display: "block", textAlign: "center" }} type="invalid">
-                        {errors.author}
-                    </Form.Control.Feedback>
-                    <Form.Group controlId="formBasicEmail" style={{ margin: "10px 0" }}>
-                        <Form.Label>Email</Form.Label>
-                        <Form.Control
-                            type="email"
-                            placeholder="Enter your email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
-                        />
-                        <Form.Control.Feedback type="invalid">
-                            {errors.email}
-                        </Form.Control.Feedback>
-                        {/* {errors.email && <div>{errors.email}</div>} */}
-                    </Form.Group>
+          Log in to your account
+        </h2>
+        <h5 className="text-center mb-4" style={{ color: "black" }}>
+          Welcome to 3D CMS portal! Please enter your details.
+        </h5>
+        <Form
+          style={{ color: "black", margin: "0 15%" }}
+          noValidate
+          validated={validated}
+        >
+          <Form.Control.Feedback
+            style={{ display: "block", textAlign: "center" }}
+            type="invalid"
+          >
+            {errors.author}
+          </Form.Control.Feedback>
+          <Form.Group controlId="formBasicEmail" style={{ margin: "10px 0" }}>
+            <Form.Label>Email</Form.Label>
+            <Form.Control
+              type="email"
+              placeholder="Enter your email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+            <Form.Control.Feedback type="invalid">
+              {errors.email}
+            </Form.Control.Feedback>
+            {/* {errors.email && <div>{errors.email}</div>} */}
+          </Form.Group>
 
-                    <Form.Group controlId="formBasicPassword" style={{ margin: "10px 0" }}>
-                        <Form.Label>Password</Form.Label>
-                        <Form.Control
-                            type="password"
-                            placeholder="Password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                        />
-                        <Form.Control.Feedback type="invalid">
-                            {errors.password}
-                        </Form.Control.Feedback>
+          <Form.Group
+            controlId="formBasicPassword"
+            style={{ margin: "10px 0" }}
+          >
+            <Form.Label>Password</Form.Label>
+            <Form.Control
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+            <Form.Control.Feedback type="invalid">
+              {errors.password}
+            </Form.Control.Feedback>
 
-                        {/* {errors.password && <div>{errors.password}</div>} */}
-                    </Form.Group>
+            {/* {errors.password && <div>{errors.password}</div>} */}
+          </Form.Group>
 
-                    <Form.Group controlId="rememberMe" className="d-flex justify-content-between">
-                        <div>
-                            <Form.Check
-                                type="checkbox"
-                                label="Remember Me"
-                            />
-                        </div>
-                        <div>
-                            <Link to="#">Forgot Password?</Link>
-                        </div>
-                    </Form.Group>
-
-                    <Button
-                        variant="primary"
-                        type="submit"
-                        block
-                        onClick={handleLogin}
-                        style={{ backgroundColor: '#007bff', borderColor: '#007bff', marginTop: '20px', width: '100%' }}
-                    >
-                        Sign in
-                    </Button>
-
-                    <Button
-                        variant="outline-primary"
-                        type="button"
-                        block
-                        // onClick={handleLogin}
-                        style={{ backgroundColor: 'white', borderColor: '#007bff', marginTop: '20px', width: '100%', color: '#007bff' }}
-                    >
-                        <MDBIcon fab icon="google" style={{ margin: "0" }} /> Sign in with Google
-                    </Button>
-                    <h5 className="text-center" style={{ color: 'black', margin: "50px 0 80px 0" }}> Don’t have an account? <Link to="#"> Sign up</Link></h5>
-                </Form>
+          <Form.Group
+            controlId="rememberMe"
+            className="d-flex justify-content-between"
+          >
+            <div>
+              <Form.Check type="checkbox" label="Remember Me" />
             </div>
-        </div>
-    );
+            <div>
+              <Link to="#">Forgot Password?</Link>
+            </div>
+          </Form.Group>
+
+          <Button
+            variant="primary"
+            type="submit"
+            block
+            onClick={handleLogin}
+            style={{
+              backgroundColor: "#007bff",
+              borderColor: "#007bff",
+              marginTop: "20px",
+              width: "100%",
+            }}
+          >
+            Sign in
+          </Button>
+
+          <Button
+            variant="outline-primary"
+            type="button"
+            block
+            // onClick={handleLogin}
+            style={{
+              backgroundColor: "white",
+              borderColor: "#007bff",
+              marginTop: "20px",
+              width: "100%",
+              color: "#007bff",
+            }}
+          >
+            <MDBIcon fab icon="google" style={{ margin: "0" }} /> Sign in with
+            Google
+          </Button>
+          <h5
+            className="text-center"
+            style={{ color: "black", margin: "50px 0 80px 0" }}
+          >
+            {" "}
+            Don’t have an account? <Link to="#"> Sign up</Link>
+          </h5>
+        </Form>
+      </div>
+    </div>
+  );
 };
 
 export default LoginPage;

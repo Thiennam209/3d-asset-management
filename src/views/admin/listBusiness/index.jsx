@@ -1,4 +1,5 @@
 import { Table, Modal, Button, FormControl, Alert } from "react-bootstrap";
+import jwt_decode from "jwt-decode";
 import { Box } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -10,17 +11,35 @@ import { FaRegCopy } from "react-icons/fa";
 import { BsSearch, BsFillCheckCircleFill } from "react-icons/bs";
 import { TiDeleteOutline } from "react-icons/ti";
 import ModalAddNewPartner from "./component/modalAddNewPartner";
+import ModalAddPeople from "./component/modalAddPeople";
+import {
+  roleManagerAll,
+  roleManagerBusiness,
+  roleUser,
+} from "../../../const/roles";
 
 const ListBusiness = () => {
   const getJWTToken = localStorage.getItem("dtvt");
+  var decoded = jwt_decode(getJWTToken);
+  const idUser = decoded.id;
   const [data, setData] = useState([]);
   const [showModalSnippet, setShowModalSnippet] = useState(false);
+  const [showModalAddPeople, setShowModalAddPeople] = useState(false);
   const [codeIntegrationHead, setCodeIntegrationHead] = useState("");
   const [codeIntegrationBody, setCodeIntegrationBody] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [successMessageAddPartner, setSuccessMessageAddPartner] = useState("");
+  const [successMessageAddPeople, setSuccessMessageAddPeople] = useState("");
   const [showModalAddPartner, setShowModalAddPartner] = useState(false);
   const [isButtonAddDisabled, setIsButtonAddDisabled] = useState(false);
+  const [isButtonAddPeopleDisabled, setIsButtonAddPeopleDisabled] =
+    useState(false);
+  const [_roleManagerAll, setRoleManagerAll] = useState(false);
+  const [_roleManagerBusiness, setRoleManagerBusiness] = useState(false);
+  const [_roleUser, setRoleUser] = useState(false);
+  const [idBusiness, setIdBusiness] = useState("");
+  const [roleName, setRoleName] = useState("");
+
   const handleModalAddPartnerClose = () => setShowModalAddPartner(false);
   const handleModalAddPartnerShow = () => setShowModalAddPartner(true);
   const handleModalSnippetClose = () => {
@@ -34,6 +53,12 @@ const ListBusiness = () => {
     setShowModalSnippet(true);
   };
 
+  const handleModaAddPeopleShow = () => {
+    setShowModalAddPeople(true);
+  };
+  const handleModalAddPeopleClose = () => {
+    setShowModalAddPeople(false);
+  };
   const fillter = () => {
     // Declare variables
 
@@ -67,18 +92,64 @@ const ListBusiness = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
     http
-      .get("businesses?populate=*", {
+      .get(`users?populate=*&filters[id][$eq]=${idUser}`, {
         headers: {
           Authorization: `Bearer ${getJWTToken}`,
         },
       })
-      .then((response) => {
-        const objectData = response.data.data;
-        const objectsData = [...objectData];
-        setData(objectsData);
-      })
-      .catch((err) => err);
-  }, [successMessageAddPartner]);
+      .then((result) => {
+        const role = result.data[0].role.name;
+        const businessID = result.data[0].businessId;
+        const checkRoleManagerAll = roleManagerAll.find(
+          (item) => item.role === role
+        );
+        const checkRoleManagerBusiness = roleManagerBusiness.find(
+          (item) => item.role === role
+        );
+
+        const checkRoleUser = roleUser.find((item) => item.role === role);
+
+        switch (role) {
+          case checkRoleManagerAll?.role:
+            setRoleManagerAll(true);
+            setRoleName("roleManagerAll");
+            break;
+          case checkRoleManagerBusiness?.role:
+            setRoleManagerBusiness(true);
+            setRoleName("roleManagerBusiness");
+            break;
+          case checkRoleUser?.role:
+            setRoleUser(true);
+            setRoleName("checkRoleUser");
+            break;
+          default:
+            "";
+        }
+
+        http
+          .get(
+            _roleManagerAll === true
+              ? "businesses?populate=*"
+              : `businesses?populate=*&filters[businessId][$eq]=${businessID}`,
+            {
+              headers: {
+                Authorization: `Bearer ${getJWTToken}`,
+              },
+            }
+          )
+          .then((response) => {
+            const objectData = response.data.data;
+            const objectsData = [...objectData];
+            setData(objectsData);
+          })
+          .catch((err) => err);
+      });
+  }, [
+    successMessageAddPartner,
+    _roleManagerAll,
+    _roleManagerBusiness,
+    _roleUser,
+  ]);
 
   const copyToClipboard = (value) => {
     // Sử dụng API Clipboard để sao chép văn bản vào clipboard
@@ -98,6 +169,9 @@ const ListBusiness = () => {
   const handleModalSubmitSuccess = (message) => {
     setSuccessMessageAddPartner(message);
   };
+  const handleModalAddPeopleSubmitSuccess = (message) => {
+    setSuccessMessageAddPeople(message);
+  };
   if (successMessage) {
     setTimeout(() => {
       setSuccessMessage(null);
@@ -107,6 +181,12 @@ const ListBusiness = () => {
     setTimeout(() => {
       setIsButtonAddDisabled(false);
       setSuccessMessageAddPartner(null);
+    }, 3000);
+  }
+  if (successMessageAddPeople) {
+    setTimeout(() => {
+      setIsButtonAddPeopleDisabled(false);
+      setSuccessMessageAddPeople(null);
     }, 3000);
   }
   return (
@@ -153,10 +233,38 @@ const ListBusiness = () => {
             transform: "translate(-50%,-50%)",
           }}
         >
-          <TiDeleteOutline
+          <TiDeleteOutline style={{ display: "inline", margin: "0 5px" }} /> Add
+          new partnet Failed.
+        </Alert>
+      )}
+
+      {successMessageAddPeople && (
+        <Alert
+          variant="success"
+          style={{
+            zIndex: "9000",
+            position: "fixed",
+            left: "50%",
+            transform: "translate(-50%,-50%)",
+          }}
+        >
+          <BsFillCheckCircleFill
             style={{ display: "inline", margin: "0 5px" }}
           />{" "}
-          Add new partnet Failed.
+          <b>Success : </b>{successMessageAddPeople}
+        </Alert>
+      )}
+      {successMessageAddPeople === "Fail" && (
+        <Alert
+          variant="danger"
+          style={{
+            zIndex: "9000",
+            position: "fixed",
+            left: "50%",
+            transform: "translate(-50%,-50%)",
+          }}
+        >
+          <TiDeleteOutline style={{ display: "inline", margin: "0 5px" }} /> <b>Fail : </b>Username or email is duplicate. Add new peole failed!
         </Alert>
       )}
       <Box pt={{ base: "180px", md: "80px", xl: "80px" }} w="100%">
@@ -164,19 +272,23 @@ const ListBusiness = () => {
           <FormControl
             type="text"
             placeholder="Search"
-            className="mr-sm-2 custom-input"
+            className="mr-sm-2 custom-input search"
             id="myInput"
             onKeyUp={fillter}
           />
-          <BsSearch className="btnSearch" />
-          <Button
-            variant="primary"
-            style={{ margin: "15px 10px 15px 60px" }}
-            onClick={handleModalAddPartnerShow}
-            disabled={isButtonAddDisabled}
-          >
-            <CgAddR style={{ display: "inline-block" }} /> Add new partner{" "}
-          </Button>
+          {/* <BsSearch className="btnSearch" /> */}
+          {_roleManagerAll === true || _roleManagerBusiness === true ? (
+            <Button
+              variant="primary"
+              style={{ margin: "15px 10px 15px 60px" }}
+              onClick={handleModalAddPartnerShow}
+              disabled={isButtonAddDisabled}
+            >
+              <CgAddR style={{ display: "inline-block" }} /> Add new partner{" "}
+            </Button>
+          ) : (
+            ""
+          )}
         </Form>
 
         <Table
@@ -297,11 +409,22 @@ const ListBusiness = () => {
                     width: "20%",
                   }}
                 >
-                  <Link to="#">
-                    {" "}
-                    <CgAddR style={{ display: "inline-block" }} /> add people{" "}
-                  </Link>
-                  <br />
+                  {_roleManagerAll === true || _roleManagerBusiness === true ? (
+                    <p
+                      className="linkShow"
+                      onClick={() => {
+                        handleModaAddPeopleShow();
+                        setIdBusiness(item?.attributes?.businessId);
+                      }}
+                      disabled={isButtonAddPeopleDisabled}
+                    >
+                      {" "}
+                      <CgAddR style={{ display: "inline-block" }} /> add people{" "}
+                    </p>
+                  ) : (
+                    ""
+                  )}
+
                   <p
                     className="linkShow"
                     onClick={() => {
@@ -406,6 +529,15 @@ const ListBusiness = () => {
         getJWTToken={getJWTToken}
         setIsButtonAddDisabled={setIsButtonAddDisabled}
         onSubmitSuccess={handleModalSubmitSuccess}
+      />
+      <ModalAddPeople
+        showModalAddPeople={showModalAddPeople}
+        handleModalAddPeopleClose={handleModalAddPeopleClose}
+        getJWTToken={getJWTToken}
+        setIsButtonAddPeopleDisabled={setIsButtonAddPeopleDisabled}
+        onSubmitSuccess={handleModalAddPeopleSubmitSuccess}
+        idBusiness={idBusiness}
+        roleName={roleName}
       />
     </>
   );
