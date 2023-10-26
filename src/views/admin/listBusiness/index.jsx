@@ -123,7 +123,7 @@ const ListBusiness = () => {
             setRoleName("checkRoleUser");
             break;
           default:
-            "";
+            break;
         }
 
         http
