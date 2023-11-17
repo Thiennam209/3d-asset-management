@@ -26,6 +26,10 @@ import Alert from "react-bootstrap/Alert";
 
 import ProgressBar from "react-bootstrap/ProgressBar";
 
+import QRCode from 'qrcode';
+
+
+
 const CreateProduct = ({
   showModalAddProduct,
 
@@ -44,6 +48,7 @@ const CreateProduct = ({
 
   const [productId, setProductId] = useState("");
   const [tryoutLink, setTryoutLink] = useState("");
+  const [qrCode, setQRCode] = useState("");
 
   const [productDescription, setProductDescription] = useState("");
 
@@ -145,6 +150,7 @@ const CreateProduct = ({
       productName,
       productId,
       tryoutLink,
+      qrCode,
       productDescription,
       getIDBusiness,
       selectedFile,
@@ -217,63 +223,106 @@ const CreateProduct = ({
                     }).then((res) => {
                       if (res.status === 201) {
                         const uidResponse = res.data.uid;
-                        var data = {
-                          data: {
-                            assetUID: uidResponse,
-                            description: formData.productName,
-                            productId: formData.productId,
-                            productId: formData.tryoutLink,
-                            isPublished: false,
-                            thumbnail: "null",
-                            name: formData.nameAsset
+
+
+
+
+                        const qrCodeOptions = {
+                          errorCorrectionLevel: 'H',
+                          type: 'image/png',
+                          rendererOpts: {
+                            quality: 1.0,
                           },
+                          scale: 20,
                         };
-                        http
-                          .post("assets", data, {
-                            headers: {
-                              Authorization: `Bearer ${getJWTToken}`,
-                            },
-                          })
-                          .then((res) => {
-                            const idAsset = res.data.data.id;
-                            http.post(
-                              "/products",
-
-                              {
-                                data: {
-                                  title: formData.productName,
-                                  assets: idAsset,
-                                  description: formData.productDescription,
-
-                                  productId: formData.productId,
-                                  tryoutLink: formData.tryoutLink,
-                                  businessId: formData.getIDBusiness,
-                                  arViewer: selectOption,
-
-                                  thumbnail: urlImg,
-                                  testImage: imgId,
-                                },
-                              },
-
-                              {
+                        QRCode.toDataURL(uidResponse, qrCodeOptions)
+                          .then((url) => {
+                            // save code
+                            const arrayBuffer = Uint8Array.from(atob(url.split(',')[1]), c => c.charCodeAt(0)).buffer;
+                            const formDataQR = new FormData();
+                            const fileName = "QRCode_" + uidResponse + ".png"
+                            formDataQR.append('files', new File([arrayBuffer], fileName, { type: 'image/png' }));
+                            // const fileQR = base64toFile(base64Data, fileName)
+                            // formData.append('files', fileQR);
+                            http
+                              .post("/upload", formDataQR, {
                                 headers: {
+                                  "Content-Type": "multipart/form-data",
                                   Authorization: `Bearer ${getJWTToken}`,
                                 },
-                              }
-                            ).then((res) => {
-                              onSubmitSuccess(
-                                `Create new product with name ${formData.productName} was successful.`
-                              );
-                              handleModalInitClose();
-                              setIsButtonDisabled(false);
-                              setIsProcessing(false);
-                            }).catch((er) => {
-                              onSubmitSuccess("Fail");
-                              handleModalInitClose();
-                              setIsButtonDisabled(false);
-                              setIsProcessing(false);
-                            })
-                          });
+                              })
+                              .then((res) => {
+                                const urlImgQR = `${urlStrapi}${res.data[0].url}`;
+                                var data = {
+                                  data: {
+                                    assetUID: uidResponse,
+                                    description: formData.productName,
+                                    productId: formData.productId,
+                                    qrcode: urlImgQR,
+                                    productId: formData.tryoutLink,
+                                    isPublished: false,
+                                    thumbnail: "null",
+                                    name: formData.nameAsset
+                                  },
+                                };
+                                http
+                                  .post("assets", data, {
+                                    headers: {
+                                      Authorization: `Bearer ${getJWTToken}`,
+                                    },
+                                  })
+                                  .then((res) => {
+                                    const idAsset = res.data.data.id;
+                                    http.post(
+                                      "/products",
+
+                                      {
+                                        data: {
+                                          title: formData.productName,
+                                          assets: idAsset,
+                                          description: formData.productDescription,
+
+                                          productId: formData.productId,
+                                          tryoutLink: formData.tryoutLink,
+                                          businessId: formData.getIDBusiness,
+                                          arViewer: selectOption,
+
+                                          thumbnail: urlImg,
+                                          testImage: imgId,
+                                        },
+                                      },
+
+                                      {
+                                        headers: {
+                                          Authorization: `Bearer ${getJWTToken}`,
+                                        },
+                                      }
+                                    ).then((res) => {
+                                      onSubmitSuccess(
+                                        `Create new product with name ${formData.productName} was successful.`
+                                      );
+                                      handleModalInitClose();
+                                      setIsButtonDisabled(false);
+                                      setIsProcessing(false);
+                                    }).catch((er) => {
+                                      onSubmitSuccess("Fail");
+                                      handleModalInitClose();
+                                      setIsButtonDisabled(false);
+                                      setIsProcessing(false);
+                                    })
+                                  });
+
+                              })
+                              .catch((err) => {
+                                console.log("upload QRCode lỗi!");
+                              })
+                          })
+                          .catch((err) => {
+                            console.error(err);
+                          })
+
+
+
 
                       }
                       else {
@@ -348,7 +397,6 @@ const CreateProduct = ({
           Fill out the following details as prompted below to add a new product
           profile to your product list.
         </p>
-
         <Form
           noValidate
           validated={validated}
@@ -472,6 +520,7 @@ const CreateProduct = ({
               onChange={(e) => setTryoutLink(e.target.value)}
             />
           </Form.Group>
+
           <Form.Group className="mt-2">
             <Form.Label>Ar Viewer</Form.Label>
             <div key="inline-radio" className="mb-2">
@@ -497,6 +546,8 @@ const CreateProduct = ({
               />
             </div>
           </Form.Group>
+
+
           <Form.Group
             controlId="validationProductDescription"
             style={{

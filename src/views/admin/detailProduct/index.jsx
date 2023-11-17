@@ -1,3 +1,4 @@
+import ReactDOM from 'react-dom';
 import { Box, Icon } from "@chakra-ui/react";
 
 import { useEffect, useState } from "react";
@@ -33,10 +34,16 @@ import ProgressBar from "react-bootstrap/ProgressBar";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { BsFillCheckCircleFill } from "react-icons/bs";
 import { GoDotFill } from "react-icons/go";
+import { BsQrCodeScan } from "react-icons/bs";
 import axios from "axios";
 import ModalEditProduct from "./component/modalEditProduct";
 import DeleteModel from "./component/deleteModel";
+// import QRComponent from './component/QRComponent';
 import { TiDelete } from "react-icons/ti";
+//import QRCode from 'qrcode.react';
+
+import QRCode from 'qrcode';
+
 const DetailProduct = () => {
   const location = useLocation();
 
@@ -85,7 +92,10 @@ const DetailProduct = () => {
   const [nameAsset, setNameAsset] = useState("");
   const [errors, setErrors] = useState({});
   const [hasNavigated, setHasNavigated] = useState(false);
-  const [tokenSket, setTokenSket] = useState("")
+  const [tokenSket, setTokenSket] = useState("");
+  const [imgQRCode, setImgQRCode] = useState("");
+
+  const [qrShow, setQRShow] = useState(false);
 
   const handleModalEditProductClose = () => setShowModalEditProduct(false);
   const handleModalEditProductShow = (data) => {
@@ -99,8 +109,8 @@ const DetailProduct = () => {
   };
   const handleClose = () => {
     setShow(false);
-    setNameAsset("")
-    setFile(null)
+    setNameAsset("");
+    setFile(null);
     enableUploadButton(false);
     setLimitedSize(false);
     animateProgress(0);
@@ -132,20 +142,74 @@ const DetailProduct = () => {
     const errors = {};
 
     if (!nameAsset) {
-      errors.nameAsset = 'Please enter name model.';
+      errors.nameAsset = "Please enter name model.";
     }
 
     if (!file) {
-      errors.file = 'Please choose file model.';
+      errors.file = "Please choose file model.";
     } else if (limitedSize) {
-      errors.file = "This file is too big to load. Please limit the file to &lt; 50MB"
+      errors.file =
+        "This file is too big to load. Please limit the file to &lt; 50MB";
     }
 
     return errors;
   };
 
-  const handleSubmit = async (event) => {
+  // const QRComponent = (uId) => {
+  //   const id = uId.uId
+  //   return (
+  //     <>
+  //       <QRCode
+  //         id={id}
+  //         value="https://www.google.com/"
+  //         size={300}
+  //         level={'H'}
+  //         includeMargin={true}
+  //       />
+  //       <a style={{ cursor: "pointer" }} onClick={downloadQR}> Download QR </a>
+  //     </>
+  //   )
+  // }
+  // const createQRCode = (uId) => {
+  //   const info = document.getElementById('qrCode')
+  //   ReactDOM.render(<QRComponent uId={uId} />, info);
+  // }
 
+  const createQRCode = (uId) => {
+    QRCode.toDataURL('https://www.google.com/')
+      .then((url) => {
+        console.log(url);
+        saveQRCode(url, uId);
+      })
+      .catch((err) => {
+        console.error(err);
+      })
+  };
+
+  const saveQRCode = (base64Data, uId) => {
+    const arrayBuffer = Uint8Array.from(atob(base64Data.split(',')[1]), c => c.charCodeAt(0)).buffer;
+    const formData = new FormData();
+    const fileName = "QRCode_" + uId + ".png"
+    formData.append('files', new File([arrayBuffer], fileName, { type: 'image/png' }));
+    // const fileQR = base64toFile(base64Data, fileName)
+    // formData.append('files', fileQR);
+    http
+      .post("/upload", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${getJWTToken}`,
+        },
+      })
+      .then((res) => {
+        const urlImg = `${urlStrapi}${res.data[0].url}`;
+        // setImgQRCode(urlImg)
+      })
+      .catch((err) => {
+        console.log("upload QRCode lỗi!");
+      })
+  }
+
+  const handleSubmit = async (event) => {
     const errors = validateForm();
     const form = event.currentTarget;
     // setValidated(true);
@@ -192,89 +256,119 @@ const DetailProduct = () => {
         if (response.status === 201) {
           console.log("UPLOAD SUCESSFUL");
 
-          // Create new asset in Strapi
-
           const uidResponse = response.data.uid;
 
+          //createQRCode(uidResponse);
           const name = file.name;
-
-          var dataRes = {
-            data: {
-              assetUID: uidResponse,
-
-              description: name,
-
-              productId: productId,
-              name: nameAsset,
-              isPublished: false,
-
-              thumbnail: "null",
+          const qrCodeOptions = {
+            errorCorrectionLevel: 'H', 
+            type: 'image/png', 
+            rendererOpts: {
+              quality: 1.0, 
             },
+            scale: 20, 
           };
-
-          const modelInfo = await http
-            .post("assets", dataRes, {
-              headers: {
-                Authorization: `Bearer ${getJWTToken}`,
-              },
-            })
-            .then((res) => {
-              const idProduct = data[0].id;
-              const idAsset = res.data.data.id;
-              arrayAssetId.push(idAsset);
-              var dataRequest = {
-                data: {
-                  assets: arrayAssetId,
-                },
-              };
+          QRCode.toDataURL(uidResponse, qrCodeOptions)
+            .then((url) => {
+              // save code
+              const arrayBuffer = Uint8Array.from(atob(url.split(',')[1]), c => c.charCodeAt(0)).buffer;
+              const formData = new FormData();
+              const fileName = "QRCode_" + uidResponse + ".png"
+              formData.append('files', new File([arrayBuffer], fileName, { type: 'image/png' }));
+              // const fileQR = base64toFile(base64Data, fileName)
+              // formData.append('files', fileQR);
               http
-                .put(`/products/${idProduct}`, dataRequest, {
+                .post("/upload", formData, {
                   headers: {
+                    "Content-Type": "multipart/form-data",
                     Authorization: `Bearer ${getJWTToken}`,
                   },
                 })
-                .then((response) => {
-                  console.log("up load thành công");
-                  setUid(uidResponse);
-                  setStatusUpload(false);
-                  handleClose()
+                .then((res) => {
+                  const urlImg = `${urlStrapi}${res.data[0].url}`;
+                  var dataRes = {
+                    data: {
+                      assetUID: uidResponse,
+                      description: name,
+                      qrcode: urlImg,
+                      productId: productId,
+                      name: nameAsset,
+                      isPublished: false,
+                      thumbnail: "null",
+                    },
+                  };
+
+                  http
+                    .post("assets", dataRes, {
+                      headers: {
+                        Authorization: `Bearer ${getJWTToken}`,
+                      },
+                    })
+                    .then((res) => {
+                      const idProduct = data[0].id;
+                      const idAsset = res.data.data.id;
+                      arrayAssetId.push(idAsset);
+                      var dataRequest = {
+                        data: {
+                          assets: arrayAssetId,
+                        },
+                      };
+                      http
+                        .put(`/products/${idProduct}`, dataRequest, {
+                          headers: {
+                            Authorization: `Bearer ${getJWTToken}`,
+                          },
+                        })
+                        .then((response) => {
+                          console.log("up load thành công");
+                          setUid(uidResponse);
+                          setStatusUpload(false);
+                          handleClose();
+                        })
+                        .catch((err) => {
+                          console.log(err);
+                          const errs = {};
+                          errs.strapi = "Uploading 3D model failed";
+                          setErrors(err);
+                          setNameAsset("");
+                          setFile(null);
+                          document.getElementById("file").value = "";
+                          animateProgress(0);
+                        });
+                    });
 
                 })
                 .catch((err) => {
-                  console.log(err);
-                  const errs = {}
-                  errs.strapi = "Uploading 3D model failed"
-                  setErrors(err);
-                  setNameAsset("")
-                  setFile(null)
-                  document.getElementById("file").value = "";
-                  animateProgress(0)
-                });
-            });
+                  console.log("upload QRCode lỗi!");
+                })
+            })
+            .catch((err) => {
+              console.error(err);
+            })
 
-          console.log("modelInfo", modelInfo);
-        }
-        else {
-          const err = {}
-          err.strapi = "Uploading 3D model failed"
-          setNameAsset("")
-          setFile(null)
+
+
+
+        } else {
+          const err = {};
+          err.strapi = "Uploading 3D model failed";
+          setNameAsset("");
+          setFile(null);
           document.getElementById("file").value = "";
           setErrors(err);
-          animateProgress(0)
+          animateProgress(0);
         }
       } catch (error) {
         console.error("Error occurred:", error);
-        const err = {}
-        err.strapi = "Uploading 3D model failed"
+        const err = {};
+        err.strapi = "Uploading 3D model failed";
         setErrors(err);
-        setNameAsset("")
-        setFile(null)
-        animateProgress(0)
+        setNameAsset("");
+        setFile(null);
+        animateProgress(0);
         document.getElementById("file").value = "";
       }
-    }
-    else {
+    } else {
       setErrors(errors);
     }
   };
@@ -316,7 +410,7 @@ const DetailProduct = () => {
   };
 
   const deleteModelFailed = (id, assetUID) => {
-    setStatusUpload(true)
+    setStatusUpload(true);
     http
       .delete(`assets/${id}`, {
         headers: {
@@ -324,32 +418,25 @@ const DetailProduct = () => {
         },
       })
       .then((res) => {
-        axios(
-          `https://api.sketchfab.com/v3/models/${assetUID}`,
-          {
-            method: "DELETE",
+        axios(`https://api.sketchfab.com/v3/models/${assetUID}`, {
+          method: "DELETE",
 
-            headers: {
-              Authorization: "Bearer " + tokenSket,
-            },
-          }
-        ).then((response) => {
-
-        }).catch((err) => {
-
+          headers: {
+            Authorization: "Bearer " + tokenSket,
+          },
         })
+          .then((response) => { })
+          .catch((err) => { });
 
-        setStatusUpload(false)
-        setSuccessMessageUpload(
-          `Upload a 3D model was successful.`
-        );
-
-      }).catch((err) => {
-
+        setStatusUpload(false);
+        setSuccessMessageUpload(`Upload a 3D model was successful.`);
       })
-  }
+      .catch((err) => { });
+  };
 
   useEffect(() => {
+    //createQRCode("123")
+    ///downloadQR()
     if (!hasNavigated) {
       // Chỉ chạy scrollTo(0, 0) khi chuyển trang lần đầu
       window.scrollTo(0, 0);
@@ -359,14 +446,14 @@ const DetailProduct = () => {
     const searchParams = new URLSearchParams(location.search);
 
     http
-        .get(`/businesses?filters[businessId][$eq]=${businessId}`, {
-          headers: {
-            Authorization: `Bearer ${getJWTToken}`,
-          },
-        })
-        .then((res) => {
-          setTokenSket(res.data.data[0].attributes.sketchfabCredentialCode)
-        })
+      .get(`/businesses?filters[businessId][$eq]=${businessId}`, {
+        headers: {
+          Authorization: `Bearer ${getJWTToken}`,
+        },
+      })
+      .then((res) => {
+        setTokenSket(res.data.data[0].attributes.sketchfabCredentialCode);
+      });
 
     http
       .get(
@@ -393,16 +480,16 @@ const DetailProduct = () => {
             dataDetailProduct.attributes.assets.data;
           setListAsset(objectsDataListAssest);
           objectsDataListAssest.forEach((item, index) => {
-            updateStatusIsPublish(item.id, item.attributes.isPublished)
+            updateStatusIsPublish(item.id, item.attributes.isPublished);
 
             if (item.attributes.thumbnail === "null") {
+              const timestamp = new Date().getTime();
               axios(
-                `https://api.sketchfab.com/v3/models/${item.attributes.assetUID}`,
+                `https://api.sketchfab.com/v3/models/${item.attributes.assetUID}?timestamp=${timestamp}`,
                 {
                   method: "GET",
-
                   headers: {
-                    Authorization: "Bearer " + tokenSket,
+                    Authorization: "Bearer " + tokenSket
                   },
                 }
               )
@@ -433,9 +520,8 @@ const DetailProduct = () => {
                   }
 
                   if (repo.data.status.processing === "FAILED") {
-                    deleteModelFailed(item.id, item.attributes.assetUID)
+                    deleteModelFailed(item.id, item.attributes.assetUID);
                   }
-
                 })
                 .catch((err) => err);
             } else {
@@ -453,7 +539,6 @@ const DetailProduct = () => {
                   const assetId = item.id;
 
                   const imageURL = repo.data.thumbnails.images[2].url;
-
 
                   if (item.attributes.thumbnail !== imageURL) {
                     var dataRequest = {
@@ -482,7 +567,6 @@ const DetailProduct = () => {
             }
             setListAsset(objectsDataListAssest);
           });
-
         }
       })
 
@@ -550,14 +634,14 @@ const DetailProduct = () => {
   }
 
   const [isLoadingMap, setIsLoadingMap] = useState({});
-  const [isStatusPublish, setIsStatusPublish] = useState({})
+  const [isStatusPublish, setIsStatusPublish] = useState({});
 
   const updateStatusIsPublish = (itemId, isPublish) => {
     setIsStatusPublish((prevMap) => ({
       ...prevMap,
       [itemId]: isPublish,
     }));
-  }
+  };
 
   // Hàm để cập nhật trạng thái isLoading cho một mục cụ thể
   const updateLoadingState = (itemId, isLoading) => {
@@ -585,12 +669,16 @@ const DetailProduct = () => {
       .then((responseAsset) => {
         //setStatus(tmp)
         updateLoadingState(id, false);
-        updateStatusIsPublish(id, sta)
-        console.log("change success")
+        updateStatusIsPublish(id, sta);
+        console.log("change success");
       })
 
       .catch((err) => err);
+  };
 
+  const ShowQRCode = (url) => {
+    setImgQRCode(url)
+    if(url) setQRShow(true)
   }
 
   // const handleRadioChange = (event) => {
@@ -672,7 +760,6 @@ const DetailProduct = () => {
           </Alert>
         )}
 
-
         <Box pt={{ base: "180px", md: "80px", xl: "80px" }}>
           {data.map((item, index) => (
             <Card
@@ -690,7 +777,11 @@ const DetailProduct = () => {
                           "/" +
                           item?.attributes?.testImage?.data?.attributes?.url
                         }
-                        style={{ width: "360px", maxHeight: "360px", objectFit: "contain" }}
+                        style={{
+                          width: "360px",
+                          maxHeight: "360px",
+                          objectFit: "contain",
+                        }}
                       />
                     </div>
                   </Col>
@@ -717,6 +808,8 @@ const DetailProduct = () => {
                     >
                       Models Quantity: {modelQuantity}
                     </Card.Text>
+
+
                     <Card.Text
                       style={{ margin: "16px 0px 8px 0px", color: "#6C757D" }}
                     >
@@ -752,7 +845,7 @@ const DetailProduct = () => {
                         name="group1"
                         type="radio"
                         id="inline-radio-1"
-                        checked={item?.attributes?.arViewer === 'basic'}
+                        checked={item?.attributes?.arViewer === "basic"}
                         disabled={item?.attributes?.arViewer === "advanced"}
                       />
                       <Form.Check
@@ -892,32 +985,62 @@ const DetailProduct = () => {
                         <div></div>
                       </div>
 
-                      {isStatusPublish[item.id] ? (
-                        <div className="tagStatusActive" onClick={(e) => {
+                      <div
+                        className="tagQRCode"
+                        onClick={(e) => {
                           e.stopPropagation();
-                          changeStatus(item.id, false)
-                        }}>
+                          console.log(item)
+                          ShowQRCode(item.attributes?.qrcode);
+                        }}
+                      >
+                        <BsQrCodeScan />
+                      </div>
+
+                      {isStatusPublish[item.id] ? (
+                        <div
+                          className="tagStatusActive"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            changeStatus(item.id, false);
+                          }}
+                        >
                           {/* <GoDotFill /> */}
 
-
-                          {isLoadingMap[item.id] ? (<Spinner
-                            animation="border"
-                            size="sm"
-                            style={{ verticalAlign: "middle", fontSize: "10px" }}
-                          />) : (<GoDotFill />)}
+                          {isLoadingMap[item.id] ? (
+                            <Spinner
+                              animation="border"
+                              size="sm"
+                              style={{
+                                verticalAlign: "middle",
+                                fontSize: "10px",
+                              }}
+                            />
+                          ) : (
+                            <GoDotFill />
+                          )}
 
                           <p>active</p>
                         </div>
                       ) : (
-                        <div className="tagStatusNotActive" onClick={(e) => {
-                          e.stopPropagation();
-                          changeStatus(item.id, true)
-                        }}>
-                          {isLoadingMap[item.id] ? (<Spinner
-                            animation="border"
-                            size="sm"
-                            style={{ verticalAlign: "middle", fontSize: "10px" }}
-                          />) : (<GoDotFill />)}
+                        <div
+                          className="tagStatusNotActive"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            changeStatus(item.id, true);
+                          }}
+                        >
+                          {isLoadingMap[item.id] ? (
+                            <Spinner
+                              animation="border"
+                              size="sm"
+                              style={{
+                                verticalAlign: "middle",
+                                fontSize: "10px",
+                              }}
+                            />
+                          ) : (
+                            <GoDotFill />
+                          )}
 
                           <p>Inactive</p>
                         </div>
@@ -1018,33 +1141,62 @@ const DetailProduct = () => {
 
                         <div></div>
                       </div>
+                      <div
+                        className="tagQRCode"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          console.log(item)
+                          ShowQRCode(item.attributes?.qrcode);
+                        }}
+                      >
+                        <BsQrCodeScan />
+                      </div>
 
                       {isStatusPublish[item.id] ? (
-                        <div className="tagStatusActive" onClick={(e) => {
-                          e.stopPropagation();
-                          changeStatus(item.id, false)
-                        }}>
+                        <div
+                          className="tagStatusActive"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            changeStatus(item.id, false);
+                          }}
+                        >
                           {/* <GoDotFill /> */}
 
-
-                          {isLoadingMap[item.id] ? (<Spinner
-                            animation="border"
-                            size="sm"
-                            style={{ verticalAlign: "middle", fontSize: "10px" }}
-                          />) : (<GoDotFill />)}
+                          {isLoadingMap[item.id] ? (
+                            <Spinner
+                              animation="border"
+                              size="sm"
+                              style={{
+                                verticalAlign: "middle",
+                                fontSize: "10px",
+                              }}
+                            />
+                          ) : (
+                            <GoDotFill />
+                          )}
 
                           <p>active</p>
                         </div>
                       ) : (
-                        <div className="tagStatusNotActive" onClick={(e) => {
-                          e.stopPropagation();
-                          changeStatus(item.id, true)
-                        }}>
-                          {isLoadingMap[item.id] ? (<Spinner
-                            animation="border"
-                            size="sm"
-                            style={{ verticalAlign: "middle", fontSize: "10px" }}
-                          />) : (<GoDotFill />)}
+                        <div
+                          className="tagStatusNotActive"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            changeStatus(item.id, true);
+                          }}
+                        >
+                          {isLoadingMap[item.id] ? (
+                            <Spinner
+                              animation="border"
+                              size="sm"
+                              style={{
+                                verticalAlign: "middle",
+                                fontSize: "10px",
+                              }}
+                            />
+                          ) : (
+                            <GoDotFill />
+                          )}
 
                           <p>Inactive</p>
                         </div>
@@ -1095,8 +1247,8 @@ const DetailProduct = () => {
                       className="label-input"
                       for="file-input"
                       onClick={() => {
-                        setShow(true)
-                        setErrors({})
+                        setShow(true);
+                        setErrors({});
                       }}
                     >
                       <Icon
@@ -1129,7 +1281,10 @@ const DetailProduct = () => {
                           validated={validated}
                           enctype="multipart/form-data"
                         >
-                          <Form.Control.Feedback type="invalid" style={{ display: "block", textAlign: "center" }}>
+                          <Form.Control.Feedback
+                            type="invalid"
+                            style={{ display: "block", textAlign: "center" }}
+                          >
                             {errors.strapi}
                           </Form.Control.Feedback>
                           <Form.Group className="position-relative mb-3">
@@ -1159,31 +1314,22 @@ const DetailProduct = () => {
                               required
                             />
 
-                            {/* <Button
-                              disabled={!selectFile}
-                              onClick={handleSubmit}
-                              style={{ borderRadius: "0 2px 2px 0" }}
-                            >
-                              Upload
-                            </Button> */}
-
                             <Form.Control.Feedback type="invalid">
                               {!limitedSize ? (
+                                <>{errors.file}</>
+                              ) : (
                                 <>
-                                  {errors.file}
-                                </>) : (
-                                <>
-                                  This file is too big to load. Please limit the file to &lt;
-                                  50MB
+                                  This file is too big to load. Please limit the
+                                  file to &lt; 50MB
                                 </>
                               )}
-
                             </Form.Control.Feedback>
                           </InputGroup>
 
                           <ProgressBar
                             animated={percentage < 100}
-                            now={percentage} onUploading
+                            now={percentage}
+                            onUploading
                             label={
                               percentage < 100 ? `${percentage}%` : "Successful"
                             }
@@ -1214,6 +1360,23 @@ const DetailProduct = () => {
                 </div>
               </div>
             </Card.Body>
+
+            <Modal
+              size="s"
+              show={qrShow}
+              onHide={() => {
+                setQRShow(false)
+                setImgQRCode("")
+              }}
+            >
+              <Modal.Header closeButton></Modal.Header>
+
+              <Modal.Body>
+                <Card.Img src={imgQRCode} />
+              </Modal.Body>
+            </Modal>
+
+
 
             <Modal
               size="lg"
@@ -1266,11 +1429,22 @@ const DetailProduct = () => {
           showModalDeleteModel={showModalDeleteModel}
           handleModalDeleteModelClose={handleModalDeleteModelClose}
           data={data}
-          tokenSket = {tokenSket}
+          tokenSket={tokenSket}
           getJWTToken={getJWTToken}
           onSubmitSuccessDelete={handleModalSubmitSuccessDelete}
           dataDelete={dataDelete}
         />
+        <div id="qrCode" style={{ position: "absolute", top: "100px", right: "40px", textAlign: "center" }}>
+          {/* <QRCode
+            id='123'
+            value=''
+            size={100}
+            level={'H'}
+            includeMargin={true}
+          />
+          <a style={{ cursor: "pointer" }} onClick={downloadQR}> Download QR </a> */}
+        </div>
+
       </>
     );
   } else {

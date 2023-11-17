@@ -328,6 +328,54 @@
   font-size: 48px;
 }
 
+.tagQRCode {
+  
+  position: absolute;
+
+  bottom: 10px;
+
+  right: 130px;
+
+  margin-bottom: 50px;
+
+  display: flex;
+
+  justify-content: center;
+
+  padding: 8px;
+
+  align-items: center;
+
+  gap: 8px;
+
+  color: #262829;
+
+  background: rgba(233, 236, 239, 0.7);
+
+  border-radius: 24px;
+
+  font-size: 18px;
+
+  font-style: normal;
+
+  font-weight: 400;
+
+  line-height: 150%;
+
+  transition: box-shadow 0.3s ease;
+
+  transition: box-shadow 0.3s ease;
+  
+}
+
+.tagQRCode:hover{
+  scale: 1.1;
+
+  cursor: pointer;
+
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
 
 
 .tagStatusActive {
