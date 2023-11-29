@@ -15,14 +15,6 @@ const LoginPage = () => {
 
   // const [auth, setAuth] = useState(false)
 
-  // useEffect(() => {
-  //     if (auth) {
-  //         console.log("auth 1", auth);
-  //     } else {
-  //         console.log("auth 2", auth);
-
-  //     }
-  // }, [auth])
   const postAPILogin = () => {
     http
       .post("auth/local", {
@@ -30,7 +22,6 @@ const LoginPage = () => {
         password: password,
       })
       .then((response) => {
-        console.log("user", response);
         if (
           response.status === 200 &&
           response.data.user.userType === "3dcms"
@@ -89,7 +80,6 @@ const LoginPage = () => {
     // if (Object.keys(errors).length === 0) {
     //     // Xử lý khi biểu mẫu hợp lệ
     //     postAPILogin()
-    //     console.log('Biểu mẫu đã gửi');
     // } else {
     //     // Hiển thị thông báo lỗi
     //     setErrors(errors);

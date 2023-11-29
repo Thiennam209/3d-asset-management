@@ -119,7 +119,6 @@ export function SidebarLinks(props) {
       //   }
 
       // } else {
-      //   console.log("không");
       // }
       // switch (route.path) {
       //   case "/list-product": { const routeLayout = "/list-product"; return (showIconSidebarLinks(route, routeLayout)) } break;

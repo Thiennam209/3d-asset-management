@@ -19,7 +19,6 @@ function App() {
             return false
         } else {
             // const getJWTToken = localStorage.getItem('dtvt');
-            // console.log(getJWTToken);
             // dispatch(checkAuth(getJWTToken))
             return true
         }

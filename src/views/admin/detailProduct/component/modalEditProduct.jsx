@@ -1,5 +1,5 @@
 import { http, urlStrapi } from "../../../../axios/init";
-import { useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   Modal,
   Form,
@@ -16,12 +16,15 @@ const ModalEditProduct = ({
   data,
   getJWTToken,
   onSubmitSuccessEdit,
-  dataEdit,
   handleNewProductId,
 }) => {
   const [validated, setValidated] = useState(false);
+  const [category, setCategory] = useState([]);
   const [productName, setProductName] = useState(data[0].attributes.title);
   const [productId, setProductId] = useState(data[0].attributes.productId);
+  const [categoryName, setCategoryName] = useState(
+    data[0].attributes?.category?.data?.id
+  );
   const [productTryoutLink, setProductTryoutLink] = useState(
     data[0].attributes?.tryoutLink
   );
@@ -44,24 +47,34 @@ const ModalEditProduct = ({
   const [alertMessageEdit, setAlertMessageEdit] = useState(false);
   const [selectOption, setSelectOption] = useState(data[0].attributes.arViewer);
   const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    http.get(`categories`,
+      {
+        headers: {
+          Authorization: `Bearer ${getJWTToken}`,
+        },
+      }
+    ).then((res) => {
+      setCategory(res.data.data)
+    })
+      .catch((err) => {
+        console.log(err)
+      })
+  }, [])
+
   const handleEdit = (event) => {
     const form = event.currentTarget;
 
     setIsProcessing(true);
     setIsButtonDisabled(true);
     setIsButtonImgDisabled(true);
-    
+
     if (form.checkValidity() === false) {
       event.preventDefault();
       event.stopPropagation();
     }
     setValidated(true);
-    const formData = {
-      productName,
-      //   productId,
-      productDescription,
-      file,
-    };
     if (newProductId && productName && productDescription) {
       http
         .get(`/products?filters[productId][$eq]=${newProductId}&populate=*`, {
@@ -78,7 +91,6 @@ const ModalEditProduct = ({
             setIsProcessing(false);
             setIsButtonDisabled(false);
             setIsButtonImgDisabled(false);
-            // return;
           } else {
             setIsProcessing(true);
             setIsButtonDisabled(true);
@@ -94,6 +106,7 @@ const ModalEditProduct = ({
                       productId: newProductId,
                       tryoutLink: productTryoutLink,
                       title: productName,
+                      category: categoryName,
                       description: productDescription,
                       arViewer: selectOption,
                     },
@@ -163,8 +176,7 @@ const ModalEditProduct = ({
                         });
                     });
                 });
-              console.log("imageSrc :", data[0].attributes.thumbnail);
-              console.log("file :", file);
+
             }
           }
         });
@@ -200,6 +212,19 @@ const ModalEditProduct = ({
     setSelectOption(e.target.value);
   }
 
+  const handleCloseModelEdit = () => {
+    setProductId(data[0].attributes.productId);
+    setNewProductId(data[0].attributes.productId);
+    setProductName(data[0].attributes.title);
+    setCategoryName(data[0].attributes?.category?.data?.id);
+    setProductTryoutLink(data[0].attributes?.tryoutLink);
+    setProductDescription(data[0].attributes.description);
+    setImageSrc(`${urlStrapi}/${data[0]?.attributes?.testImage?.data?.attributes?.url}`);
+    setSelectOption(data[0].attributes.arViewer);
+
+    handleModalEditProductClose()
+  }
+
   if (alertMessageEdit) {
     setTimeout(() => {
       setAlertMessageEdit(false);
@@ -214,7 +239,9 @@ const ModalEditProduct = ({
     <>
       <Modal
         show={showModalEditProduct}
-        onHide={handleModalEditProductClose}
+        onHide={() => {
+          handleCloseModelEdit()
+        }}
         size="lg"
       >
         <Modal.Header style={{ padding: "20px 20px 10px 50px" }}>
@@ -246,22 +273,16 @@ const ModalEditProduct = ({
                 placeholder="Enter Product ID"
                 value={newProductId}
                 onChange={(e) => {
-                  // Lấy giá trị từ input
                   const value = e.target.value;
-
-                  // Kiểm tra nếu giá trị chỉ chứa chữ cái, số và không chứa khoảng trắng
                   if (/^[a-zA-Z0-9]*$/.test(value)) {
                     setNewProductId(value);
                   } else if (value === '') {
-                    // Cho phép giá trị rỗng
                     setNewProductId('');
                   }
                 }}
-
                 maxLength={20}
                 required
               />
-
               {alertMessageEdit ? (
                 <div style={{ fontSize: "80%", color: "#dc3545" }}>
                   <BsFillExclamationCircleFill
@@ -310,6 +331,40 @@ const ModalEditProduct = ({
                 onChange={(e) => setProductTryoutLink(e.target.value)}
               />
             </Form.Group>
+
+            <Form.Group
+              controlId="validationProductName"
+              style={{
+                margin: "5px 0",
+
+                display: "flex",
+
+                flexDirection: "column",
+
+                justifyContent: "space-between",
+              }}
+            >
+              <Form.Label>Category</Form.Label>
+
+              <Form.Control
+                style={{ width: "513px" }}
+                as="select"
+                placeholder="Enter product name"
+                value={categoryName}
+                onChange={(e) => setCategoryName(e.target.value)}
+                required
+              >
+                <option value="" disabled>Select a category</option>
+                {category.map((item) => (
+                  <option value={item?.id} >{item?.attributes?.name}</option>
+                ))}
+              </Form.Control>
+
+              <Form.Control.Feedback type="invalid">
+                Please select a category
+              </Form.Control.Feedback>
+            </Form.Group>
+
             <Form.Group className="mt-2">
               <Form.Label>Ar Viewer</Form.Label>
               <div key="inline-radio" className="mb-1">
@@ -400,7 +455,9 @@ const ModalEditProduct = ({
           </Form>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={handleModalEditProductClose}>
+          <Button variant="secondary" onClick={() => {
+            handleCloseModelEdit()
+          }}>
             Close
           </Button>
           <Button

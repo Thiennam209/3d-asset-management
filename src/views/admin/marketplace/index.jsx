@@ -66,9 +66,7 @@ export default function Marketplace() {
 
   const autoPlayAll3DViewers = () => {
     var selectors = document.querySelectorAll("#api-frame");
-    // console.log(selectors);
     Array.from(selectors).forEach((element) => {
-      // console.log(element);
       var client = new Sketchfab(element);
       var uid = element.getAttribute("data-uid");
       client.init(uid, {
@@ -78,11 +76,9 @@ export default function Marketplace() {
           api.addEventListener("viewerready", function () {
             // API is ready to use
             // Insert your code here
-            // console.log("Viewer is ready");
           });
         },
         error: function onError() {
-          console.log("Viewer error");
         },
       });
     });
@@ -91,8 +87,6 @@ export default function Marketplace() {
   // const loadData=()=>{
   //   const tryonProducts=JSON.parse(sampleData);
   //   tryonProducts.map((item,i)=>{
-  //     console.log(item);
-  //     console.log(item.assets[0].assetUID);
   //   });
   // }
 

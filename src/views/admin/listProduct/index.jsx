@@ -97,7 +97,6 @@ const ListProduct = () => {
           },
         })
         .then((response) => {
-          console.log("response  :", response);
 
           const objectData = response.data.data;
 
@@ -246,13 +245,16 @@ const ListProduct = () => {
                       >
                         Models Quantity:{" "}
                         {item?.attributes?.assets?.data?.length}
-                        {/* <a
-                          href="#"
-                          style={{fontWeight: "bold" }}
-                        >
-                          {item?.attributes?.modelsNumber}
-                        </a> */}
+
                       </Card.Text>
+
+                      {item?.attributes?.category?.data && (
+                        <Card.Text
+                          style={{ margin: "16px 0px 8px 0px", color: "#6C757D" }}
+                        >
+                          Category: {item?.attributes?.category?.data?.attributes?.name}
+                        </Card.Text>
+                      )}
 
                       <Card.Text
                         style={{ margin: "16px 0px 8px 0px", color: "#6C757D" }}

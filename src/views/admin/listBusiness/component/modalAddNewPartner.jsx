@@ -37,7 +37,6 @@ const ModalAddNewPartner = ({
 
         setSelectedFile(file);
 
-        console.log("Selected File:", file);
       } else {
         // Nếu phần mở rộng không hợp lệ, đặt trường input về trạng thái trống
 

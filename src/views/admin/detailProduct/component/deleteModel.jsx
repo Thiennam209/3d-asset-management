@@ -30,7 +30,6 @@ const DeleteModel = ({
   dataDelete,
   onSubmitSuccessDelete
 }) => {
-  console.log("dataDelete :", dataDelete);
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -48,7 +47,6 @@ const DeleteModel = ({
           `https://api.sketchfab.com/v3/models/${dataDelete.attributes.assetUID}`,
           {
             method: "DELETE",
-
             headers: {
               Authorization: "Bearer " + tokenSket,
             },

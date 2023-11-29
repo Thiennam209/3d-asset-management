@@ -38,10 +38,7 @@ import { BsQrCodeScan } from "react-icons/bs";
 import axios from "axios";
 import ModalEditProduct from "./component/modalEditProduct";
 import DeleteModel from "./component/deleteModel";
-// import QRComponent from './component/QRComponent';
 import { TiDelete } from "react-icons/ti";
-//import QRCode from 'qrcode.react';
-
 import QRCode from 'qrcode';
 
 const DetailProduct = () => {
@@ -117,14 +114,9 @@ const DetailProduct = () => {
   };
 
   const handleFileChange = (event) => {
-    // setFile(event.target.files[0]);
-
-    // enableUploadButton(true);
-
     const file = event.target.files[0];
 
     if (file && file.size > MAX_FILE_SIZE) {
-      // TODO
       setLimitedSize(true);
       enableUploadButton(false);
       setFile(null);
@@ -155,30 +147,9 @@ const DetailProduct = () => {
     return errors;
   };
 
-  // const QRComponent = (uId) => {
-  //   const id = uId.uId
-  //   return (
-  //     <>
-  //       <QRCode
-  //         id={id}
-  //         value="https://www.google.com/"
-  //         size={300}
-  //         level={'H'}
-  //         includeMargin={true}
-  //       />
-  //       <a style={{ cursor: "pointer" }} onClick={downloadQR}> Download QR </a>
-  //     </>
-  //   )
-  // }
-  // const createQRCode = (uId) => {
-  //   const info = document.getElementById('qrCode')
-  //   ReactDOM.render(<QRComponent uId={uId} />, info);
-  // }
-
   const createQRCode = (uId) => {
     QRCode.toDataURL('https://www.google.com/')
       .then((url) => {
-        console.log(url);
         saveQRCode(url, uId);
       })
       .catch((err) => {
@@ -191,8 +162,6 @@ const DetailProduct = () => {
     const formData = new FormData();
     const fileName = "QRCode_" + uId + ".png"
     formData.append('files', new File([arrayBuffer], fileName, { type: 'image/png' }));
-    // const fileQR = base64toFile(base64Data, fileName)
-    // formData.append('files', fileQR);
     http
       .post("/upload", formData, {
         headers: {
@@ -202,17 +171,14 @@ const DetailProduct = () => {
       })
       .then((res) => {
         const urlImg = `${urlStrapi}${res.data[0].url}`;
-        // setImgQRCode(urlImg)
       })
       .catch((err) => {
-        console.log("upload QRCode lỗi!");
       })
   }
 
   const handleSubmit = async (event) => {
     const errors = validateForm();
     const form = event.currentTarget;
-    // setValidated(true);
     if (form.checkValidity() === false) {
       event.preventDefault();
       event.stopPropagation();
@@ -233,8 +199,6 @@ const DetailProduct = () => {
       formData.append("license", "by");
 
       try {
-        // Upload model to Sketchfab
-
         const response = await axios("https://api.sketchfab.com/v3/models", {
           method: "POST",
 
@@ -247,26 +211,23 @@ const DetailProduct = () => {
 
             let per = Math.floor((loaded * 100) / total);
 
-            console.log(`Process ${per}%`);
 
             animateProgress(per);
           },
         });
 
         if (response.status === 201) {
-          console.log("UPLOAD SUCESSFUL");
 
           const uidResponse = response.data.uid;
 
-          //createQRCode(uidResponse);
           const name = file.name;
           const qrCodeOptions = {
-            errorCorrectionLevel: 'H', 
-            type: 'image/png', 
+            errorCorrectionLevel: 'H',
+            type: 'image/png',
             rendererOpts: {
-              quality: 1.0, 
+              quality: 1.0,
             },
-            scale: 20, 
+            scale: 20,
           };
           QRCode.toDataURL(uidResponse, qrCodeOptions)
             .then((url) => {
@@ -275,8 +236,6 @@ const DetailProduct = () => {
               const formData = new FormData();
               const fileName = "QRCode_" + uidResponse + ".png"
               formData.append('files', new File([arrayBuffer], fileName, { type: 'image/png' }));
-              // const fileQR = base64toFile(base64Data, fileName)
-              // formData.append('files', fileQR);
               http
                 .post("/upload", formData, {
                   headers: {
@@ -320,13 +279,11 @@ const DetailProduct = () => {
                           },
                         })
                         .then((response) => {
-                          console.log("up load thành công");
                           setUid(uidResponse);
                           setStatusUpload(false);
                           handleClose();
                         })
                         .catch((err) => {
-                          console.log(err);
                           const errs = {};
                           errs.strapi = "Uploading 3D model failed";
                           setErrors(err);
@@ -339,16 +296,11 @@ const DetailProduct = () => {
 
                 })
                 .catch((err) => {
-                  console.log("upload QRCode lỗi!");
                 })
             })
             .catch((err) => {
               console.error(err);
             })
-
-
-
-
         } else {
           const err = {};
           err.strapi = "Uploading 3D model failed";
@@ -388,12 +340,10 @@ const DetailProduct = () => {
           api.addEventListener("viewerready", function () {
             // API is ready to use
             // Insert your code here
-            // console.log("Viewer is ready");
           });
         },
 
         error: function onError() {
-          console.log("Viewer error");
         },
       });
     });
@@ -435,8 +385,6 @@ const DetailProduct = () => {
   };
 
   useEffect(() => {
-    //createQRCode("123")
-    ///downloadQR()
     if (!hasNavigated) {
       // Chỉ chạy scrollTo(0, 0) khi chuyển trang lần đầu
       window.scrollTo(0, 0);
@@ -607,7 +555,6 @@ const DetailProduct = () => {
       },
 
       error: function onError() {
-        console.log("Viewer error");
       },
     });
   };
@@ -667,10 +614,8 @@ const DetailProduct = () => {
       })
 
       .then((responseAsset) => {
-        //setStatus(tmp)
         updateLoadingState(id, false);
         updateStatusIsPublish(id, sta);
-        console.log("change success");
       })
 
       .catch((err) => err);
@@ -678,12 +623,8 @@ const DetailProduct = () => {
 
   const ShowQRCode = (url) => {
     setImgQRCode(url)
-    if(url) setQRShow(true)
+    if (url) setQRShow(true)
   }
-
-  // const handleRadioChange = (event) => {
-  //   setSelectedOption(event.target.value);
-  // };
 
   if (
     businessId !== null &&
@@ -809,6 +750,13 @@ const DetailProduct = () => {
                       Models Quantity: {modelQuantity}
                     </Card.Text>
 
+                    {item?.attributes?.category?.data && (
+                      <Card.Text
+                        style={{ margin: "16px 0px 8px 0px", color: "#6C757D" }}
+                      >
+                        Category: {item?.attributes?.category?.data?.attributes?.name}
+                      </Card.Text>
+                    )}
 
                     <Card.Text
                       style={{ margin: "16px 0px 8px 0px", color: "#6C757D" }}
@@ -989,7 +937,6 @@ const DetailProduct = () => {
                         className="tagQRCode"
                         onClick={(e) => {
                           e.stopPropagation();
-                          console.log(item)
                           ShowQRCode(item.attributes?.qrcode);
                         }}
                       >
@@ -1045,13 +992,6 @@ const DetailProduct = () => {
                           <p>Inactive</p>
                         </div>
                       )}
-                      {/* <div className="titleItems">
-                        <p>3D Model Item</p>
-                        <TiDelete
-                          onClick={() => handleModalDeleteModelShow(item)}
-                          className="titleIcon"
-                        />
-                      </div> */}
                     </div>
                   ))}
 
@@ -1145,7 +1085,6 @@ const DetailProduct = () => {
                         className="tagQRCode"
                         onClick={(e) => {
                           e.stopPropagation();
-                          console.log(item)
                           ShowQRCode(item.attributes?.qrcode);
                         }}
                       >
@@ -1160,7 +1099,6 @@ const DetailProduct = () => {
                             changeStatus(item.id, false);
                           }}
                         >
-                          {/* <GoDotFill /> */}
 
                           {isLoadingMap[item.id] ? (
                             <Spinner
@@ -1376,8 +1314,6 @@ const DetailProduct = () => {
               </Modal.Body>
             </Modal>
 
-
-
             <Modal
               size="lg"
               show={lgShow}
@@ -1421,7 +1357,6 @@ const DetailProduct = () => {
             data={data}
             getJWTToken={getJWTToken}
             onSubmitSuccessEdit={handleModalSubmitSuccessEdit}
-            dataEdit={dataEdit}
             handleNewProductId={handleNewProductId}
           />
         )}
@@ -1434,16 +1369,6 @@ const DetailProduct = () => {
           onSubmitSuccessDelete={handleModalSubmitSuccessDelete}
           dataDelete={dataDelete}
         />
-        <div id="qrCode" style={{ position: "absolute", top: "100px", right: "40px", textAlign: "center" }}>
-          {/* <QRCode
-            id='123'
-            value=''
-            size={100}
-            level={'H'}
-            includeMargin={true}
-          />
-          <a style={{ cursor: "pointer" }} onClick={downloadQR}> Download QR </a> */}
-        </div>
 
       </>
     );

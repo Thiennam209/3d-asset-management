@@ -1,34 +1,18 @@
-import { Box, Icon, Textarea } from "@chakra-ui/react";
-
-import { MdOutlineEdit, MdAdd } from "react-icons/md";
-
+import { Textarea } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { BsFillExclamationCircleFill } from "react-icons/bs";
 import {
   Form,
-  FormControl,
   Button,
-  Row,
-  Col,
-  Card,
   Modal,
   Spinner,
-  ListGroup,
 } from "react-bootstrap";
 
 import axios from "axios";
 
 import { http, urlStrapi } from "../../../axios/init";
 
-import InputGroup from "react-bootstrap/InputGroup";
-
-import Alert from "react-bootstrap/Alert";
-
-import ProgressBar from "react-bootstrap/ProgressBar";
-
 import QRCode from 'qrcode';
-
-
 
 const CreateProduct = ({
   showModalAddProduct,
@@ -46,9 +30,11 @@ const CreateProduct = ({
   const [productName, setProductName] = useState("");
   const [nameAsset, setNameAsset] = useState("");
 
+  const [category, setCategory] = useState([]);
+  const [categoryName, setCategoryName] = useState("");
+
   const [productId, setProductId] = useState("");
   const [tryoutLink, setTryoutLink] = useState("");
-  const [qrCode, setQRCode] = useState("");
 
   const [productDescription, setProductDescription] = useState("");
 
@@ -68,6 +54,21 @@ const CreateProduct = ({
   const [alertMessageAdd, setAlertMessageAdd] = useState(false);
 
   const [selectOption, setSelectOption] = useState("basic");
+
+  useEffect(() => {
+    http.get(`categories`,
+      {
+        headers: {
+          Authorization: `Bearer ${getJWTToken}`,
+        },
+      }
+    ).then((res) => {
+      setCategory(res.data.data)
+    })
+      .catch((err) => {
+        console.log(err)
+      })
+  }, [])
 
   const handleFileChange = (e) => {
     const file = e.target.files[0]; // Lấy tệp đầu tiên trong danh sách đã chọn
@@ -89,7 +90,6 @@ const CreateProduct = ({
 
           setSelectedFile(file);
 
-          console.log("Selected File:", file);
         } else {
           // Nếu phần mở rộng không hợp lệ, đặt trường input về trạng thái trống
 
@@ -127,7 +127,6 @@ const CreateProduct = ({
 
           setSelectedFiles(file);
 
-          console.log("Selected File:", file);
         } else {
           // Nếu phần mở rộng không hợp lệ, đặt trường input về trạng thái trống
 
@@ -150,7 +149,7 @@ const CreateProduct = ({
       productName,
       productId,
       tryoutLink,
-      qrCode,
+      category,
       productDescription,
       getIDBusiness,
       selectedFile,
@@ -224,9 +223,6 @@ const CreateProduct = ({
                       if (res.status === 201) {
                         const uidResponse = res.data.uid;
 
-
-
-
                         const qrCodeOptions = {
                           errorCorrectionLevel: 'H',
                           type: 'image/png',
@@ -286,7 +282,7 @@ const CreateProduct = ({
                                           tryoutLink: formData.tryoutLink,
                                           businessId: formData.getIDBusiness,
                                           arViewer: selectOption,
-
+                                          category: formData.category,
                                           thumbnail: urlImg,
                                           testImage: imgId,
                                         },
@@ -314,7 +310,6 @@ const CreateProduct = ({
 
                               })
                               .catch((err) => {
-                                console.log("upload QRCode lỗi!");
                               })
                           })
                           .catch((err) => {
@@ -370,6 +365,8 @@ const CreateProduct = ({
     setValidated(false);
     setLimitedSize(false);
     setLimitedSizeThumb(false);
+
+    setCategoryName("");
   };
 
   const handleChangeRadio = (e) => {
@@ -383,7 +380,9 @@ const CreateProduct = ({
   return (
     <Modal
       show={showModalAddProduct}
-      onHide={handleModalAddProductClose}
+      onHide={()=>{
+        handleModalInitClose()
+      }}
       size="lg"
     >
       <Modal.Header style={{ padding: "20px 20px 10px 50px" }}>
@@ -433,14 +432,10 @@ const CreateProduct = ({
               placeholder="Enter product id"
               value={productId}
               onChange={(e) => {
-                // Lấy giá trị từ input
                 const value = e.target.value;
-
-                // Kiểm tra nếu giá trị chỉ chứa chữ cái, số và không chứa khoảng trắng
                 if (/^[a-zA-Z0-9]*$/.test(value)) {
                   setProductId(value);
                 } else if (value === '') {
-                  // Cho phép giá trị rỗng
                   setProductId('');
                 }
               }}
@@ -521,6 +516,39 @@ const CreateProduct = ({
             />
           </Form.Group>
 
+          <Form.Group
+            controlId="validationProductName"
+            style={{
+              margin: "5px 0",
+
+              display: "flex",
+
+              flexDirection: "column",
+
+              justifyContent: "space-between",
+            }}
+          >
+            <Form.Label>Category</Form.Label>
+
+            <Form.Control
+              style={{ width: "513px" }}
+              as="select"
+              placeholder="Enter product name"
+              value={categoryName}
+              onChange={(e) => setCategoryName(e.target.value)}
+              required
+            >
+              <option value="" disabled>Select a category</option>
+              {category.map((item) => (
+                <option value = {item?.id} >{item?.attributes?.name}</option>
+              ))}
+            </Form.Control>
+
+            <Form.Control.Feedback type="invalid">
+              Please select a category
+            </Form.Control.Feedback>
+          </Form.Group>
+
           <Form.Group className="mt-2">
             <Form.Label>Ar Viewer</Form.Label>
             <div key="inline-radio" className="mb-2">
@@ -546,7 +574,6 @@ const CreateProduct = ({
               />
             </div>
           </Form.Group>
-
 
           <Form.Group
             controlId="validationProductDescription"

@@ -65,7 +65,6 @@ export default function AdminNavbar(props) {
             },
           }
         );
-        console.log("result :::", result);
         return result?.data?.data[0]?.attributes?.Name || "";
       }
     } else {

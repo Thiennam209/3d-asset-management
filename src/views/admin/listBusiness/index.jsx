@@ -157,12 +157,9 @@ const ListBusiness = () => {
       .writeText(value)
       .then(() => {
         setSuccessMessage("Copy Success");
-        // Thao tác sao chép thành công
-        console.log("Sao chép thành công: " + value);
       })
       .catch((err) => {
-        // Xử lý lỗi khi sao chép không thành công
-        console.error("Lỗi khi sao chép: " + err);
+     
       });
   };
 

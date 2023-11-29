@@ -44,7 +44,6 @@ const ModalAddPeople = ({
     handleModalAddPeopleClose();
   };
   const handleAddPeople = (event) => {
-    console.log("role: ", role);
     const form = event.currentTarget;
     if (form.checkValidity() === false) {
       event.preventDefault();
