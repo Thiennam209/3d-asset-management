@@ -145,6 +145,7 @@ const ModalEditProduct = ({
                       },
                     })
                     .then((res) => {
+                      const imgURL =urlStrapi + res.data[0].url;
                       const imgId = res.data[0].id;
                       http
                         .put(
@@ -154,6 +155,7 @@ const ModalEditProduct = ({
                               productId: newProductId,
                               tryoutLink: productTryoutLink,
                               title: productName,
+                              thumbnail: imgURL,
                               description: productDescription,
                               testImage: imgId,
                             },
