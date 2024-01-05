@@ -1,4 +1,4 @@
-import ReactDOM from 'react-dom';
+import ReactDOM from "react-dom";
 import { Box, Icon } from "@chakra-ui/react";
 
 import { useEffect, useState } from "react";
@@ -39,7 +39,8 @@ import axios from "axios";
 import ModalEditProduct from "./component/modalEditProduct";
 import DeleteModel from "./component/deleteModel";
 import { TiDelete } from "react-icons/ti";
-import QRCode from 'qrcode';
+import QRCode from "qrcode";
+import DetailPart from "./component/detailPart";
 
 const DetailProduct = () => {
   const location = useLocation();
@@ -148,20 +149,25 @@ const DetailProduct = () => {
   };
 
   const createQRCode = (uId) => {
-    QRCode.toDataURL('https://www.google.com/')
+    QRCode.toDataURL("https://www.google.com/")
       .then((url) => {
         saveQRCode(url, uId);
       })
       .catch((err) => {
         console.error(err);
-      })
+      });
   };
 
   const saveQRCode = (base64Data, uId) => {
-    const arrayBuffer = Uint8Array.from(atob(base64Data.split(',')[1]), c => c.charCodeAt(0)).buffer;
+    const arrayBuffer = Uint8Array.from(atob(base64Data.split(",")[1]), (c) =>
+      c.charCodeAt(0)
+    ).buffer;
     const formData = new FormData();
-    const fileName = "QRCode_" + uId + ".png"
-    formData.append('files', new File([arrayBuffer], fileName, { type: 'image/png' }));
+    const fileName = "QRCode_" + uId + ".png";
+    formData.append(
+      "files",
+      new File([arrayBuffer], fileName, { type: "image/png" })
+    );
     http
       .post("/upload", formData, {
         headers: {
@@ -172,9 +178,8 @@ const DetailProduct = () => {
       .then((res) => {
         const urlImg = `${urlStrapi}${res.data[0].url}`;
       })
-      .catch((err) => {
-      })
-  }
+      .catch((err) => {});
+  };
 
   const handleSubmit = async (event) => {
     const errors = validateForm();
@@ -211,19 +216,17 @@ const DetailProduct = () => {
 
             let per = Math.floor((loaded * 100) / total);
 
-
             animateProgress(per);
           },
         });
 
         if (response.status === 201) {
-
           const uidResponse = response.data.uid;
 
           const name = file.name;
           const qrCodeOptions = {
-            errorCorrectionLevel: 'H',
-            type: 'image/png',
+            errorCorrectionLevel: "H",
+            type: "image/png",
             rendererOpts: {
               quality: 1.0,
             },
@@ -232,10 +235,16 @@ const DetailProduct = () => {
           QRCode.toDataURL(uidResponse, qrCodeOptions)
             .then((url) => {
               // save code
-              const arrayBuffer = Uint8Array.from(atob(url.split(',')[1]), c => c.charCodeAt(0)).buffer;
+              const arrayBuffer = Uint8Array.from(
+                atob(url.split(",")[1]),
+                (c) => c.charCodeAt(0)
+              ).buffer;
               const formData = new FormData();
-              const fileName = "QRCode_" + uidResponse + ".png"
-              formData.append('files', new File([arrayBuffer], fileName, { type: 'image/png' }));
+              const fileName = "QRCode_" + uidResponse + ".png";
+              formData.append(
+                "files",
+                new File([arrayBuffer], fileName, { type: "image/png" })
+              );
               http
                 .post("/upload", formData, {
                   headers: {
@@ -293,14 +302,12 @@ const DetailProduct = () => {
                           animateProgress(0);
                         });
                     });
-
                 })
-                .catch((err) => {
-                })
+                .catch((err) => {});
             })
             .catch((err) => {
               console.error(err);
-            })
+            });
         } else {
           const err = {};
           err.strapi = "Uploading 3D model failed";
@@ -343,8 +350,7 @@ const DetailProduct = () => {
           });
         },
 
-        error: function onError() {
-        },
+        error: function onError() {},
       });
     });
   };
@@ -375,13 +381,13 @@ const DetailProduct = () => {
             Authorization: "Bearer " + tokenSket,
           },
         })
-          .then((response) => { })
-          .catch((err) => { });
+          .then((response) => {})
+          .catch((err) => {});
 
         setStatusUpload(false);
         setSuccessMessageUpload(`Upload a 3D model was successful.`);
       })
-      .catch((err) => { });
+      .catch((err) => {});
   };
 
   useEffect(() => {
@@ -437,7 +443,7 @@ const DetailProduct = () => {
                 {
                   method: "GET",
                   headers: {
-                    Authorization: "Bearer " + tokenSket
+                    Authorization: "Bearer " + tokenSket,
                   },
                 }
               )
@@ -554,8 +560,7 @@ const DetailProduct = () => {
         });
       },
 
-      error: function onError() {
-      },
+      error: function onError() {},
     });
   };
 
@@ -622,9 +627,9 @@ const DetailProduct = () => {
   };
 
   const ShowQRCode = (url) => {
-    setImgQRCode(url)
-    if (url) setQRShow(true)
-  }
+    setImgQRCode(url);
+    if (url) setQRShow(true);
+  };
 
   if (
     businessId !== null &&
@@ -754,7 +759,8 @@ const DetailProduct = () => {
                       <Card.Text
                         style={{ margin: "16px 0px 8px 0px", color: "#6C757D" }}
                       >
-                        Category: {item?.attributes?.category?.data?.attributes?.name}
+                        Category:{" "}
+                        {item?.attributes?.category?.data?.attributes?.name}
                       </Card.Text>
                     )}
 
@@ -763,7 +769,7 @@ const DetailProduct = () => {
                     >
                       Tryout Link:{" "}
                       {item?.attributes?.tryoutLink !== "" &&
-                        item?.attributes?.tryoutLink ? (
+                      item?.attributes?.tryoutLink ? (
                         <a
                           target="_blank"
                           href={`${item?.attributes?.tryoutLink}`}
@@ -942,6 +948,13 @@ const DetailProduct = () => {
                       >
                         <BsQrCodeScan />
                       </div>
+                      <div
+                        onClick={(e) => {
+                          e.stopPropagation();
+                        }}
+                      >
+                        <DetailPart item={item} getJWTToken={getJWTToken} />
+                      </div>
 
                       {isStatusPublish[item.id] ? (
                         <div
@@ -1090,6 +1103,13 @@ const DetailProduct = () => {
                       >
                         <BsQrCodeScan />
                       </div>
+                      <div
+                        onClick={(e) => {
+                          e.stopPropagation();
+                        }}
+                      >
+                        <DetailPart item={item} getJWTToken={getJWTToken} />
+                      </div>
 
                       {isStatusPublish[item.id] ? (
                         <div
@@ -1099,7 +1119,6 @@ const DetailProduct = () => {
                             changeStatus(item.id, false);
                           }}
                         >
-
                           {isLoadingMap[item.id] ? (
                             <Spinner
                               animation="border"
@@ -1206,7 +1225,7 @@ const DetailProduct = () => {
                       backdrop="static"
                       centered="true"
                       show={show}
-                      onShow={() => { }}
+                      onShow={() => {}}
                       onHide={handleClose}
                     >
                       <Modal.Header>
@@ -1303,8 +1322,8 @@ const DetailProduct = () => {
               size="s"
               show={qrShow}
               onHide={() => {
-                setQRShow(false)
-                setImgQRCode("")
+                setQRShow(false);
+                setImgQRCode("");
               }}
             >
               <Modal.Header closeButton></Modal.Header>
@@ -1369,7 +1388,6 @@ const DetailProduct = () => {
           onSubmitSuccessDelete={handleModalSubmitSuccessDelete}
           dataDelete={dataDelete}
         />
-
       </>
     );
   } else {

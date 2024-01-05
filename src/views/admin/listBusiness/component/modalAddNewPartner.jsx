@@ -29,21 +29,14 @@ const ModalAddNewPartner = ({
 
     if (file) {
       const allowedExtensions = [".jpg", ".jpeg", ".png", ".gif"]; // Các phần mở rộng cho tệp ảnh
-
       const fileExtension = file.name.substring(file.name.lastIndexOf("."));
-
       if (allowedExtensions.includes(fileExtension.toLowerCase())) {
         // Nếu phần mở rộng hợp lệ, lưu tệp vào state
-
         setSelectedFile(file);
-
       } else {
         // Nếu phần mở rộng không hợp lệ, đặt trường input về trạng thái trống
-
         e.target.value = null;
-
         setSelectedFile(null);
-
         console.error("Invalid file type. Please select an image file.");
       }
     }
@@ -70,7 +63,6 @@ const ModalAddNewPartner = ({
     if (partnerName && partnerId && manager && selectedFile) {
       const dataImg = new FormData();
       dataImg.append("files", selectedFile);
-
       // Gửi yêu cầu POST để tải ảnh lên Strapi (thay thế URL bằng URL thực tế của Strapi)
       http
         .get(`/businesses?filters[businessId][$eq]=${partnerId}&populate=*`, {
