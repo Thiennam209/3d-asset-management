@@ -1,36 +1,21 @@
 import ReactDOM from "react-dom";
 import { Box, Icon } from "@chakra-ui/react";
-
 import { useEffect, useState } from "react";
-
 import { http, urlStrapi } from "../../../axios/init";
-
 import Card from "react-bootstrap/Card";
-
 import Button from "react-bootstrap/Button";
-
 import Row from "react-bootstrap/Row";
-
 import Col from "react-bootstrap/Col";
-
 import Modal from "react-bootstrap/Modal";
-
 import Spinner from "react-bootstrap/Spinner";
-
 import { useLocation } from "react-router-dom";
-
 import Sketchfab from "@sketchfab/viewer-api";
-
 import { MdOutlineEdit, MdAdd } from "react-icons/md";
-
 import "./styleDetail.css";
-
 import { Form, Alert } from "react-bootstrap";
-
 import InputGroup from "react-bootstrap/InputGroup";
-
 import ProgressBar from "react-bootstrap/ProgressBar";
-
+import { FaEdit } from "react-icons/fa";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { BsFillCheckCircleFill } from "react-icons/bs";
 import { GoDotFill } from "react-icons/go";
@@ -41,38 +26,26 @@ import DeleteModel from "./component/deleteModel";
 import { TiDelete } from "react-icons/ti";
 import QRCode from "qrcode";
 import DetailPart from "./component/detailPart";
+import { ModalUpdateAsset } from "./component/ModalUpdateAsset";
 
 const DetailProduct = () => {
   const location = useLocation();
-
   const searchParams = new URLSearchParams(location.search);
-
   const businessId = searchParams.get("id");
-
   const _productId = searchParams.get("productID");
 
   const [data, setData] = useState([]);
-
   const [listAsset, setListAsset] = useState([]);
-
   const getJWTToken = localStorage.getItem("dtvt");
-
   const [uID, setUID] = useState("");
-
   const [lgShow, setLgShow] = useState(false);
-
   const [show, setShow] = useState(false);
-
   const [selectFile, enableUploadButton] = useState(false);
-
   const [file, setFile] = useState(null);
   const [limitedSize, setLimitedSize] = useState(false);
   const MAX_FILE_SIZE = 50 * 1024 * 1024; // MB
-
   const [percentage, animateProgress] = useState(0);
-
   const [onUploading, setStatusUpload] = useState(false);
-
   const [uid, setUid] = useState("");
   const [modelQuantity, setModelQuatity] = useState("");
   const [arrayAssetId, setArrayAssetId] = useState([]);
@@ -80,9 +53,10 @@ const DetailProduct = () => {
   const [successMessageEdit, setSuccessMessageEdit] = useState("");
   const [successMessageDelete, setSuccessMessageDelete] = useState("");
   const [successMessageUpload, setSuccessMessageUpload] = useState("");
-
+  const [dataAsset, setDataAsset] = useState([]);
   const [showModalEditProduct, setShowModalEditProduct] = useState(false);
   const [showModalDeleteModel, setShowModalDeleteModel] = useState(false);
+  const [showModalUpdateAsset, setShowModalUpdateAsset] = useState(false);
   const [dataEdit, setDataEdit] = useState([]);
   const [dataDelete, setDataDelete] = useState([]);
   const [productId, setProductId] = useState(_productId);
@@ -104,6 +78,11 @@ const DetailProduct = () => {
   const handleModalDeleteModelShow = (data) => {
     setShowModalDeleteModel(true);
     setDataDelete(data);
+  };
+  const handleModalUpdateAssetClose = () => setShowModalUpdateAsset(false);
+  const handleModalUpdateAsset = (data) => {
+    setDataAsset(data);
+    setShowModalUpdateAsset(true);
   };
   const handleClose = () => {
     setShow(false);
@@ -527,7 +506,13 @@ const DetailProduct = () => {
       .catch((err) => err);
 
     autoPlayAll3DViewers();
-  }, [onUploading, updateAsset, successMessageEdit, successMessageDelete]);
+  }, [
+    onUploading,
+    updateAsset,
+    successMessageEdit,
+    successMessageDelete,
+    showModalUpdateAsset === false,
+  ]);
 
   const checkImageDefault = (value) => {
     if (value.includes("https://media.sketchfab.com/models")) {
@@ -889,34 +874,30 @@ const DetailProduct = () => {
                         src={item?.attributes?.thumbnail}
                         style={{
                           width: "100%",
-
                           height: "90%",
-
                           borderRadius: "8px",
-
                           position: "absolute",
-
                           top: "0",
-
                           left: "0",
-
                           display: "flex",
-
                           alignItems: "center",
-
                           justifyContent: "center",
-
                           objectFit: "cover",
-
                           border: "1px solid var(--gray-300, #DEE2E6)",
-
                           background: "var(--gray-100, #F8F9FA)",
-
                           boxShadow: "2px 2px 4px rgba(0, 0, 0, 0.2)",
                         }}
                       />
                       <div className="titleItems">
                         <div className="btnDelete">
+                          <FaEdit
+                            className="iconDelete"
+                            style={{ scale: "0.8", marginRight: "0" }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleModalUpdateAsset(item);
+                            }}
+                          />
                           <TiDelete
                             className="iconDelete"
                             onClick={(e) => {
@@ -1023,13 +1004,9 @@ const DetailProduct = () => {
                       }
                       style={{
                         width: "100%",
-
                         padding: "100% 0px 0px 0px",
-
                         position: "relative",
-
                         margin: "10px 0px",
-
                         boxSizing: "border-box",
                       }}
                     >
@@ -1379,6 +1356,7 @@ const DetailProduct = () => {
             handleNewProductId={handleNewProductId}
           />
         )}
+
         <DeleteModel
           showModalDeleteModel={showModalDeleteModel}
           handleModalDeleteModelClose={handleModalDeleteModelClose}
@@ -1387,6 +1365,16 @@ const DetailProduct = () => {
           getJWTToken={getJWTToken}
           onSubmitSuccessDelete={handleModalSubmitSuccessDelete}
           dataDelete={dataDelete}
+        />
+
+        <ModalUpdateAsset
+          showModalUpdateAsset={showModalUpdateAsset}
+          setShowModalUpdateAsset={setShowModalUpdateAsset}
+          handleModalUpdateAssetClose={handleModalUpdateAssetClose}
+          handleModalUpdateAsset={handleModalUpdateAsset}
+          getJWTToken={getJWTToken}
+          dataAsset={dataAsset}
+          tokenSket={tokenSket}
         />
       </>
     );

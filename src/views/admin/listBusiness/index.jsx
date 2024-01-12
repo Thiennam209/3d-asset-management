@@ -1,4 +1,11 @@
-import { Table, Modal, Button, FormControl, Alert } from "react-bootstrap";
+import {
+  Table,
+  Modal,
+  Button,
+  FormControl,
+  Alert,
+  Spinner,
+} from "react-bootstrap";
 import jwt_decode from "jwt-decode";
 import { Box } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
@@ -6,7 +13,7 @@ import { useEffect, useState } from "react";
 import { http, urlStrapi } from "../../../axios/init";
 import "./styles.css";
 import { CgAddR, CgCodeSlash } from "react-icons/cg";
-import { Form } from "react-bootstrap";
+import { Form, Badge } from "react-bootstrap";
 import { FaRegCopy } from "react-icons/fa";
 import { BsSearch, BsFillCheckCircleFill } from "react-icons/bs";
 import { TiDeleteOutline } from "react-icons/ti";
@@ -17,6 +24,7 @@ import {
   roleManagerBusiness,
   roleUser,
 } from "../../../const/roles";
+import ModalPresets from "./component/modalPresets";
 
 const ListBusiness = () => {
   const getJWTToken = localStorage.getItem("dtvt");
@@ -25,6 +33,7 @@ const ListBusiness = () => {
   const [data, setData] = useState([]);
   const [showModalSnippet, setShowModalSnippet] = useState(false);
   const [showModalAddPeople, setShowModalAddPeople] = useState(false);
+  const [showModalPresets, setShowModalPresets] = useState(false);
   const [codeIntegrationHead, setCodeIntegrationHead] = useState("");
   const [codeIntegrationBody, setCodeIntegrationBody] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
@@ -39,7 +48,6 @@ const ListBusiness = () => {
   const [_roleUser, setRoleUser] = useState(false);
   const [idBusiness, setIdBusiness] = useState("");
   const [roleName, setRoleName] = useState("");
-
   const handleModalAddPartnerClose = () => setShowModalAddPartner(false);
   const handleModalAddPartnerShow = () => setShowModalAddPartner(true);
   const handleModalSnippetClose = () => {
@@ -56,8 +64,14 @@ const ListBusiness = () => {
   const handleModaAddPeopleShow = () => {
     setShowModalAddPeople(true);
   };
+  const handleModaPresetsShow = () => {
+    setShowModalPresets(true);
+  };
   const handleModalAddPeopleClose = () => {
     setShowModalAddPeople(false);
+  };
+  const handleModalPresetsClose = () => {
+    setShowModalPresets(false);
   };
   const fillter = () => {
     // Declare variables
@@ -125,32 +139,47 @@ const ListBusiness = () => {
           default:
             break;
         }
-
-        http
-          .get(
-            _roleManagerAll === true
-              ? "businesses?populate=*"
-              : `businesses?populate=*&filters[businessId][$eq]=${businessID}`,
-            {
-              headers: {
-                Authorization: `Bearer ${getJWTToken}`,
-              },
-            }
-          )
-          .then((response) => {
-            const objectData = response.data.data;
-            const objectsData = [...objectData];
-            setData(objectsData);
-          })
-          .catch((err) => err);
+        if (_roleManagerAll) {
+          http
+            .get(
+              `businesses?populate[presets][populate]=*&populate[avatar][populate]=*`,
+              {
+                headers: {
+                  Authorization: `Bearer ${getJWTToken}`,
+                },
+              }
+            )
+            .then((response) => {
+              const objectData = response.data.data;
+              const objectsData = [...objectData];
+              setData(objectsData);
+            })
+            .catch((err) => err);
+        } else if (!_roleManagerAll) {
+          http
+            .get(
+              `businesses?populate[presets][populate]=*&populate[avatar][populate]=*&filters[businessId][$eq]=${businessID}`,
+              {
+                headers: {
+                  Authorization: `Bearer ${getJWTToken}`,
+                },
+              }
+            )
+            .then((response) => {
+              const objectData = response.data.data;
+              const objectsData = [...objectData];
+              setData(objectsData);
+            })
+            .catch((err) => err);
+        }
       });
   }, [
     successMessageAddPartner,
     _roleManagerAll,
     _roleManagerBusiness,
     _roleUser,
+    showModalPresets === false
   ]);
-
   const copyToClipboard = (value) => {
     // Sử dụng API Clipboard để sao chép văn bản vào clipboard
     navigator.clipboard
@@ -158,9 +187,7 @@ const ListBusiness = () => {
       .then(() => {
         setSuccessMessage("Copy Success");
       })
-      .catch((err) => {
-     
-      });
+      .catch((err) => {});
   };
 
   const handleModalSubmitSuccess = (message) => {
@@ -248,7 +275,8 @@ const ListBusiness = () => {
           <BsFillCheckCircleFill
             style={{ display: "inline", margin: "0 5px" }}
           />{" "}
-          <b>Success : </b>{successMessageAddPeople}
+          <b>Success : </b>
+          {successMessageAddPeople}
         </Alert>
       )}
       {successMessageAddPeople === "Fail" && (
@@ -261,7 +289,8 @@ const ListBusiness = () => {
             transform: "translate(-50%,-50%)",
           }}
         >
-          <TiDeleteOutline style={{ display: "inline", margin: "0 5px" }} /> <b>Fail : </b>Username or email is duplicate. Add new peole failed!
+          <TiDeleteOutline style={{ display: "inline", margin: "0 5px" }} />{" "}
+          <b>Fail : </b>Username or email is duplicate. Add new peole failed!
         </Alert>
       )}
       <Box pt={{ base: "180px", md: "80px", xl: "80px" }} w="100%">
@@ -300,142 +329,169 @@ const ListBusiness = () => {
               <th className="headerCell">Name of business</th>
               <th className="headerCell">Client ID number</th>
               <th className="headerCell">Person in charge</th>
+              <th className="headerCell">Preset</th>
               <th className="headerCell">Action</th>
             </tr>
           </thead>
-          <tbody>
-            {data.map((item, index) => (
-              <tr key={index}>
-                <td style={{ verticalAlign: "middle" }}>
-                  <div
-                    style={{
-                      alignItems: "center",
-                      display: "flex",
-                      flexDirection: "row",
-                      paddingLeft: "35%",
-                    }}
-                  >
-                    <div
-                      style={{
-                        width: "40px",
-                        height: "40px",
-                        objectFit: "cover",
-                        position: "relative",
-                      }}
-                    >
-                      <img
+          {data.length === 0 ? (
+            <div>
+              <br />
+              <Spinner animation="border" />
+            </div>
+          ) : (
+            <tbody>
+              {data.map((item, index) => {
+                return (
+                  <tr key={index}>
+                    <td style={{ verticalAlign: "middle" }}>
+                      <div
                         style={{
-                          borderRadius: "50%",
-                          width: "40px",
-                          height: "40px",
-                          objectFit: "cover",
+                          alignItems: "center",
+                          display: "flex",
+                          flexDirection: "row",
+                          paddingLeft: "35%",
                         }}
-                        src={`${urlStrapi}/${item?.attributes?.avatar?.data?.attributes?.url}`}
-                        alt="null"
-                      />
-                    </div>
-                    <div
-                      style={{
-                        alignItems: "center",
-                        display: "inline-flex",
-                        flex: "0 0 auto",
-                        gap: "10px",
-                        justifyContent: "center",
-                        padding: "10px 10px 10px 16px",
-                        position: "relative",
-                      }}
-                    >
-                      <Link
-                        to={`list-product?id=${item?.attributes?.businessId}`}
                       >
-                        {item?.attributes?.Name}
-                      </Link>
-                    </div>
-                  </div>
-                </td>
-                <td style={{ verticalAlign: "middle" }}>
-                  {item?.attributes?.businessId}
-                </td>
-                <td style={{ verticalAlign: "middle" }}>
-                  <div
-                    style={{
-                      alignItems: "center",
-                      display: "flex",
-                      flexDirection: "row",
-                      paddingLeft: "35%",
-                    }}
-                  >
-                    <div
-                      style={{
-                        width: "40px",
-                        height: "40px",
-                        objectFit: "cover",
-                        position: "relative",
-                      }}
-                    >
-                      <img
+                        <div
+                          style={{
+                            width: "40px",
+                            height: "40px",
+                            objectFit: "cover",
+                            position: "relative",
+                          }}
+                        >
+                          <img
+                            style={{
+                              borderRadius: "50%",
+                              width: "40px",
+                              height: "40px",
+                              objectFit: "cover",
+                            }}
+                            src={`${urlStrapi}/${item?.attributes?.avatar?.data?.attributes?.url}`}
+                            alt="null"
+                          />
+                        </div>
+                        <div
+                          style={{
+                            alignItems: "center",
+                            display: "inline-flex",
+                            flex: "0 0 auto",
+                            gap: "10px",
+                            justifyContent: "center",
+                            padding: "10px 10px 10px 16px",
+                            position: "relative",
+                          }}
+                        >
+                          <Link
+                            to={`list-product?id=${item?.attributes?.businessId}`}
+                          >
+                            {item?.attributes?.Name}
+                          </Link>
+                        </div>
+                      </div>
+                    </td>
+                    <td style={{ verticalAlign: "middle" }}>
+                      {item?.attributes?.businessId}
+                    </td>
+                    <td style={{ verticalAlign: "middle" }}>
+                      <div
                         style={{
-                          borderRadius: "50%",
-                          width: "40px",
-                          height: "40px",
-                          objectFit: "cover",
+                          alignItems: "center",
+                          display: "flex",
+                          flexDirection: "row",
+                          paddingLeft: "35%",
                         }}
-                        src={`${urlStrapi}/${item?.attributes?.avatar?.data?.attributes?.url}`}
-                        alt="null"
-                      />
-                    </div>
-                    <div
+                      >
+                        <div
+                          style={{
+                            width: "40px",
+                            height: "40px",
+                            objectFit: "cover",
+                            position: "relative",
+                          }}
+                        >
+                          <img
+                            style={{
+                              borderRadius: "50%",
+                              width: "40px",
+                              height: "40px",
+                              objectFit: "cover",
+                            }}
+                            src={`${urlStrapi}/${item?.attributes?.avatar?.data?.attributes?.url}`}
+                            alt="null"
+                          />
+                        </div>
+                        <div
+                          style={{
+                            alignItems: "center",
+                            display: "inline-flex",
+                            flex: "0 0 auto",
+                            gap: "10px",
+                            justifyContent: "center",
+                            padding: "10px 10px 10px 16px",
+                            position: "relative",
+                          }}
+                        >
+                          {item?.attributes?.Manager}
+                        </div>
+                      </div>
+                    </td>
+                    <td style={{ verticalAlign: "middle" }}>
+                      <p
+                        className="linkShow"
+                        onClick={() => {
+                          handleModaPresetsShow();
+                          setIdBusiness(
+                            item?.attributes?.businessId + "&id=" + item?.id
+                          );
+                        }}
+                      >
+                        <Badge bg="secondary">
+                          {item?.attributes?.presets?.data?.length}
+                        </Badge>
+                      </p>
+                    </td>
+                    <td
                       style={{
-                        alignItems: "center",
-                        display: "inline-flex",
-                        flex: "0 0 auto",
-                        gap: "10px",
-                        justifyContent: "center",
-                        padding: "10px 10px 10px 16px",
-                        position: "relative",
+                        verticalAlign: "middle",
+                        textAlign: "left",
+                        width: "20%",
                       }}
                     >
-                      {item?.attributes?.Manager}
-                    </div>
-                  </div>
-                </td>
-                <td
-                  style={{
-                    verticalAlign: "middle",
-                    textAlign: "left",
-                    width: "20%",
-                  }}
-                >
-                  {_roleManagerAll === true || _roleManagerBusiness === true ? (
-                    <p
-                      className="linkShow"
-                      onClick={() => {
-                        handleModaAddPeopleShow();
-                        setIdBusiness(item?.attributes?.businessId);
-                      }}
-                      disabled={isButtonAddPeopleDisabled}
-                    >
-                      {" "}
-                      <CgAddR style={{ display: "inline-block" }} /> add people{" "}
-                    </p>
-                  ) : (
-                    ""
-                  )}
+                      {_roleManagerAll === true ||
+                      _roleManagerBusiness === true ? (
+                        <p
+                          className="linkShow"
+                          onClick={() => {
+                            handleModaAddPeopleShow();
+                            setIdBusiness(item?.attributes?.businessId);
+                          }}
+                          disabled={isButtonAddPeopleDisabled}
+                        >
+                          {" "}
+                          <CgAddR style={{ display: "inline-block" }} /> add
+                          people{" "}
+                        </p>
+                      ) : (
+                        ""
+                      )}
 
-                  <p
-                    className="linkShow"
-                    onClick={() => {
-                      handleModalSnippetShow(item);
-                    }}
-                  >
-                    {" "}
-                    <CgCodeSlash style={{ display: "inline-block" }} /> generate
-                    code snippet{" "}
-                  </p>
-                </td>
-              </tr>
-            ))}
-          </tbody>
+                      <p
+                        className="linkShow"
+                        onClick={() => {
+                          handleModalSnippetShow(item);
+                        }}
+                      >
+                        {" "}
+                        <CgCodeSlash style={{ display: "inline-block" }} />{" "}
+                        generate code snippet{" "}
+                      </p>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          )}
         </Table>
         <Modal
           show={showModalSnippet}
@@ -535,6 +591,13 @@ const ListBusiness = () => {
         onSubmitSuccess={handleModalAddPeopleSubmitSuccess}
         idBusiness={idBusiness}
         roleName={roleName}
+      />
+      <ModalPresets
+        showModalPresets={showModalPresets}
+        setShowModalPresets={setShowModalPresets}
+        handleModalPresetsClose={handleModalPresetsClose}
+        getJWTToken={getJWTToken}
+        idBusiness={idBusiness}
       />
     </>
   );

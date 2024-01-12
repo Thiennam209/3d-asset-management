@@ -73,18 +73,6 @@ const LoginPage = () => {
   };
 
   const handleLogin = (event) => {
-    // Xử lý đăng nhập tại đây
-    // event.preventDefault();
-    // const errors = validateForm();
-
-    // if (Object.keys(errors).length === 0) {
-    //     // Xử lý khi biểu mẫu hợp lệ
-    //     postAPILogin()
-    // } else {
-    //     // Hiển thị thông báo lỗi
-    //     setErrors(errors);
-    // }
-
     const errors = validateForm();
     const form = event.currentTarget;
     if (form.checkValidity() === false) {
@@ -92,7 +80,7 @@ const LoginPage = () => {
       event.stopPropagation();
     }
     setValidated(true);
-    if (Object.keys(errors).length === 0) {
+    if (email && password) {
       // Xử lý khi biểu mẫu hợp lệ
       postAPILogin();
     } else {

@@ -19,6 +19,7 @@ const DetailPart = (item) => {
   const [showModalDeletePart, setShowModalDeletePart] = useState(false);
   const [part, setPart] = useState([]);
   const [partName, setPartName] = useState("");
+  const [displayName, setDisplayName] = useState("");
   const [description, setDescription] = useState("");
   const [interaction, setInteraction] = useState("");
   const [arrInteraction, setArrInteraction] = useState([]);
@@ -40,6 +41,7 @@ const DetailPart = (item) => {
     setShowModalEditPart(false);
     setShowModalDetailPart(true);
     setPartName("");
+    setDisplayName("");
     setDescription("");
     setInteraction("");
     setSelectedFile(null);
@@ -129,7 +131,7 @@ const DetailPart = (item) => {
     }
     setValidated(true);
 
-    if (partName && interaction && selectedFile) {
+    if (partName && displayName && interaction && selectedFile) {
       let dataImg = new FormData();
       dataImg.append("files", selectedFile);
       setSubmitAdd(true);
@@ -144,7 +146,7 @@ const DetailPart = (item) => {
           const formData = {
             asset: item.item.id,
             name: partName,
-            displayname: partName,
+            displayname: displayName,
             part_interactions: interaction,
             description: description,
             cover: false,
@@ -165,6 +167,7 @@ const DetailPart = (item) => {
               setShowModalDetailPart(true);
               setSubmitAdd(false);
               setPartName("");
+              setDisplayName("");
               setDescription("");
               setSelectedFile(null);
               setValidated(false);
@@ -181,7 +184,7 @@ const DetailPart = (item) => {
     }
     setValidated(true);
 
-    if (partName && interaction) {
+    if (partName && displayName && interaction) {
       if (selectedFile) {
         let dataImg = new FormData();
         dataImg.append("files", selectedFile);
@@ -200,7 +203,7 @@ const DetailPart = (item) => {
                 {
                   data: {
                     name: partName,
-                    displayname: partName,
+                    displayname: displayName,
                     description: description,
                     part_interactions:
                       interaction !== undefined ? interaction : null,
@@ -216,6 +219,7 @@ const DetailPart = (item) => {
               .then((res) => {
                 setSubmitEdit(false);
                 setPartName("");
+                setDisplayName("");
                 setDescription("");
                 setInteraction("");
                 setShowModalEditPart(false);
@@ -232,7 +236,7 @@ const DetailPart = (item) => {
             {
               data: {
                 name: partName,
-                displayname: partName,
+                displayname: displayName,
                 description: description,
                 part_interactions:
                   interaction !== undefined ? interaction : null,
@@ -247,6 +251,7 @@ const DetailPart = (item) => {
           .then((res) => {
             setSubmitEdit(false);
             setPartName("");
+            setDisplayName("");
             setDescription("");
             setInteraction("");
             setShowModalEditPart(false);
@@ -256,8 +261,6 @@ const DetailPart = (item) => {
       }
     }
   };
-
-  console.log(render);
   return (
     <>
       <div
@@ -274,7 +277,7 @@ const DetailPart = (item) => {
         show={showModalDetailPart}
         onHide={handleModalDetailPartClose}
         aria-labelledby="contained-modal-title-vcenter"
-        size="lg"
+        size="xl"
         backdrop="static"
         keyboard={false}
         centered
@@ -309,24 +312,32 @@ const DetailPart = (item) => {
                 <th>Name</th>
                 <th>Description</th>
                 <th>Image</th>
-                <th></th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody>
               {part.map((data, index) => {
                 return (
                   <tr key={index}>
-                    <td style={{ verticalAlign: "middle" }}>{index + 1}</td>
-                    <td style={{ verticalAlign: "middle" }}>
+                    <td style={{ verticalAlign: "middle", width: "2%" }}>
+                      {index + 1}
+                    </td>
+                    <td style={{ verticalAlign: "middle", width: "5%" }}>
                       {data.attributes.displayname}
                     </td>
-                    <td style={{ verticalAlign: "middle" }}>
+                    <td style={{ verticalAlign: "middle", width: "50%" }}>
                       {data.attributes.description}
                     </td>
-                    <td style={{ padding: "0", verticalAlign: "middle" }}>
+                    <td
+                      style={{
+                        padding: "0",
+                        verticalAlign: "middle",
+                        width: "30%",
+                      }}
+                    >
                       <div
                         style={{
-                          width: "80px",
+                          width: "100%",
                           height: "80px",
                           overflow: "hidden",
                           position: "relative",
@@ -335,7 +346,7 @@ const DetailPart = (item) => {
                         <img
                           style={{
                             borderRadius: "5%",
-                            width: "100",
+                            width: "50%",
                             height: "auto",
                             position: "absolute",
                             top: "50%",
@@ -347,13 +358,20 @@ const DetailPart = (item) => {
                         />
                       </div>
                     </td>
-                    <td style={{ padding: "0", verticalAlign: "middle" }}>
+                    <td
+                      style={{
+                        padding: "0",
+                        verticalAlign: "middle",
+                        width: "15%",
+                      }}
+                    >
                       <Button
                         variant="success"
                         style={{ margin: "5px" }}
                         onClick={() => {
                           setAPart(data);
-                          setPartName(data?.attributes?.displayname);
+                          setPartName(data?.attributes?.name);
+                          setDisplayName(data?.attributes?.displayname);
                           setDescription(data?.attributes?.description);
                           setInteraction(
                             data?.attributes?.part_interactions?.data[0]?.id
@@ -393,6 +411,7 @@ const DetailPart = (item) => {
         aria-labelledby="contained-modal-title-vcenter"
         backdrop="static"
         keyboard={false}
+        size="lg"
       >
         <Modal.Header closeButton>
           <Modal.Title>Add New Part</Modal.Title>
@@ -402,7 +421,8 @@ const DetailPart = (item) => {
             <Form.Group
               controlId="validationAssetName"
               style={{
-                margin: "5px 0",
+                margin: "5px 10px 5px 0",
+                float: "left",
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "space-between",
@@ -420,7 +440,8 @@ const DetailPart = (item) => {
             <Form.Group
               controlId="validationPartName"
               style={{
-                margin: "5px 0",
+                margin: "5px 10px 5px 0",
+                float: "left",
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "space-between",
@@ -430,6 +451,7 @@ const DetailPart = (item) => {
 
               <Form.Control
                 type="text"
+                placeholder="Name of part"
                 value={partName}
                 onChange={(e) => {
                   setPartName(e.target.value);
@@ -442,30 +464,36 @@ const DetailPart = (item) => {
               </Form.Control.Feedback>
             </Form.Group>
             <Form.Group
-              controlId="validationDescription"
+              controlId="validationDisplayName"
               style={{
-                margin: "5px 0",
+                margin: "5px 10px 5px 0",
+                float: "left",
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "space-between",
               }}
             >
-              <Form.Label>Description</Form.Label>
+              <Form.Label>Display name</Form.Label>
 
               <Form.Control
                 type="text"
-                value={description}
+                value={displayName}
+                placeholder="Display name of part"
                 onChange={(e) => {
-                  setDescription(e.target.value);
+                  setDisplayName(e.target.value);
                 }}
-                as={Textarea}
-                rows={5}
+                required
               />
+
+              <Form.Control.Feedback type="invalid">
+                Please enter display name of part
+              </Form.Control.Feedback>
             </Form.Group>
             <Form.Group
               controlId="validationPartInteraction"
               style={{
-                margin: "5px 0",
+                margin: "5px 10px 5px 0",
+                float: "left",
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "space-between",
@@ -492,6 +520,29 @@ const DetailPart = (item) => {
                 Please enter part interaction
               </Form.Control.Feedback>
             </Form.Group>
+            <Form.Group
+              controlId="validationDescription"
+              style={{
+                margin: "5px 0",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+                clear: "both",
+              }}
+            >
+              <Form.Label>Description</Form.Label>
+
+              <Form.Control
+                type="text"
+                value={description}
+                onChange={(e) => {
+                  setDescription(e.target.value);
+                }}
+                as={Textarea}
+                rows={5}
+              />
+            </Form.Group>
+
             <br />
             <Form.Group className="position-relative mb-3">
               <Form.Label>
@@ -584,6 +635,7 @@ const DetailPart = (item) => {
         aria-labelledby="contained-modal-title-vcenter"
         backdrop="static"
         keyboard={false}
+        size="lg"
       >
         <Modal.Header closeButton>
           <Modal.Title>Edit Part</Modal.Title>
@@ -593,7 +645,8 @@ const DetailPart = (item) => {
             <Form.Group
               controlId="validationAssetName"
               style={{
-                margin: "5px 0",
+                margin: "5px 10px 5px 0",
+                float: "left",
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "space-between",
@@ -611,7 +664,8 @@ const DetailPart = (item) => {
             <Form.Group
               controlId="validationPartName"
               style={{
-                margin: "5px 0",
+                margin: "5px 10px 5px 0",
+                float: "left",
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "space-between",
@@ -633,33 +687,38 @@ const DetailPart = (item) => {
               </Form.Control.Feedback>
             </Form.Group>
             <Form.Group
-              controlId="validationDescription"
+              controlId="validationDisplayName"
               style={{
-                margin: "5px 0",
+                margin: "5px 10px 5px 0",
+                float: "left",
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "space-between",
               }}
             >
-              <Form.Label>Description</Form.Label>
+              <Form.Label>Display name</Form.Label>
 
               <Form.Control
                 type="text"
-                value={description}
+                value={displayName}
                 onChange={(e) => {
-                  setDescription(e.target.value);
+                  setDisplayName(e.target.value);
                 }}
-                as={Textarea}
-                rows={5}
+                required
               />
+
+              <Form.Control.Feedback type="invalid">
+                Please enter display name of part
+              </Form.Control.Feedback>
             </Form.Group>
             <Form.Group
               controlId="validationPartInteraction"
               style={{
-                margin: "5px 0",
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "space-between",
+                margin: "5px 10px 5px 0",
+                float: "left",
               }}
             >
               <Form.Label>Part Interaction</Form.Label>
@@ -684,6 +743,29 @@ const DetailPart = (item) => {
                 Please enter part interaction
               </Form.Control.Feedback>
             </Form.Group>
+            <Form.Group
+              controlId="validationDescription"
+              style={{
+                margin: "5px 0",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+                clear: "both",
+              }}
+            >
+              <Form.Label>Description</Form.Label>
+
+              <Form.Control
+                type="text"
+                value={description}
+                onChange={(e) => {
+                  setDescription(e.target.value);
+                }}
+                as={Textarea}
+                rows={5}
+              />
+            </Form.Group>
+
             <br />
             <Form.Group className="position-relative mb-3">
               <Form.Label>
@@ -692,7 +774,7 @@ const DetailPart = (item) => {
               <Image
                 src={`${urlStrapi}/${imgEdit}`}
                 rounded
-                style={{ width: "40%", display: imgDisableEdit }}
+                style={{ width: "30%", display: imgDisableEdit }}
               />
               <br />
               <Form.Control

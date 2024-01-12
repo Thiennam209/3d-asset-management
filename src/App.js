@@ -6,10 +6,6 @@ import { useSelector, useDispatch } from 'react-redux'
 import { checkAuth } from './features/auth/authSlice'
 import LoginPage from 'layouts/login';
 import React, { lazy, Suspense } from 'react';
-import ListBusiness from "views/admin/listBusiness";
-import ListProduct from "views/admin/listProduct";
-import DetailProduct from "views/admin/detailProduct"
-import {anhve} from "./layouts/empty"
 function App() {
 
     const GetToken = () => {
@@ -29,7 +25,6 @@ function App() {
             <Suspense fallback={<div>Loading...</div>}>
             <Switch>
                 <Route path={`/admin`} component={AdminLayout} />
-                <Route path="/admin/anhVe" component={anhve} />
                 <Route path="/admin/list-business" component={AdminLayout} />
                 <Route path="/admin/list-product" component={AdminLayout} />
                 <Route path="/admin/list-product/detail-product" component={AdminLayout} />
