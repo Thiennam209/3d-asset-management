@@ -387,7 +387,7 @@ const DetailProduct = () => {
       .then((res) => {
         setTokenSket(res.data.data[0].attributes.sketchfabCredentialCode);
       });
-
+    
     http
       .get(
         `products?filters[businessId][$eq]=${businessId}&filters[productId][$eq]=${productId}&populate=*`,
@@ -399,6 +399,7 @@ const DetailProduct = () => {
       )
 
       .then((response) => {
+        
         const objectData = response.data.data;
 
         const objectsData = [...objectData];
@@ -409,7 +410,7 @@ const DetailProduct = () => {
 
         setModelQuatity(response.data.data[0].attributes.assets.data.length);
         if (objectsData.length !== 0) {
-          const objectsDataListAssest =
+          const   objectsDataListAssest =
             dataDetailProduct.attributes.assets.data;
           setListAsset(objectsDataListAssest);
           objectsDataListAssest.forEach((item, index) => {
@@ -1367,15 +1368,17 @@ const DetailProduct = () => {
           dataDelete={dataDelete}
         />
 
-        <ModalUpdateAsset
-          showModalUpdateAsset={showModalUpdateAsset}
-          setShowModalUpdateAsset={setShowModalUpdateAsset}
-          handleModalUpdateAssetClose={handleModalUpdateAssetClose}
-          handleModalUpdateAsset={handleModalUpdateAsset}
-          getJWTToken={getJWTToken}
-          dataAsset={dataAsset}
-          tokenSket={tokenSket}
-        />
+        {showModalUpdateAsset && (
+          <ModalUpdateAsset
+            showModalUpdateAsset={showModalUpdateAsset}
+            setShowModalUpdateAsset={setShowModalUpdateAsset}
+            handleModalUpdateAssetClose={handleModalUpdateAssetClose}
+            handleModalUpdateAsset={handleModalUpdateAsset}
+            getJWTToken={getJWTToken}
+            dataAsset={dataAsset}
+            tokenSket={tokenSket}
+          />
+        )}
       </>
     );
   } else {

@@ -25,12 +25,15 @@ import {
   roleUser,
 } from "../../../const/roles";
 import ModalPresets from "./component/modalPresets";
+import ModalProjectName from "./component/modalProjectName";
+import ModalAddProjectName from "./component/modalAddProjectName";
 
 const ListBusiness = () => {
   const getJWTToken = localStorage.getItem("dtvt");
   var decoded = jwt_decode(getJWTToken);
   const idUser = decoded.id;
   const [data, setData] = useState([]);
+  const [dataAzureCredential, setDataAzureCredential] = useState({});
   const [showModalSnippet, setShowModalSnippet] = useState(false);
   const [showModalAddPeople, setShowModalAddPeople] = useState(false);
   const [showModalPresets, setShowModalPresets] = useState(false);
@@ -40,6 +43,8 @@ const ListBusiness = () => {
   const [successMessageAddPartner, setSuccessMessageAddPartner] = useState("");
   const [successMessageAddPeople, setSuccessMessageAddPeople] = useState("");
   const [showModalAddPartner, setShowModalAddPartner] = useState(false);
+  const [showModalProjectName, setShowModalProjectName] = useState(false);
+  const [showModalAddProjectName, setShowModalAddProjectName] = useState(false);
   const [isButtonAddDisabled, setIsButtonAddDisabled] = useState(false);
   const [isButtonAddPeopleDisabled, setIsButtonAddPeopleDisabled] =
     useState(false);
@@ -142,7 +147,7 @@ const ListBusiness = () => {
         if (_roleManagerAll) {
           http
             .get(
-              `businesses?populate[presets][populate]=*&populate[avatar][populate]=*`,
+              `businesses?populate[presets][populate]=*&populate[avatar][populate]=*&populate[azure_credential][populate]=*`,
               {
                 headers: {
                   Authorization: `Bearer ${getJWTToken}`,
@@ -158,7 +163,7 @@ const ListBusiness = () => {
         } else if (!_roleManagerAll) {
           http
             .get(
-              `businesses?populate[presets][populate]=*&populate[avatar][populate]=*&filters[businessId][$eq]=${businessID}`,
+              `businesses?populate[presets][populate]=*&populate[avatar][populate]=*&populate[azure_credential][populate]=*&filters[businessId][$eq]=${businessID}`,
               {
                 headers: {
                   Authorization: `Bearer ${getJWTToken}`,
@@ -178,7 +183,9 @@ const ListBusiness = () => {
     _roleManagerAll,
     _roleManagerBusiness,
     _roleUser,
-    showModalPresets === false
+    showModalPresets === false,
+    showModalProjectName === false,
+    showModalAddProjectName === false,
   ]);
   const copyToClipboard = (value) => {
     // Sử dụng API Clipboard để sao chép văn bản vào clipboard
@@ -330,6 +337,7 @@ const ListBusiness = () => {
               <th className="headerCell">Client ID number</th>
               <th className="headerCell">Person in charge</th>
               <th className="headerCell">Preset</th>
+              <th className="headerCell">Project name</th>
               <th className="headerCell">Action</th>
             </tr>
           </thead>
@@ -451,6 +459,37 @@ const ListBusiness = () => {
                         </Badge>
                       </p>
                     </td>
+                    <td style={{ verticalAlign: "middle" }}>
+                      <p className="linkShow">
+                        {item?.attributes?.azure_credential?.data?.attributes
+                          ?.ProjectName ? (
+                          <p
+                            onClick={() => {
+                              setShowModalProjectName(true);
+                              setDataAzureCredential(
+                                item?.attributes?.azure_credential?.data
+                              );
+                            }}
+                          >
+                            {
+                              item?.attributes?.azure_credential?.data
+                                ?.attributes?.ProjectName
+                            }
+                          </p>
+                        ) : (
+                          <p
+                            onClick={() => {
+                              setShowModalAddProjectName(true);
+                              setDataAzureCredential(
+                                item
+                              );
+                            }}
+                          >
+                            <CgAddR style={{ display: "inline-block" }} />
+                          </p>
+                        )}
+                      </p>
+                    </td>
                     <td
                       style={{
                         verticalAlign: "middle",
@@ -503,11 +542,11 @@ const ListBusiness = () => {
           </Modal.Header>
           <Modal.Body>
             <p>
-              Copy the code below and paste it onto every page of your website{" "}
+              Copy the code below and paste it onto every page of your website
             </p>
             <p>
               Paste this code as high in the <b>&lt;head&gt;</b> of the page as
-              possible:{" "}
+              possible:
             </p>
             <br />
             <div
@@ -599,6 +638,22 @@ const ListBusiness = () => {
         getJWTToken={getJWTToken}
         idBusiness={idBusiness}
       />
+      {showModalProjectName && (
+        <ModalProjectName
+          showModalProjectName={showModalProjectName}
+          setShowModalProjectName={setShowModalProjectName}
+          {...dataAzureCredential}
+          getJWTToken={getJWTToken}
+        />
+      )}
+      {showModalAddProjectName && (
+        <ModalAddProjectName
+          showModalAddProjectName={showModalAddProjectName}
+          setShowModalAddProjectName={setShowModalAddProjectName}
+          {...dataAzureCredential}
+          getJWTToken={getJWTToken}
+        />
+      )}
     </>
   );
 };

@@ -9,6 +9,8 @@ export function ModalUpdateAsset(props) {
   const [listMachineId, setListMachineId] = useState([]);
   const [assetName, setAssetName] = useState("");
   const [machineId, setMachineId] = useState("");
+  const [chartColumn, setChartColumn] = useState(2);
+  const [chartRow, setChartRow] = useState(1);
   const [description, setDescription] = useState("");
   const [visibleSubmit, setVisibleSubmit] = useState(false);
   const [file3D, setFile3D] = useState(null);
@@ -32,6 +34,7 @@ export function ModalUpdateAsset(props) {
                 name: assetName,
                 digital_twin_factory_machine: machineId || null,
                 description: description,
+                machines: machineId,
               },
             },
             {
@@ -41,6 +44,22 @@ export function ModalUpdateAsset(props) {
             }
           )
           .then((res) => {
+            if (machineId !== "") {
+              http.put(
+                `digital-twin-factory-machines/${machineId}`,
+                {
+                  data: {
+                    chartColumn: chartColumn,
+                    chartRow: chartRow,
+                  },
+                },
+                {
+                  headers: {
+                    Authorization: `Bearer ${props.getJWTToken}`,
+                  },
+                }
+              );
+            }
             setVisibleSubmit(false);
             setIsButton3DModelDisabled(false);
             props.handleModalUpdateAssetClose();
@@ -65,7 +84,8 @@ export function ModalUpdateAsset(props) {
                   digital_twin_factory_machine: machineId || null,
                   description: description,
                   assetUID: uuid,
-                  thumbnail: "null"
+                  machines: machineId,
+                  thumbnail: "null",
                 },
               },
               {
@@ -75,6 +95,22 @@ export function ModalUpdateAsset(props) {
               }
             )
             .then((res) => {
+              if (machineId !== "") {
+                http.put(
+                  `digital-twin-factory-machines/${machineId}`,
+                  {
+                    data: {
+                      chartColumn: chartColumn,
+                      chartRow: chartRow,
+                    },
+                  },
+                  {
+                    headers: {
+                      Authorization: `Bearer ${props.getJWTToken}`,
+                    },
+                  }
+                );
+              }
               setVisibleSubmit(false);
               setIsButton3DModelDisabled(false);
               props.handleModalUpdateAssetClose();
@@ -93,7 +129,6 @@ export function ModalUpdateAsset(props) {
       setFile3D(null);
     }
   };
-
   useEffect(() => {
     setValidated(false);
     if (props.dataAsset.id) {
@@ -106,8 +141,13 @@ export function ModalUpdateAsset(props) {
         .then((res) => {
           setDataAsset(res);
           setAssetName(res.data.data.attributes.name);
-          setMachineId(
-            res.data.data.attributes.digital_twin_factory_machine.data?.id || ""
+          setMachineId(res.data.data.attributes?.machines?.data?.id || "");
+          setChartColumn(
+            res.data.data.attributes?.machines?.data?.attributes?.chartColumn ||
+              2
+          );
+          setChartRow(
+            res.data.data.attributes?.machines?.data?.attributes?.chartRow || 1
           );
           setDescription(res.data.data.attributes.description);
         });
@@ -122,6 +162,20 @@ export function ModalUpdateAsset(props) {
         setListMachineId(res.data);
       });
   }, [props.showModalUpdateAsset === true]);
+  useEffect(() => {
+    if (machineId !== "") {
+      http
+        .get(`digital-twin-factory-machines/${machineId}`, {
+          headers: {
+            Authorization: `Bearer ${props.getJWTToken}`,
+          },
+        })
+        .then((res) => {
+          setChartColumn(res.data?.data?.attributes?.chartColumn || 2);
+          setChartRow(res.data?.data?.attributes?.chartRow || 1);
+        });
+    }
+  }, [machineId]);
   return (
     <>
       <Modal
@@ -188,6 +242,7 @@ export function ModalUpdateAsset(props) {
                   Please enter name of asset
                 </Form.Control.Feedback>
               </Form.Group>
+
               <Form.Group
                 controlId="validationMachineId"
                 style={{
@@ -207,16 +262,61 @@ export function ModalUpdateAsset(props) {
                   }}
                 >
                   <option value="">Choose option</option>
-                  {listMachineId.data.map((data, index) => {
-                    return (
-                      <option key={index} value={data.id}>
-                        {data.attributes.MachineId}
-                      </option>
-                    );
-                  })}
+                  {listMachineId?.data &&
+                    listMachineId.data.map((data, index) => {
+                      return (
+                        <option key={index} value={data.id}>
+                          {data.attributes.MachineId}
+                        </option>
+                      );
+                    })}
                 </Form.Select>
               </Form.Group>
+              {machineId !== "" && (
+                <div style={{ clear: "both" }}>
+                  <Form.Group
+                    controlId="validationChartColumn"
+                    style={{
+                      margin: "5px 10px 5px 0",
+                      float: "left",
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <Form.Label>Chart Column ( Machine )</Form.Label>
 
+                    <Form.Control
+                      type="number"
+                      value={chartColumn}
+                      onChange={(e) => {
+                        setChartColumn(e.target.value);
+                      }}
+                    />
+                  </Form.Group>
+
+                  <Form.Group
+                    controlId="validationChartRow"
+                    style={{
+                      margin: "5px 10px 5px 0",
+                      float: "left",
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <Form.Label>Chart Row ( Machine )</Form.Label>
+
+                    <Form.Control
+                      type="number"
+                      value={chartRow}
+                      onChange={(e) => {
+                        setChartRow(e.target.value);
+                      }}
+                    />
+                  </Form.Group>
+                </div>
+              )}
               <Form.Group
                 controlId="validationDescription"
                 style={{

@@ -241,13 +241,15 @@ const ModalPresets = ({
         aPresets={aPresets}
       />
 
-      <ModalEditPreset
-        showModalEditPreset={showModalEditPreset}
-        handleModalEditPresetClose={handleModalEditPresetClose}
-        idBusiness={idBusiness}
-        getJWTToken={getJWTToken}
-        aPresets={aPresets}
-      />
+      {showModalEditPreset && (
+        <ModalEditPreset
+          showModalEditPreset={showModalEditPreset}
+          handleModalEditPresetClose={handleModalEditPresetClose}
+          idBusiness={idBusiness}
+          getJWTToken={getJWTToken}
+          aPresets={aPresets}
+        />
+      )}
     </>
   );
 };

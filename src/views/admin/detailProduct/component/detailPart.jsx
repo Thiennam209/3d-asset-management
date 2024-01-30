@@ -20,6 +20,13 @@ const DetailPart = (item) => {
   const [part, setPart] = useState([]);
   const [partName, setPartName] = useState("");
   const [displayName, setDisplayName] = useState("");
+  const [sensorName, setSensorName] = useState("");
+  const [unit, setUnit] = useState("");
+  const [minValue, setMinValue] = useState(0);
+  const [maxValue, setMaxValue] = useState(0);
+  const [chartType, setChartType] = useState("none");
+  const [chartSize, setChartSize] = useState("Small");
+  const [chartOrder, setChartOrder] = useState("0");
   const [description, setDescription] = useState("");
   const [interaction, setInteraction] = useState("");
   const [arrInteraction, setArrInteraction] = useState([]);
@@ -131,7 +138,17 @@ const DetailPart = (item) => {
     }
     setValidated(true);
 
-    if (partName && displayName && interaction && selectedFile) {
+    if (
+      partName &&
+      displayName &&
+      interaction &&
+      sensorName &&
+      unit &&
+      chartType &&
+      chartSize &&
+      chartOrder &&
+      selectedFile
+    ) {
       let dataImg = new FormData();
       dataImg.append("files", selectedFile);
       setSubmitAdd(true);
@@ -148,6 +165,14 @@ const DetailPart = (item) => {
             name: partName,
             displayname: displayName,
             part_interactions: interaction,
+            sensorName: sensorName,
+            unit: unit,
+            minValue: minValue,
+            maxValue: maxValue,
+            chartType: chartType,
+            chartSize: chartSize,
+            chartOrder: chartOrder,
+
             description: description,
             cover: false,
             image: res.data[0].id,
@@ -168,7 +193,13 @@ const DetailPart = (item) => {
               setSubmitAdd(false);
               setPartName("");
               setDisplayName("");
-              setDescription("");
+              setSensorName("");
+              setUnit("");
+              setMinValue(0);
+              setMaxValue(0);
+              setChartType("none");
+              setChartOrder(0);
+              setChartSize("Small");
               setSelectedFile(null);
               setValidated(false);
               setRender(true);
@@ -520,6 +551,196 @@ const DetailPart = (item) => {
                 Please enter part interaction
               </Form.Control.Feedback>
             </Form.Group>
+
+            <Form.Group
+              controlId="validationChartType"
+              style={{
+                margin: "5px 10px 5px 0",
+                float: "left",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+              }}
+            >
+              <Form.Label>Chart type</Form.Label>
+
+              <Form.Select
+                onChange={(e) => {
+                  setChartType(e.target.value);
+                }}
+                required
+              >
+                <option value="none">none</option>
+                <option value="CircularProgress001">CircularProgress001</option>
+                <option value="CircularProgress003">CircularProgress003</option>
+                <option value="CircularProgress004">CircularProgress004</option>
+                <option value="Wavecircle1">Wavecircle1</option>
+                <option value="BarChart">BarChart</option>
+                <option value="BarChartTwoColumn01">BarChartTwoColumn01</option>
+                <option value="BarChartTwoColumn02">BarChartTwoColumn02</option>
+              </Form.Select>
+
+              <Form.Control.Feedback type="invalid">
+                Please enter chart type
+              </Form.Control.Feedback>
+            </Form.Group>
+            <Form.Group
+              controlId="validationChartSize"
+              style={{
+                margin: "5px 10px 5px 0",
+                float: "left",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+              }}
+            >
+              <Form.Label>Chart size</Form.Label>
+
+              <Form.Select
+                onChange={(e) => {
+                  setChartSize(e.target.value);
+                }}
+                required
+              >
+                <option value="Small">Small</option>
+                <option value="Large">Large</option>
+              </Form.Select>
+
+              <Form.Control.Feedback type="invalid">
+                Please enter chart size
+              </Form.Control.Feedback>
+            </Form.Group>
+            <Form.Group
+              controlId="validationChartOrder"
+              style={{
+                margin: "5px 10px 5px 0",
+                float: "left",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+              }}
+            >
+              <Form.Label>Chart order</Form.Label>
+
+              <Form.Control
+                type="number"
+                value={chartOrder}
+                placeholder="Chart order"
+                onChange={(e) => {
+                  setChartOrder(e.target.value);
+                }}
+                required
+              />
+
+              <Form.Control.Feedback type="invalid">
+                Please enter chart order
+              </Form.Control.Feedback>
+            </Form.Group>
+            <Form.Group
+              controlId="validationSensorName"
+              style={{
+                margin: "5px 10px 5px 0",
+                float: "left",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+              }}
+            >
+              <Form.Label>Sensor name</Form.Label>
+
+              <Form.Control
+                type="text"
+                value={sensorName}
+                placeholder="Sensor name"
+                onChange={(e) => {
+                  setSensorName(e.target.value);
+                }}
+                required
+              />
+
+              <Form.Control.Feedback type="invalid">
+                Please enter sensor name
+              </Form.Control.Feedback>
+            </Form.Group>
+            <Form.Group
+              controlId="validationUnit"
+              style={{
+                margin: "5px 10px 5px 0",
+                float: "left",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+              }}
+            >
+              <Form.Label>Unit</Form.Label>
+
+              <Form.Control
+                type="text"
+                value={unit}
+                placeholder="Unit"
+                onChange={(e) => {
+                  setUnit(e.target.value);
+                }}
+                required
+              />
+
+              <Form.Control.Feedback type="invalid">
+                Please enter unit
+              </Form.Control.Feedback>
+            </Form.Group>
+            <Form.Group
+              controlId="validationMinValue"
+              style={{
+                margin: "5px 10px 5px 0",
+                float: "left",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+              }}
+            >
+              <Form.Label>Min Value</Form.Label>
+
+              <Form.Control
+                type="number"
+                value={minValue}
+                placeholder="Min Value"
+                onChange={(e) => {
+                  setMinValue(e.target.value);
+                }}
+                required
+              />
+
+              <Form.Control.Feedback type="invalid">
+                Please enter min value
+              </Form.Control.Feedback>
+            </Form.Group>
+            <Form.Group
+              controlId="validationMaxValue"
+              style={{
+                margin: "5px 10px 5px 0",
+                float: "left",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+              }}
+            >
+              <Form.Label>Max Value</Form.Label>
+
+              <Form.Control
+                type="number"
+                value={maxValue}
+                placeholder="Max Value"
+                onChange={(e) => {
+                  setMaxValue(e.target.value);
+                }}
+                required
+              />
+
+              <Form.Control.Feedback type="invalid">
+                Please enter max value
+              </Form.Control.Feedback>
+            </Form.Group>
+
             <Form.Group
               controlId="validationDescription"
               style={{
