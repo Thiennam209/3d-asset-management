@@ -405,7 +405,7 @@ const DetailPart = (item) => {
                           setDisplayName(data?.attributes?.displayname);
                           setDescription(data?.attributes?.description);
                           setInteraction(
-                            data?.attributes?.part_interactions?.data[0]?.id
+                            data?.attributes?.part_interactions?.data[0]?.id || 1
                           );
                           setImgEdit(
                             data?.attributes?.image?.data?.attributes?.url
