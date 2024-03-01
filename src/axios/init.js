@@ -1,7 +1,7 @@
 import axios from 'axios'
 
-const urlApi = "https://holy-nature-3713b08069.strapiapp.com/api/"
-export const urlStrapi = "https://holy-nature-3713b08069.strapiapp.com"
+const urlApi = "https://aka-reality.info/api/"
+export const urlStrapi = "https://aka-reality.info"
 // //sEPNs5kDTKonk0imjvw1bQNrcxbFrN
 // export const tokenSketchfab = "Bearer Bu7HZJoHN31HqWqYDNN9hEOyTT1zDS"
 
