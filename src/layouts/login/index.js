@@ -36,7 +36,7 @@ const LoginPage = () => {
           };
           localStorage.setItem("dtvt", token);
           localStorage.setItem("info", JSON.stringify(user));
-          // window.location.reload();
+          window.location.reload();
           // setAuth(true)
         } else {
           const errors = {};
