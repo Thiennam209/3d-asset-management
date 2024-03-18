@@ -1231,6 +1231,8 @@ const DetailProduct = () => {
             </Modal>
           </Card>
         </Box>
+
+        
         {data.length !== 0 && (
           <ModalEditProduct
             showModalEditProduct={showModalEditProduct}
