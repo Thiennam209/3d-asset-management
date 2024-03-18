@@ -26,7 +26,7 @@ const DetailPart = (item) => {
   const [maxValue, setMaxValue] = useState(0);
   const [chartType, setChartType] = useState("none");
   const [chartSize, setChartSize] = useState("Small");
-  const [chartOrder, setChartOrder] = useState("0");
+  const [chartOrder, setChartOrder] = useState(0);
   const [description, setDescription] = useState("");
   const [interaction, setInteraction] = useState("");
   const [arrInteraction, setArrInteraction] = useState([]);
@@ -137,7 +137,6 @@ const DetailPart = (item) => {
       event.stopPropagation();
     }
     setValidated(true);
-
     if (
       partName &&
       displayName &&
@@ -146,7 +145,6 @@ const DetailPart = (item) => {
       unit &&
       chartType &&
       chartSize &&
-      chartOrder &&
       selectedFile
     ) {
       let dataImg = new FormData();
@@ -172,7 +170,6 @@ const DetailPart = (item) => {
             chartType: chartType,
             chartSize: chartSize,
             chartOrder: chartOrder,
-
             description: description,
             cover: false,
             image: res.data[0].id,
@@ -203,6 +200,7 @@ const DetailPart = (item) => {
               setSelectedFile(null);
               setValidated(false);
               setRender(true);
+              setDescription("");
             });
         });
     }
@@ -405,7 +403,8 @@ const DetailPart = (item) => {
                           setDisplayName(data?.attributes?.displayname);
                           setDescription(data?.attributes?.description);
                           setInteraction(
-                            data?.attributes?.part_interactions?.data[0]?.id || 1
+                            data?.attributes?.part_interactions?.data[0]?.id ||
+                              1
                           );
                           setImgEdit(
                             data?.attributes?.image?.data?.attributes?.url
@@ -436,6 +435,7 @@ const DetailPart = (item) => {
         </Modal.Body>
       </Modal>
 
+      {/* Add Part  */}
       <Modal
         show={showModalAddPart}
         onHide={handleModalAddPartClose}
@@ -806,6 +806,7 @@ const DetailPart = (item) => {
         </Modal.Footer>
       </Modal>
 
+      {/* Delete Part  */}
       <Modal
         show={showModalDeletePart}
         onHide={handleModalDeletePartClose}
@@ -850,6 +851,7 @@ const DetailPart = (item) => {
         </Modal.Footer>
       </Modal>
 
+      {/* Edit Part  */}
       <Modal
         show={showModalEditPart}
         onHide={handleModalEditPartClose}

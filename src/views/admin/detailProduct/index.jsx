@@ -1,4 +1,3 @@
-import ReactDOM from "react-dom";
 import { Box, Icon } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { http, urlStrapi } from "../../../axios/init";
@@ -33,7 +32,6 @@ const DetailProduct = () => {
   const searchParams = new URLSearchParams(location.search);
   const businessId = searchParams.get("id");
   const _productId = searchParams.get("productID");
-
   const [data, setData] = useState([]);
   const [listAsset, setListAsset] = useState([]);
   const getJWTToken = localStorage.getItem("dtvt");
@@ -66,9 +64,7 @@ const DetailProduct = () => {
   const [hasNavigated, setHasNavigated] = useState(false);
   const [tokenSket, setTokenSket] = useState("");
   const [imgQRCode, setImgQRCode] = useState("");
-
   const [qrShow, setQRShow] = useState(false);
-
   const handleModalEditProductClose = () => setShowModalEditProduct(false);
   const handleModalEditProductShow = (data) => {
     setShowModalEditProduct(true);
@@ -92,10 +88,8 @@ const DetailProduct = () => {
     setLimitedSize(false);
     animateProgress(0);
   };
-
   const handleFileChange = (event) => {
     const file = event.target.files[0];
-
     if (file && file.size > MAX_FILE_SIZE) {
       setLimitedSize(true);
       enableUploadButton(false);
@@ -103,63 +97,23 @@ const DetailProduct = () => {
       document.getElementById("file").value = "";
       return;
     }
-
     setLimitedSize(false);
     setFile(file);
-
     enableUploadButton(true);
   };
-
   const validateForm = () => {
     const errors = {};
-
     if (!nameAsset) {
       errors.nameAsset = "Please enter name model.";
     }
-
     if (!file) {
       errors.file = "Please choose file model.";
     } else if (limitedSize) {
       errors.file =
         "This file is too big to load. Please limit the file to &lt; 50MB";
     }
-
     return errors;
   };
-
-  const createQRCode = (uId) => {
-    QRCode.toDataURL("https://www.google.com/")
-      .then((url) => {
-        saveQRCode(url, uId);
-      })
-      .catch((err) => {
-        console.error(err);
-      });
-  };
-
-  const saveQRCode = (base64Data, uId) => {
-    const arrayBuffer = Uint8Array.from(atob(base64Data.split(",")[1]), (c) =>
-      c.charCodeAt(0)
-    ).buffer;
-    const formData = new FormData();
-    const fileName = "QRCode_" + uId + ".png";
-    formData.append(
-      "files",
-      new File([arrayBuffer], fileName, { type: "image/png" })
-    );
-    http
-      .post("/upload", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${getJWTToken}`,
-        },
-      })
-      .then((res) => {
-        const urlImg = `${urlStrapi}${res.data[0].url}`;
-      })
-      .catch((err) => {});
-  };
-
   const handleSubmit = async (event) => {
     const errors = validateForm();
     const form = event.currentTarget;
@@ -168,40 +122,26 @@ const DetailProduct = () => {
       event.stopPropagation();
     }
     setValidated(true);
-
     if (Object.keys(errors).length === 0) {
       setStatusUpload(true);
-
       enableUploadButton(false);
-
       const formData = new FormData();
-
       formData.append("modelFile", file);
-
       formData.append("isInspectable", true);
-
       formData.append("license", "by");
-
       try {
         const response = await axios("https://api.sketchfab.com/v3/models", {
           method: "POST",
-
           headers: { Authorization: "Bearer " + tokenSket },
-
           data: formData,
-
           onUploadProgress: (event) => {
             const { loaded, total } = event;
-
             let per = Math.floor((loaded * 100) / total);
-
             animateProgress(per);
           },
         });
-
         if (response.status === 201) {
           const uidResponse = response.data.uid;
-
           const name = file.name;
           const qrCodeOptions = {
             errorCorrectionLevel: "H",
@@ -213,7 +153,6 @@ const DetailProduct = () => {
           };
           QRCode.toDataURL(uidResponse, qrCodeOptions)
             .then((url) => {
-              // save code
               const arrayBuffer = Uint8Array.from(
                 atob(url.split(",")[1]),
                 (c) => c.charCodeAt(0)
@@ -310,25 +249,16 @@ const DetailProduct = () => {
       setErrors(errors);
     }
   };
-
   const autoPlayAll3DViewers = () => {
     var selectors = document.querySelectorAll("#api-frame");
-
     Array.from(selectors).forEach((element) => {
       var client = new Sketchfab(element);
-
       var uid = element.getAttribute("data-uid");
-
       client.init(uid, {
         success: function onSuccess(api) {
           api.start();
-
-          api.addEventListener("viewerready", function () {
-            // API is ready to use
-            // Insert your code here
-          });
+          api.addEventListener("viewerready", function () {});
         },
-
         error: function onError() {},
       });
     });
@@ -376,8 +306,6 @@ const DetailProduct = () => {
       // Đánh dấu là đã chuyển trang lần đầu
       setHasNavigated(true);
     }
-    const searchParams = new URLSearchParams(location.search);
-
     http
       .get(`/businesses?filters[businessId][$eq]=${businessId}`, {
         headers: {
@@ -387,7 +315,7 @@ const DetailProduct = () => {
       .then((res) => {
         setTokenSket(res.data.data[0].attributes.sketchfabCredentialCode);
       });
-    
+
     http
       .get(
         `products?filters[businessId][$eq]=${businessId}&filters[productId][$eq]=${productId}&populate=*`,
@@ -397,25 +325,19 @@ const DetailProduct = () => {
           },
         }
       )
-
       .then((response) => {
-        
         const objectData = response.data.data;
-
         const objectsData = [...objectData];
-
         const dataDetailProduct = objectsData[0];
         getAssetsID(dataDetailProduct);
         setData([dataDetailProduct]);
-
         setModelQuatity(response.data.data[0].attributes.assets.data.length);
         if (objectsData.length !== 0) {
-          const   objectsDataListAssest =
+          const objectsDataListAssest =
             dataDetailProduct.attributes.assets.data;
           setListAsset(objectsDataListAssest);
           objectsDataListAssest.forEach((item, index) => {
             updateStatusIsPublish(item.id, item.attributes.isPublished);
-
             if (item.attributes.thumbnail === "null") {
               const timestamp = new Date().getTime();
               axios(
@@ -429,30 +351,24 @@ const DetailProduct = () => {
               )
                 .then((repo) => {
                   const assetId = item.id;
-
                   const imageURL = repo.data.thumbnails.images[2].url;
-
                   if (repo.data.status.processing === "SUCCEEDED") {
                     var dataRequest = {
                       data: {
                         thumbnail: imageURL,
                       },
                     };
-
                     http
                       .put(`/assets/${assetId}`, dataRequest, {
                         headers: {
                           Authorization: `Bearer ${getJWTToken}`,
                         },
                       })
-
                       .then((responseAsset) => {
                         setUpdateAsset(true);
                       })
-
                       .catch((err) => err);
                   }
-
                   if (repo.data.status.processing === "FAILED") {
                     deleteModelFailed(item.id, item.attributes.assetUID);
                   }
@@ -463,7 +379,6 @@ const DetailProduct = () => {
                 `https://api.sketchfab.com/v3/models/${item.attributes.assetUID}`,
                 {
                   method: "GET",
-
                   headers: {
                     Authorization: "Bearer " + tokenSket,
                   },
@@ -471,29 +386,23 @@ const DetailProduct = () => {
               )
                 .then((repo) => {
                   const assetId = item.id;
-
                   const imageURL = repo.data.thumbnails.images[2].url;
-
                   if (item.attributes.thumbnail !== imageURL) {
                     var dataRequest = {
                       data: {
                         thumbnail: imageURL,
-
                         status: "true",
                       },
                     };
-
                     http
                       .put(`/assets/${assetId}`, dataRequest, {
                         headers: {
                           Authorization: `Bearer ${getJWTToken}`,
                         },
                       })
-
                       .then((responseAsset) => {
                         setUpdateAsset(true);
                       })
-
                       .catch((err) => err);
                   }
                 })
@@ -503,7 +412,6 @@ const DetailProduct = () => {
           });
         }
       })
-
       .catch((err) => err);
 
     autoPlayAll3DViewers();
@@ -520,39 +428,27 @@ const DetailProduct = () => {
       return true;
     } else return false;
   };
-
   const getAssetsID = (item) => {
     let arrayId = [];
     item.attributes.assets.data.forEach((value, index) => {
       arrayId.push(value.id);
     });
-
     setArrayAssetId(arrayId);
   };
   const onShow = () => {
     var selector = document.getElementById("api-frame-detail");
-
     var client = new Sketchfab(selector);
-
     var uid = selector.getAttribute("data-uid");
-
     client.init(uid, {
       success: function onSuccess(api) {
         api.start();
-
-        api.addEventListener("viewerready", function () {
-          // API is ready to use
-          // Insert your code here
-        });
+        api.addEventListener("viewerready", function () {});
       },
-
       error: function onError() {},
     });
   };
-
   const onClickDetailAsset = (value) => {
     setLgShow(true);
-
     setUID(value);
   };
   if (successMessageEdit) {
@@ -570,17 +466,14 @@ const DetailProduct = () => {
       setSuccessMessageDelete(null);
     }, 3000);
   }
-
   const [isLoadingMap, setIsLoadingMap] = useState({});
   const [isStatusPublish, setIsStatusPublish] = useState({});
-
   const updateStatusIsPublish = (itemId, isPublish) => {
     setIsStatusPublish((prevMap) => ({
       ...prevMap,
       [itemId]: isPublish,
     }));
   };
-
   // Hàm để cập nhật trạng thái isLoading cho một mục cụ thể
   const updateLoadingState = (itemId, isLoading) => {
     setIsLoadingMap((prevMap) => ({
@@ -588,7 +481,6 @@ const DetailProduct = () => {
       [itemId]: isLoading,
     }));
   };
-
   const changeStatus = async (id, sta) => {
     updateLoadingState(id, true);
     var dataRequest = {
@@ -596,27 +488,22 @@ const DetailProduct = () => {
         isPublished: sta,
       },
     };
-
     http
       .put(`/assets/${id}`, dataRequest, {
         headers: {
           Authorization: `Bearer ${getJWTToken}`,
         },
       })
-
       .then((responseAsset) => {
         updateLoadingState(id, false);
         updateStatusIsPublish(id, sta);
       })
-
       .catch((err) => err);
   };
-
   const ShowQRCode = (url) => {
     setImgQRCode(url);
     if (url) setQRShow(true);
   };
-
   if (
     businessId !== null &&
     businessId !== "" &&
@@ -691,7 +578,6 @@ const DetailProduct = () => {
             {successMessageDelete}
           </Alert>
         )}
-
         <Box pt={{ base: "180px", md: "80px", xl: "80px" }}>
           {data.map((item, index) => (
             <Card
@@ -728,7 +614,6 @@ const DetailProduct = () => {
                     >
                       {item?.attributes?.title}
                     </Card.Title>
-
                     <Card.Text
                       style={{ margin: "16px 0px 8px 0px", color: "#6C757D" }}
                     >
@@ -829,7 +714,7 @@ const DetailProduct = () => {
               </Card.Body>
             </Card>
           ))}
-
+          {/* Load Scene 3d assets  */}
           <Card.Title
             style={{
               margin: "69px 0px 38px 10px ",
@@ -840,7 +725,6 @@ const DetailProduct = () => {
           >
             3D Models
           </Card.Title>
-
           <Card style={{ margin: "30px 10px" }}>
             <Card.Body>
               <div

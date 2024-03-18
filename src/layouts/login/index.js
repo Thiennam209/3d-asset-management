@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
-import { Container, Form, Button } from "react-bootstrap";
+import React, { useState } from "react";
+import { Spinner, Form, Button } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { http } from "../../axios/init";
-import { Flex, useColorModeValue } from "@chakra-ui/react";
+import { Flex } from "@chakra-ui/react";
 import logoFPT from "../../assets/img/showroom_pic1.png";
 import { Link } from "react-router-dom";
 import { MDBIcon } from "mdbreact";
@@ -12,8 +12,7 @@ const LoginPage = () => {
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({});
   const [validated, setValidated] = useState(false);
-
-  // const [auth, setAuth] = useState(false)
+  const [loading, setLoading] = useState(false);
 
   const postAPILogin = () => {
     http
@@ -22,29 +21,26 @@ const LoginPage = () => {
         password: password,
       })
       .then((response) => {
-        if (
-          response.status === 200 &&
-          response.data.user.userType === "3dcms"
-        ) {
+        if (response.status === 200) {
           const token = response.data.jwt;
           const user = {
             username: response.data.user.username,
             email: response.data.user.email,
             businessId: response.data.user.businessId,
             userType: response.data.user.userType,
-            roles : response.data.user.roles
+            roles: response.data.user.roles,
           };
           localStorage.setItem("dtvt", token);
           localStorage.setItem("info", JSON.stringify(user));
-          window.location.reload();
-          // setAuth(true)
+          setLoading(false);
+          window.location.replace("/");
         } else {
           const errors = {};
           errors.author = "This email doesn't have access rights";
           setErrors(errors);
           setEmail("");
           setPassword("");
-          // setAuth(false)
+          setLoading(false);
         }
       })
       .catch((error) => {
@@ -53,6 +49,7 @@ const LoginPage = () => {
         setErrors(errors);
         setEmail("");
         setPassword("");
+        setLoading(false);
       });
   };
 
@@ -73,6 +70,7 @@ const LoginPage = () => {
   };
 
   const handleLogin = (event) => {
+    event.preventDefault();
     const errors = validateForm();
     const form = event.currentTarget;
     if (form.checkValidity() === false) {
@@ -82,6 +80,7 @@ const LoginPage = () => {
     setValidated(true);
     if (email && password) {
       // Xử lý khi biểu mẫu hợp lệ
+      setLoading(true);
       postAPILogin();
     } else {
       // Hiển thị thông báo lỗi
@@ -101,7 +100,7 @@ const LoginPage = () => {
         <Flex align="center" direction="column">
           <img
             src={logoFPT}
-            alt="image"
+            alt="logo"
             style={{ width: "50%", padding: "30px" }}
           />
         </Flex>
@@ -137,7 +136,6 @@ const LoginPage = () => {
             <Form.Control.Feedback type="invalid">
               {errors.email}
             </Form.Control.Feedback>
-            {/* {errors.email && <div>{errors.email}</div>} */}
           </Form.Group>
 
           <Form.Group
@@ -155,8 +153,6 @@ const LoginPage = () => {
             <Form.Control.Feedback type="invalid">
               {errors.password}
             </Form.Control.Feedback>
-
-            {/* {errors.password && <div>{errors.password}</div>} */}
           </Form.Group>
 
           <Form.Group
@@ -176,6 +172,7 @@ const LoginPage = () => {
             type="submit"
             block
             onClick={handleLogin}
+            disabled={loading}
             style={{
               backgroundColor: "#007bff",
               borderColor: "#007bff",
@@ -183,7 +180,14 @@ const LoginPage = () => {
               width: "100%",
             }}
           >
-            Sign in
+            Sign in{" "}
+            {loading && (
+              <Spinner
+                animation="border"
+                size="sm"
+                style={{ verticalAlign: "middle" }}
+              />
+            )}
           </Button>
 
           <Button
